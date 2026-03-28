@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crystal Structures — VR</title>
+<style>
+:root {
+  --bg:#0a0a0c; --surface:#131316; --border:#2a2a35; --text:#c8c8d0;
+  --text-dim:#6a6a78; --accent:#c4826e;
+  --mono:'IBM Plex Mono','Consolas',monospace; --sans:'IBM Plex Sans','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden;width:100%;height:100%;}
+
+#hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+
+#panel{position:absolute;top:16px;left:16px;width:220px;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);}
+#panel h2{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:-.3px;}
+#panel .subtitle{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;}
+#panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:10px 0 5px;}
+#panel h3:first-of-type{margin-top:4px;}
+
+.struct-list{display:flex;flex-direction:column;gap:2px;}
+.struct-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--mono);text-align:left;transition:all .15s;}
+.struct-btn:hover{border-color:var(--accent);color:var(--text);}
+.struct-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(196,130,110,.1);}
+.struct-btn .formula{font-size:9px;color:var(--text-dim);margin-left:4px;}
+
+label.opt{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px 0;}
+label.opt:hover{color:#fff;}
+label.opt input{accent-color:var(--accent);}
+
+.slider-row{display:flex;align-items:center;gap:6px;font-size:10px;font-family:var(--mono);padding:2px 0;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
+.slider-row .val{min-width:28px;text-align:right;color:var(--text);}
+
+#info-panel{position:absolute;top:16px;right:16px;width:260px;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);display:none;}
+#info-panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:0 0 6px;}
+#info-name{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px;}
+#info-formula{font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-bottom:6px;}
+#info-system{font-size:10px;font-family:var(--mono);color:var(--text-dim);}
+#info-details{font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:8px;font-family:var(--mono);}
+#info-details .row{display:flex;justify-content:space-between;}
+#info-details .label{color:var(--text-dim);}
+#info-details .value{color:var(--text);font-weight:600;}
+#atom-info{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);display:none;}
+#atom-info h3{margin-bottom:4px;}
+#atom-info .atom-detail{font-size:11px;font-family:var(--mono);color:var(--text);line-height:1.6;}
+
+#legend{position:absolute;bottom:16px;left:16px;background:rgba(10,10,12,.88);border:1px solid var(--border);border-radius:6px;padding:8px 12px;pointer-events:none;backdrop-filter:blur(8px);}
+#legend h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin-bottom:4px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;font-family:var(--mono);color:var(--text-dim);padding:1px 0;}
+.legend-swatch{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.15);}
+
+#loading{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:200;flex-direction:column;gap:12px;}
+#loading-text{font-size:13px;color:var(--text-dim);font-family:var(--mono);}
+#loading-bar{width:280px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+#loading-fill{height:100%;background:var(--accent);width:0%;transition:width .3s;}
+
+#stats{position:absolute;bottom:16px;right:16px;font-family:var(--mono);font-size:10px;color:var(--text-dim);pointer-events:none;text-align:right;}
+
+/* ── Phase 2: Firing Journey ────────────────────────── */
+#temp-panel{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:10px 18px;pointer-events:all;backdrop-filter:blur(8px);display:flex;align-items:center;gap:14px;min-width:520px;}
+#temp-readout{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);min-width:75px;text-align:right;letter-spacing:-.5px;}
+#temp-readout small{font-size:11px;font-weight:400;color:var(--text-dim);}
+#temp-slider{flex:1;accent-color:var(--accent);height:6px;cursor:pointer;}
+#phase-badge{font-family:var(--mono);font-size:11px;color:#fff;background:rgba(196,130,110,.18);border:1px solid var(--accent);border-radius:4px;padding:3px 8px;min-width:120px;text-align:center;white-space:nowrap;}
+
+#phase-narrative{position:absolute;top:50%;right:290px;transform:translateY(-50%);background:rgba(10,10,12,.88);border-left:2px solid var(--accent);padding:10px 14px;max-width:280px;border-radius:0 6px 6px 0;backdrop-filter:blur(8px);pointer-events:none;display:none;transition:opacity .4s;}
+#phase-narrative .phase-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
+#phase-narrative .phase-range{font-size:10px;font-family:var(--mono);color:var(--accent);margin-bottom:4px;}
+#phase-narrative .phase-desc{font-size:11px;color:var(--text-dim);line-height:1.5;}
+
+#milestone-bar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);pointer-events:none;width:520px;height:20px;}
+.milestone-marker{position:absolute;font-family:var(--mono);font-size:8px;color:var(--text-dim);text-align:center;transform:translateX(-50%);white-space:nowrap;transition:color .3s;}
+.milestone-marker.active{color:var(--accent);}
+.milestone-marker::after{content:'';display:block;width:1px;height:6px;background:var(--border);margin:1px auto 0;}
+
+/* ── Phase 3: Spatial Understanding ─────────────────────── */
+#slice-controls{padding-left:18px;}
+#slice-controls select{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:10px;font-family:var(--mono);padding:1px 4px;}
+.measure-item{font-size:10px;font-family:var(--mono);color:var(--text);padding:1px 0;}
+.measure-item b{color:var(--accent);}
+#measure-list{max-height:80px;overflow-y:auto;padding:2px 0;}
+.btn-small{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:3px;font-size:10px;font-family:var(--mono);cursor:pointer;margin-top:3px;}
+.btn-small:hover{border-color:var(--accent);color:var(--text);}
+.btn-mode{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--mono);transition:all .15s;margin-top:4px;width:100%;text-align:left;}
+.btn-mode:hover{border-color:var(--accent);color:var(--text);}
+.btn-mode.active{border-color:var(--accent);color:var(--accent);background:rgba(196,130,110,.1);}
+
+/* ── Phase 4: Compare / Dual-track / Bridges / Melt ───────── */
+#compare-panel{position:absolute;top:16px;left:250px;width:190px;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:10px 12px;pointer-events:all;backdrop-filter:blur(8px);display:none;}
+#compare-panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#6ea5c4;margin:0 0 5px;}
+#compare-panel .struct-btn.active{border-color:#6ea5c4;color:#6ea5c4;background:rgba(110,165,196,.1);}
+.bridge-legend{margin-top:4px;}
+.bridge-legend .legend-item{font-size:9px;}
+.bridge-swatch{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+#dual-tracks{display:flex;gap:8px;font-size:9px;font-family:var(--mono);color:var(--text-dim);margin-top:4px;}
+#dual-tracks .track{padding:3px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;flex:1;text-align:center;}
+#dual-tracks .track.active{border-color:var(--accent);color:var(--text);}
+#melt-controls{margin-top:4px;}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div id="loading-text">Loading crystal data…</div>
+  <div id="loading-bar"><div id="loading-fill"></div></div>
+</div>
+
+<div id="hud">
+  <div id="panel">
+    <h2>Crystal Structures</h2>
+    <div class="subtitle">Atomic-level ceramic viewer</div>
+    <h3>Structures</h3>
+    <div id="struct-list" class="struct-list"></div>
+    <h3>Display</h3>
+    <label class="opt"><input type="checkbox" id="chk-bonds" checked> Show bonds</label>
+    <label class="opt"><input type="checkbox" id="chk-cell" checked> Show unit cell</label>
+    <label class="opt"><input type="checkbox" id="chk-labels"> Atom labels</label>
+    <div class="slider-row">
+      <span>Scale</span>
+      <input type="range" id="sl-scale" min="0.3" max="3" step="0.05" value="1">
+      <span class="val" id="sl-scale-val">1.0</span>
+    </div>
+    <div class="slider-row">
+      <span>Atom</span>
+      <input type="range" id="sl-atom" min="0.1" max="2" step="0.05" value="0.6">
+      <span class="val" id="sl-atom-val">0.6</span>
+    </div>
+    <button class="btn-mode" id="btn-color-mode">Color: Element</button>
+    <h3>Firing</h3>
+    <label class="opt"><input type="checkbox" id="chk-firing"> Firing mode</label>
+    <label class="opt"><input type="checkbox" id="chk-vibration" checked> Thermal vibration</label>
+    <h3>Spatial</h3>
+    <label class="opt"><input type="checkbox" id="chk-polyhedra"> Coordination polyhedra</label>
+    <label class="opt"><input type="checkbox" id="chk-slice"> Slice plane</label>
+    <div id="slice-controls" style="display:none">
+      <div class="slider-row">
+        <select id="sl-slice-axis"><option value="x">X</option><option value="y" selected>Y</option><option value="z">Z</option></select>
+        <input type="range" id="sl-slice" min="0" max="1" step="0.01" value="1">
+      </div>
+    </div>
+    <label class="opt"><input type="checkbox" id="chk-measure"> Measure mode</label>
+    <div id="measure-list" style="display:none"><div style="color:var(--text-dim);font-size:10px">Click two atoms to measure</div></div>
+    <button class="btn-small" id="btn-clear-measure" style="display:none">Clear measurements</button>
+    <label class="opt"><input type="checkbox" id="chk-symmetry"> Symmetry axes</label>
+    <label class="opt"><input type="checkbox" id="chk-layers"> Layer highlight</label>
+    <label class="opt"><input type="checkbox" id="chk-scaleref"> Scale reference</label>
+    <h3>Phase 4: Chemistry</h3>
+    <label class="opt"><input type="checkbox" id="chk-compare"> Side-by-side compare</label>
+    <label class="opt"><input type="checkbox" id="chk-dual-track"> Dual-track firing</label>
+    <div id="dual-tracks" style="display:none">
+      <div class="track active" id="track-clay">Clay body</div>
+      <div class="track" id="track-glaze">Glaze</div>
+    </div>
+    <label class="opt"><input type="checkbox" id="chk-bridges"> Oxygen bridges</label>
+    <div class="bridge-legend" id="bridge-legend" style="display:none">
+      <div class="legend-item"><span class="bridge-swatch" style="background:#ff6644"></span>Bridging (Si-O-Si)</div>
+      <div class="legend-item"><span class="bridge-swatch" style="background:#44aaff"></span>Non-bridging (M⁺…O⁻)</div>
+      <div class="legend-item"><span class="bridge-swatch" style="background:#88ff44"></span>Free oxygen</div>
+    </div>
+    <label class="opt"><input type="checkbox" id="chk-melt"> Melt progression</label>
+    <div id="melt-controls" style="display:none">
+      <div class="slider-row">
+        <span>Melt</span>
+        <input type="range" id="sl-melt" min="0" max="1" step="0.01" value="0">
+        <span class="val" id="sl-melt-val">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="compare-panel">
+    <h3>Compare Structure</h3>
+    <div id="compare-list" class="struct-list"></div>
+  </div>
+
+  <div id="info-panel">
+    <h3>Structure Info</h3>
+    <div id="info-name"></div>
+    <div id="info-formula"></div>
+    <div id="info-system"></div>
+    <div id="info-details"></div>
+    <div id="atom-info">
+      <h3>Selected Atom</h3>
+      <div class="atom-detail" id="atom-detail"></div>
+    </div>
+  </div>
+
+  <div id="legend"></div>
+
+  <div id="temp-panel" style="display:none">
+    <div id="temp-readout">20<small>°C</small></div>
+    <input type="range" id="temp-slider" min="20" max="1500" step="1" value="20">
+    <div id="phase-badge">Drying</div>
+  </div>
+  <div id="milestone-bar" style="display:none"></div>
+  <div id="phase-narrative"><div class="phase-name"></div><div class="phase-range"></div><div class="phase-desc"></div></div>
+
+  <div id="stats"></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three":           "https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js",
+    "three/addons/":   "https://cdn.jsdelivr.net/npm/three@0.167.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls }            from 'three/addons/controls/OrbitControls.js';
+import { VRButton }                 from 'three/addons/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+import { ConvexGeometry }            from 'three/addons/geometries/ConvexGeometry.js';
+
+// ── Constants ───────────────────────────────────────────────
+const DATA_URL = "data/crystal_vr.json";
+const ATOM_SEGMENTS = 24;
+const BOND_SEGMENTS = 8;
+const BOND_RADIUS = 0.06;
+const DISSOLVE_MS = 600;
+
+// ── State ───────────────────────────────────────────────────
+let scene, camera, renderer, controls, clock;
+let crystalGroup;   // holds all crystal geometry — transform target
+let data = null;    // loaded JSON
+let currentIdx = 0;
+let atomScale = 0.6;
+let worldScale = 1.0;
+let showBonds = true, showCell = true, showLabels = false;
+
+// Rendering objects
+let atomMeshes = [];      // one InstancedMesh per element type
+let bondMesh = null;       // single InstancedMesh for all bonds
+let cellLine = null;       // LineSegments for unit cell wireframe
+let labelSprites = [];     // atom label sprites
+
+// Selection
+let selectedAtom = -1;
+let highlightMesh = null;  // wireframe sphere overlay
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2(-999, -999);
+
+// VR
+let vrControllers = [];
+let vrRaycaster = new THREE.Raycaster();
+let vrGripState = [false, false];
+let vrGripPrev = [new THREE.Vector3(), new THREE.Vector3()];
+let vrPrevGripDist = 0;
+
+// Dissolve transition
+let dissolving = false;
+let dissolveStart = 0;
+let dissolveFromIdx = -1;
+let dissolveToIdx = -1;
+
+// ── Phase 2: Firing state ───────────────────────────────────
+let firingMode = false;
+let thermalVibration = true;
+let currentTemp = 20;
+let firingPhases = [];           // loaded from JSON
+let currentPhaseIdx = -1;        // which firing phase we're in
+let atomBasicPositions = [];     // base positions for vibration
+let atomMasses = [];             // mass per atom for vibration weighting
+
+// ── Phase 3: Spatial Understanding ──────────────────────────
+let showPolyhedra = false;
+let polyhedraMeshes = [];          // translucent convex hull meshes
+let sliceEnabled = false;
+let sliceAxis = 'y';
+let slicePosition = 1.0;           // 1 = nothing clipped
+let slicePlaneMesh = null;
+let sliceClipPlane = new THREE.Plane();
+let measureMode = false;
+let measureFirst = -1;
+let measurements = [];             // [{line, label, idx1, idx2, dist}]
+let showSymmetry = false;
+let symmetryMeshes = [];
+let highlightLayers = false;
+let layerPulseTime = 0;
+let showScaleRef = false;
+let scaleRefGroup = null;
+
+// ── Phase 4: Color Modes ─────────────────────────────────────
+let colorMode = 'element'; // 'element' | 'stull-roles'
+
+// ── Phase 4: Side-by-side Compare ────────────────────────────
+let compareMode = false;
+let compareIdx = -1;            // structure index for right-side crystal
+let compareGroup = null;        // THREE.Group for comparison crystal
+let compareAtomMeshes = [];
+let compareBondMesh = null;
+let compareCellLine = null;
+let compareLabelSprites = [];
+const COMPARE_OFFSET = 18;     // distance between the two crystals
+
+// ── Phase 4: Dual-track Firing ───────────────────────────────
+let dualTrackMode = false;
+const clayTrack = [
+  { min: 20,   max: 100,  structure: 'Kaolinite',      phase: 'Drying' },
+  { min: 100,  max: 200,  structure: 'Kaolinite',      phase: 'Water Smoking' },
+  { min: 200,  max: 600,  structure: 'Kaolinite',      phase: 'Dehydroxylation' },
+  { min: 600,  max: 800,  structure: 'α-Quartz',       phase: 'Quartz Inversion' },
+  { min: 800,  max: 950,  structure: 'Spinel',          phase: 'Ceramic Change' },
+  { min: 950,  max: 1100, structure: 'Mullite',         phase: 'Mullite Formation' },
+  { min: 1100, max: 1500, structure: 'Mullite',         phase: 'Vitrification' },
+];
+const glazeTrack = [
+  { min: 20,   max: 573,  structure: 'Orthoclase',     phase: 'Raw Glaze' },
+  { min: 573,  max: 800,  structure: 'Albite',          phase: 'Feldspar Mix' },
+  { min: 800,  max: 1050, structure: 'Nepheline',       phase: 'Sintering' },
+  { min: 1050, max: 1200, structure: 'Wollastonite',    phase: 'Eutectic Melt' },
+  { min: 1200, max: 1500, structure: 'β-Cristobalite',  phase: 'Glass Formation' },
+];
+let dualClayIdx = -1;
+let dualGlazeIdx = -1;
+
+// ── Phase 4: Oxygen Bridge Visualization ─────────────────────
+let showBridges = false;
+let bridgeMeshes = [];          // highlight meshes for bridge visualization
+
+// ── Phase 4: Melt Progression ────────────────────────────────
+let meltMode = false;
+let meltProgress = 0;           // 0 = crystalline, 1 = fully melted
+let meltBasePositions = [];     // original positions
+let meltTargetPositions = [];   // randomized (melted) positions
+let meltBrokenBonds = [];       // which bonds are broken at current progress
+
+// Geometry cache (shared across structures)
+const sphereGeoCache = {};  // radius → SphereGeometry
+const bondGeo = new THREE.CylinderGeometry(BOND_RADIUS, BOND_RADIUS, 1, BOND_SEGMENTS);
+bondGeo.translate(0, 0.5, 0);  // pivot at bottom
+bondGeo.rotateX(Math.PI / 2);  // align along Z for lookAt
+
+// Stull network role color map
+const STULL_ROLE_COLORS = {
+  Si: 0x4a90d9, P: 0x4a90d9, B: 0x4a90d9,               // glass-formers
+  Al: 0x5a9e5a, Fe: 0x5a9e5a, Ti: 0x5a9e5a, Zr: 0x5a9e5a, // intermediates
+  Na: 0xe07040, K: 0xe07040, Li: 0xe07040,               // alkali flux
+  Ca: 0xd06050, Mg: 0xd06050, Ba: 0xd06050, Sr: 0xd06050, Zn: 0xd06050, // alk-earth flux
+};
+const STULL_ROLE_META = [
+  { label: 'Glass-former', color: '#4a90d9', elems: ['Si','P','B'] },
+  { label: 'Intermediate', color: '#5a9e5a', elems: ['Al','Fe','Ti','Zr'] },
+  { label: 'Alkali flux',  color: '#e07040', elems: ['Na','K','Li'] },
+  { label: 'AE flux',      color: '#d06050', elems: ['Ca','Mg','Ba','Sr','Zn'] },
+];
+
+// Element colors from data (populated after load)
+let elemColors = {};
+let elemRadii = {};
+let bondColors = {};
+
+function getAtomColor(elem) {
+  if (colorMode === 'stull-roles' && STULL_ROLE_COLORS[elem] !== undefined) {
+    return new THREE.Color(STULL_ROLE_COLORS[elem]);
+  }
+  return elemColors[elem] ? elemColors[elem].clone() : new THREE.Color(0xcccccc);
+}
+
+function applyColorMode() {
+  atomMeshes.forEach(mesh => {
+    const elem = mesh.userData.element;
+    if (!elem) return;
+    const col = getAtomColor(elem);
+    mesh.material.color.copy(col);
+    mesh.material.emissive.copy(col).multiplyScalar(0.08);
+    mesh.material.needsUpdate = true;
+  });
+  buildLegend();
+}
+
+// ── Init ────────────────────────────────────────────────────
+async function init() {
+  clock = new THREE.Clock();
+
+  // Scene
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0a0c);
+  scene.fog = new THREE.FogExp2(0x0a0a0c, 0.015);
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 500);
+  camera.position.set(0, 8, 20);
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.xr.enabled = true;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  document.body.appendChild(renderer.domElement);
+
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 0, 0);
+  controls.minDistance = 2;
+  controls.maxDistance = 80;
+
+  // Crystal group (all geometry lives here, VR grab transforms this)
+  crystalGroup = new THREE.Group();
+  scene.add(crystalGroup);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambient);
+  const dir1 = new THREE.DirectionalLight(0xffffff, 1.0);
+  dir1.position.set(10, 15, 10);
+  scene.add(dir1);
+  const dir2 = new THREE.DirectionalLight(0x8899cc, 0.4);
+  dir2.position.set(-8, 5, -10);
+  scene.add(dir2);
+  const hemi = new THREE.HemisphereLight(0x334466, 0x112233, 0.3);
+  scene.add(hemi);
+
+  // Highlight mesh (wireframe sphere for selection)
+  highlightMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.6 })
+  );
+  highlightMesh.visible = false;
+  crystalGroup.add(highlightMesh);
+
+  // Events
+  window.addEventListener('resize', onResize);
+  renderer.domElement.addEventListener('pointermove', onPointerMove);
+  renderer.domElement.addEventListener('click', onPointerClick);
+
+  // Load data
+  await loadData();
+
+  // VR
+  setupVR();
+
+  // Start loop
+  renderer.setAnimationLoop(animate);
+}
+
+// ── Data Loading ────────────────────────────────────────────
+async function loadData() {
+  const loadingFill = document.getElementById('loading-fill');
+  loadingFill.style.width = '30%';
+
+  const resp = await fetch(DATA_URL);
+  data = await resp.json();
+  loadingFill.style.width = '70%';
+
+  // Parse element metadata
+  for (const [sym, info] of Object.entries(data.elements)) {
+    const c = info.color;
+    elemColors[sym] = new THREE.Color(c[0], c[1], c[2]);
+    elemRadii[sym] = info.radius;
+  }
+
+  // Parse bond colors
+  for (const [pair, c] of Object.entries(data.bondColors)) {
+    bondColors[pair] = new THREE.Color(c[0], c[1], c[2]);
+  }
+
+  // Firing phases
+  firingPhases = data.firingPhases || [];
+
+  // Build UI
+  buildStructureList();
+  loadingFill.style.width = '90%';
+
+  // Build first structure
+  buildCrystal(0);
+  updateInfoPanel();
+  buildLegend();
+
+  loadingFill.style.width = '100%';
+  setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 300);
+}
+
+// ── UI ──────────────────────────────────────────────────────
+function buildStructureList() {
+  const container = document.getElementById('struct-list');
+  container.innerHTML = '';
+  data.structures.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'struct-btn' + (i === 0 ? ' active' : '');
+    btn.innerHTML = `${s.name} <span class="formula">${s.formula}</span>`;
+    btn.addEventListener('click', () => switchStructure(i));
+    container.appendChild(btn);
+  });
+
+  // Wire up controls
+  document.getElementById('chk-bonds').addEventListener('change', e => {
+    showBonds = e.target.checked;
+    if (bondMesh) bondMesh.visible = showBonds;
+  });
+  document.getElementById('chk-cell').addEventListener('change', e => {
+    showCell = e.target.checked;
+    if (cellLine) cellLine.visible = showCell;
+  });
+  document.getElementById('chk-labels').addEventListener('change', e => {
+    showLabels = e.target.checked;
+    if (showLabels && labelSprites.length === 0 && data) buildLabels(data.structures[currentIdx]);
+    labelSprites.forEach(s => { s.visible = showLabels; });
+  });
+  document.getElementById('sl-scale').addEventListener('input', e => {
+    worldScale = parseFloat(e.target.value);
+    document.getElementById('sl-scale-val').textContent = worldScale.toFixed(1);
+    crystalGroup.scale.setScalar(worldScale);
+  });
+  document.getElementById('sl-atom').addEventListener('input', e => {
+    atomScale = parseFloat(e.target.value);
+    document.getElementById('sl-atom-val').textContent = atomScale.toFixed(1);
+    updateAtomScales();
+  });
+
+  // ── Firing mode controls ──
+  document.getElementById('chk-firing').addEventListener('change', e => {
+    firingMode = e.target.checked;
+    document.getElementById('temp-panel').style.display = firingMode ? 'flex' : 'none';
+    document.getElementById('milestone-bar').style.display = firingMode ? 'block' : 'none';
+    document.getElementById('phase-narrative').style.display = firingMode ? 'block' : 'none';
+    if (firingMode) {
+      buildMilestoneBar();
+      setTemperature(currentTemp);
+    } else {
+      document.getElementById('phase-narrative').style.display = 'none';
+    }
+  });
+  document.getElementById('chk-vibration').addEventListener('change', e => {
+    thermalVibration = e.target.checked;
+    if (!thermalVibration) resetAtomPositions(); // snap back to base
+  });
+  document.getElementById('temp-slider').addEventListener('input', e => {
+    setTemperature(parseInt(e.target.value));
+  });
+
+  // ── Phase 3: Spatial controls ──
+  document.getElementById('chk-polyhedra').addEventListener('change', e => {
+    showPolyhedra = e.target.checked;
+    if (showPolyhedra) buildPolyhedra(); else clearPolyhedra();
+  });
+  document.getElementById('chk-slice').addEventListener('change', e => {
+    sliceEnabled = e.target.checked;
+    document.getElementById('slice-controls').style.display = sliceEnabled ? 'block' : 'none';
+    updateSlicePlane();
+  });
+  document.getElementById('sl-slice').addEventListener('input', e => {
+    slicePosition = parseFloat(e.target.value);
+    updateSlicePlane();
+  });
+  document.getElementById('sl-slice-axis').addEventListener('change', e => {
+    sliceAxis = e.target.value;
+    updateSlicePlane();
+  });
+  document.getElementById('chk-measure').addEventListener('change', e => {
+    measureMode = e.target.checked;
+    measureFirst = -1;
+    document.getElementById('measure-list').style.display = measureMode ? 'block' : 'none';
+    document.getElementById('btn-clear-measure').style.display = measureMode ? 'block' : 'none';
+    if (!measureMode) deselectAtom();
+  });
+  document.getElementById('btn-clear-measure').addEventListener('click', clearMeasurements);
+  document.getElementById('chk-symmetry').addEventListener('change', e => {
+    showSymmetry = e.target.checked;
+    if (showSymmetry) buildSymmetry(); else clearSymmetry();
+  });
+  document.getElementById('chk-layers').addEventListener('change', e => {
+    highlightLayers = e.target.checked;
+    layerPulseTime = 0;
+    if (!highlightLayers) resetLayerColors();
+  });
+  document.getElementById('chk-scaleref').addEventListener('change', e => {
+    showScaleRef = e.target.checked;
+    if (showScaleRef) buildScaleReference(); else clearScaleReference();
+  });
+  document.getElementById('btn-color-mode').addEventListener('click', () => {
+    colorMode = colorMode === 'element' ? 'stull-roles' : 'element';
+    const btn = document.getElementById('btn-color-mode');
+    btn.textContent = colorMode === 'stull-roles' ? 'Color: Stull Roles ✓' : 'Color: Element';
+    btn.classList.toggle('active', colorMode === 'stull-roles');
+    applyColorMode();
+  });
+
+  // ── Phase 4: Compare mode ──
+  document.getElementById('chk-compare').addEventListener('change', e => {
+    compareMode = e.target.checked;
+    document.getElementById('compare-panel').style.display = compareMode ? 'block' : 'none';
+    if (compareMode) {
+      buildCompareList();
+      if (compareIdx < 0) {
+        // Default: pick a contrasting structure
+        const defaultCompare = currentIdx === 0 ? 3 : 0; // quartz vs cristobalite
+        switchCompare(defaultCompare);
+      }
+    } else {
+      clearCompare();
+      // Re-center main crystal
+      crystalGroup.position.x = 0;
+    }
+  });
+
+  // ── Phase 4: Dual-track firing ──
+  document.getElementById('chk-dual-track').addEventListener('change', e => {
+    dualTrackMode = e.target.checked;
+    document.getElementById('dual-tracks').style.display = dualTrackMode ? 'flex' : 'none';
+    if (dualTrackMode) {
+      // Enable firing mode + compare mode automatically
+      if (!firingMode) {
+        firingMode = true;
+        document.getElementById('chk-firing').checked = true;
+        document.getElementById('temp-panel').style.display = 'flex';
+        document.getElementById('milestone-bar').style.display = 'block';
+        buildMilestoneBar();
+      }
+      if (!compareMode) {
+        compareMode = true;
+        document.getElementById('chk-compare').checked = true;
+        document.getElementById('compare-panel').style.display = 'block';
+        buildCompareList();
+      }
+      updateDualTrack();
+    }
+  });
+
+  // ── Phase 4: Oxygen bridges ──
+  document.getElementById('chk-bridges').addEventListener('change', e => {
+    showBridges = e.target.checked;
+    document.getElementById('bridge-legend').style.display = showBridges ? 'block' : 'none';
+    if (showBridges) buildBridgeVisualization(); else clearBridgeVisualization();
+  });
+
+  // ── Phase 4: Melt progression ──
+  document.getElementById('chk-melt').addEventListener('change', e => {
+    meltMode = e.target.checked;
+    document.getElementById('melt-controls').style.display = meltMode ? 'block' : 'none';
+    if (meltMode) {
+      initMeltProgression();
+    } else {
+      meltProgress = 0;
+      document.getElementById('sl-melt').value = 0;
+      document.getElementById('sl-melt-val').textContent = '0%';
+      buildCrystal(currentIdx); // reset to crystalline
+      updateInfoPanel();
+      buildLegend();
+    }
+  });
+  document.getElementById('sl-melt').addEventListener('input', e => {
+    meltProgress = parseFloat(e.target.value);
+    document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%';
+    applyMeltProgression();
+  });
+}
+
+function updateInfoPanel() {
+  const s = data.structures[currentIdx];
+  document.getElementById('info-panel').style.display = 'block';
+  document.getElementById('info-name').textContent = s.name;
+  document.getElementById('info-formula').textContent = s.formula;
+  document.getElementById('info-system').textContent = `Crystal system: ${s.system}`;
+
+  let html = '';
+  html += `<div class="row"><span class="label">Atoms</span><span class="value">${s.atoms.length}</span></div>`;
+  html += `<div class="row"><span class="label">Bonds</span><span class="value">${s.bonds.length}</span></div>`;
+  html += `<div class="row"><span class="label">Supercell</span><span class="value">${s.supercell.join('×')}</span></div>`;
+  if (s.info && s.info.length) {
+    html += `<div style="margin-top:6px;font-size:10px;color:var(--text-dim);line-height:1.5">`;
+    s.info.forEach(line => { html += `${escapeHtml(line)}<br>`; });
+    html += `</div>`;
+  }
+  document.getElementById('info-details').innerHTML = html;
+  document.getElementById('atom-info').style.display = 'none';
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function buildLegend() {
+  const legendDiv = document.getElementById('legend');
+  const s = data.structures[currentIdx];
+  const elems = [...new Set(s.atoms.map(a => a.e))].sort();
+
+  if (colorMode === 'stull-roles') {
+    let html = '<h3>Stull Roles</h3>';
+    STULL_ROLE_META.forEach(role => {
+      const present = role.elems.filter(e => elems.includes(e));
+      if (present.length === 0) return;
+      html += `<div class="legend-item"><div class="legend-swatch" style="background:${role.color}"></div>${role.label} (${present.join(', ')})</div>`;
+    });
+    const unlabeled = elems.filter(e => e !== 'O' && e !== 'H' && !Object.prototype.hasOwnProperty.call(STULL_ROLE_COLORS, e));
+    if (unlabeled.length > 0) {
+      html += '<div style="font-size:9px;color:var(--text-dim);margin-top:4px">Other</div>';
+      unlabeled.forEach(sym => {
+        const info = data.elements[sym];
+        const c = info.color;
+        const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
+        html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
+      });
+    }
+    // Always show O
+    if (elems.includes('O')) {
+      const info = data.elements['O'];
+      const c = info.color;
+      const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
+      html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>O — Oxygen</div>`;
+    }
+    legendDiv.innerHTML = html;
+    return;
+  }
+
+  let html = '<h3>Elements</h3>';
+  elems.forEach(sym => {
+    const info = data.elements[sym];
+    const c = info.color;
+    const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
+    html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
+  });
+  legendDiv.innerHTML = html;
+}
+
+// ── 3D Crystal Building ─────────────────────────────────────
+function clearCrystal() {
+  atomMeshes.forEach(m => { crystalGroup.remove(m); m.geometry.dispose(); m.material.dispose(); });
+  atomMeshes = [];
+  if (bondMesh) { crystalGroup.remove(bondMesh); bondMesh.geometry.dispose(); bondMesh.material.dispose(); bondMesh = null; }
+  if (cellLine) { crystalGroup.remove(cellLine); cellLine.geometry.dispose(); cellLine.material.dispose(); cellLine = null; }
+  labelSprites.forEach(s => { crystalGroup.remove(s); if (s.material.map) s.material.map.dispose(); s.material.dispose(); });
+  labelSprites = [];
+  highlightMesh.visible = false;
+  selectedAtom = -1;
+  // Phase 3 cleanup
+  clearPolyhedra();
+  clearSymmetry();
+  clearScaleReference();
+  if (slicePlaneMesh) { crystalGroup.remove(slicePlaneMesh); slicePlaneMesh.geometry.dispose(); slicePlaneMesh.material.dispose(); slicePlaneMesh = null; }
+  // Phase 4 cleanup
+  clearBridgeVisualization();
+  meltBasePositions = []; meltTargetPositions = [];
+}
+
+function buildCrystal(idx) {
+  clearCrystal();
+  const s = data.structures[idx];
+  currentIdx = idx;
+
+  buildAtoms(s);
+  buildBonds(s);
+  buildCellWireframe(s);
+  if (showLabels) buildLabels(s);
+
+  // Store base positions & masses for thermal vibration
+  atomBasicPositions = s.atoms.map(a => [a.x, a.y, a.z]);
+  atomMasses = s.atoms.map(a => data.elements[a.e]?.mass || 28.0);
+
+  // Button active state
+  document.querySelectorAll('.struct-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+}
+
+function getSphereGeo(radius) {
+  const key = radius.toFixed(3);
+  if (!sphereGeoCache[key]) {
+    sphereGeoCache[key] = new THREE.SphereGeometry(radius, ATOM_SEGMENTS, ATOM_SEGMENTS);
+  }
+  return sphereGeoCache[key];
+}
+
+function buildAtoms(s) {
+  // Group atoms by element
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  const dummy = new THREE.Object3D();
+
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    const baseRadius = (elemRadii[elem] || 0.8) * atomScale;
+    const geo = getSphereGeo(1); // unit sphere, scaled per instance
+    const atomCol = getAtomColor(elem);
+    const mat = new THREE.MeshStandardMaterial({
+      color: atomCol,
+      roughness: 0.35,
+      metalness: 0.1,
+      emissive: atomCol.clone().multiplyScalar(0.08),
+    });
+
+    const mesh = new THREE.InstancedMesh(geo, mat, atoms.length);
+    mesh.userData.element = elem;
+    mesh.userData.atomIndices = atoms.map(a => a.idx);
+
+    atoms.forEach((a, ii) => {
+      dummy.position.set(a.x, a.y, a.z);
+      const r = (a.r || baseRadius) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = true;
+    crystalGroup.add(mesh);
+    atomMeshes.push(mesh);
+  }
+}
+
+function updateAtomScales() {
+  const s = data.structures[currentIdx];
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push(a);
+  });
+
+  const dummy = new THREE.Object3D();
+  let meshIdx = 0;
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    if (meshIdx >= atomMeshes.length) break;
+    const mesh = atomMeshes[meshIdx];
+    atoms.forEach((a, ii) => {
+      dummy.position.set(a.x, a.y, a.z);
+      const r = (a.r || (elemRadii[elem] || 0.8)) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    meshIdx++;
+  }
+}
+
+function buildBonds(s) {
+  if (!s.bonds.length) return;
+  const n = s.bonds.length;
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.5,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0.7,
+  });
+
+  bondMesh = new THREE.InstancedMesh(bondGeo, mat, n);
+  bondMesh.visible = showBonds;
+
+  const dummy = new THREE.Object3D();
+  const colorAttr = new THREE.InstancedBufferAttribute(new Float32Array(n * 3), 3);
+
+  const up = new THREE.Vector3(0, 0, 1);
+  const p1 = new THREE.Vector3();
+  const p2 = new THREE.Vector3();
+  const dir = new THREE.Vector3();
+
+  s.bonds.forEach(([bi, bj], ii) => {
+    const a1 = s.atoms[bi];
+    const a2 = s.atoms[bj];
+    p1.set(a1.x, a1.y, a1.z);
+    p2.set(a2.x, a2.y, a2.z);
+
+    const len = p1.distanceTo(p2);
+    dir.subVectors(p2, p1).normalize();
+
+    dummy.position.copy(p1);
+    dummy.scale.set(1, 1, len);
+    dummy.lookAt(p2);
+    dummy.updateMatrix();
+    bondMesh.setMatrixAt(ii, dummy.matrix);
+
+    // Bond color
+    const pair = [a1.e, a2.e].sort().join('-');
+    const col = bondColors[pair] || new THREE.Color(0x666666);
+    colorAttr.setXYZ(ii, col.r, col.g, col.b);
+  });
+
+  bondMesh.instanceMatrix.needsUpdate = true;
+  // Use per-instance colors
+  bondMesh.instanceColor = colorAttr;
+
+  crystalGroup.add(bondMesh);
+}
+
+function buildCellWireframe(s) {
+  const cv = s.cellVectors;
+  if (!cv) return;
+
+  const va = new THREE.Vector3(...cv[0]);
+  const vb = new THREE.Vector3(...cv[1]);
+  const vc = new THREE.Vector3(...cv[2]);
+
+  // Compute origin offset — center of supercell aligned to crystal center
+  const sc = s.supercell;
+  const origin = new THREE.Vector3();
+  // Center is at (sc/2)*va + (sc/2)*vb + (sc/2)*vc relative to 0,0,0
+  // But atoms are already centered, so wireframe origin = -(center of full supercell)
+  const fullCenter = new THREE.Vector3()
+    .addScaledVector(va, sc[0] / 2)
+    .addScaledVector(vb, sc[1] / 2)
+    .addScaledVector(vc, sc[2] / 2);
+  origin.copy(fullCenter).negate();
+
+  // Build all unit cell edges for the supercell
+  const points = [];
+
+  for (let ix = 0; ix <= sc[0]; ix++) {
+    for (let iy = 0; iy <= sc[1]; iy++) {
+      for (let iz = 0; iz <= sc[2]; iz++) {
+        const corner = new THREE.Vector3()
+          .addScaledVector(va, ix)
+          .addScaledVector(vb, iy)
+          .addScaledVector(vc, iz)
+          .add(origin);
+
+        // Edge along va (if ix < sc[0])
+        if (ix < sc[0]) {
+          points.push(corner.clone());
+          points.push(corner.clone().add(va));
+        }
+        // Edge along vb (if iy < sc[1])
+        if (iy < sc[1]) {
+          points.push(corner.clone());
+          points.push(corner.clone().add(vb));
+        }
+        // Edge along vc (if iz < sc[2])
+        if (iz < sc[2]) {
+          points.push(corner.clone());
+          points.push(corner.clone().add(vc));
+        }
+      }
+    }
+  }
+
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = new THREE.LineBasicMaterial({ color: 0x4a4a5a, transparent: true, opacity: 0.35 });
+  cellLine = new THREE.LineSegments(geo, mat);
+  cellLine.visible = showCell;
+  crystalGroup.add(cellLine);
+}
+
+function buildLabels(s) {
+  labelSprites.forEach(sp => { crystalGroup.remove(sp); sp.material.map?.dispose(); sp.material.dispose(); });
+  labelSprites = [];
+
+  // Cache one texture per element symbol
+  const texCache = new Map();
+  function getTexture(elem) {
+    if (texCache.has(elem)) return texCache.get(elem);
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 32;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 18px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(elem, 32, 16);
+    const tex = new THREE.CanvasTexture(c);
+    texCache.set(elem, tex);
+    return tex;
+  }
+
+  s.atoms.forEach((a, i) => {
+    const mat = new THREE.SpriteMaterial({ map: getTexture(a.e), transparent: true, opacity: 0.8, depthTest: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.set(a.x, a.y + (a.r || 0.5) * atomScale + 0.3, a.z);
+    sprite.scale.set(0.8, 0.4, 1);
+    sprite.visible = showLabels;
+    crystalGroup.add(sprite);
+    labelSprites.push(sprite);
+  });
+}
+
+// ── Phase 2: Firing Journey ─────────────────────────────────
+function getPhaseForTemp(temp) {
+  for (let i = 0; i < firingPhases.length; i++) {
+    const p = firingPhases[i];
+    if (temp >= p.min && temp < p.max) return i;
+  }
+  return firingPhases.length - 1;
+}
+
+function getStructureIdxByName(name) {
+  return data.structures.findIndex(s => s.name === name);
+}
+
+function setTemperature(temp) {
+  currentTemp = Math.max(20, Math.min(1500, temp));
+  document.getElementById('temp-slider').value = currentTemp;
+
+  // Temp readout with color gradient (blue→orange→red)
+  const t01 = (currentTemp - 20) / 1480;
+  const r = Math.round(80 + t01 * 175);
+  const g = Math.round(80 + (t01 < 0.5 ? t01 * 2 * 100 : (1 - t01) * 2 * 100));
+  const b = Math.round(180 - t01 * 150);
+  document.getElementById('temp-readout').innerHTML = `<span style="color:rgb(${r},${g},${b})">${currentTemp}</span><small>°C</small>`;
+
+  // Determine phase
+  const phaseIdx = getPhaseForTemp(currentTemp);
+  if (phaseIdx !== currentPhaseIdx) {
+    currentPhaseIdx = phaseIdx;
+    const phase = firingPhases[phaseIdx];
+
+    // Update badge
+    document.getElementById('phase-badge').textContent = phase.phase;
+
+    // Update narrative panel
+    const narr = document.getElementById('phase-narrative');
+    narr.style.display = 'block';
+    narr.querySelector('.phase-name').textContent = phase.phase;
+    narr.querySelector('.phase-range').textContent = `${phase.min}°C — ${phase.max}°C`;
+    narr.querySelector('.phase-desc').textContent = phase.desc;
+
+    // Update milestone markers
+    document.querySelectorAll('.milestone-marker').forEach((m, i) => {
+      m.classList.toggle('active', i === phaseIdx);
+    });
+
+    // Auto-switch structure
+    const targetIdx = getStructureIdxByName(phase.structure);
+    if (targetIdx >= 0 && targetIdx !== currentIdx && !dissolving) {
+      switchStructure(targetIdx);
+    }
+  }
+
+  // Phase 4: dual-track firing updates both panels
+  if (dualTrackMode) updateDualTrack();
+}
+
+function buildMilestoneBar() {
+  const bar = document.getElementById('milestone-bar');
+  bar.innerHTML = '';
+  const range = 1500 - 20;
+
+  // Key temperatures with labels
+  const milestones = firingPhases.map((p, i) => ({
+    temp: p.min,
+    label: p.phase,
+    idx: i,
+  }));
+
+  milestones.forEach(m => {
+    const pct = ((m.temp - 20) / range) * 100;
+    const el = document.createElement('div');
+    el.className = 'milestone-marker' + (m.idx === currentPhaseIdx ? ' active' : '');
+    el.style.left = `${pct}%`;
+    el.textContent = `${m.temp}°`;
+    bar.appendChild(el);
+  });
+}
+
+function applyThermalVibration(dt) {
+  if (!firingMode || !thermalVibration || !data || atomBasicPositions.length === 0) return;
+  if (atomMeshes.length === 0) return;
+
+  // Amplitude scales with temperature: 0 at 20°C, max at 1500°C
+  const t01 = Math.max(0, (currentTemp - 20) / 1480);
+  const baseAmplitude = t01 * 0.12; // max displacement in Angstroms
+  if (baseAmplitude < 0.001) return;
+
+  const s = data.structures[currentIdx];
+  const now = performance.now() * 0.001; // seconds
+  const dummy = new THREE.Object3D();
+
+  // Group by element (matches atomMeshes order)
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  let meshIdx = 0;
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    if (meshIdx >= atomMeshes.length) break;
+    const mesh = atomMeshes[meshIdx];
+
+    atoms.forEach((a, ii) => {
+      const base = atomBasicPositions[a.idx];
+      if (!base) return;
+
+      // Mass-weighted: lighter atoms vibrate more (1/sqrt(m))
+      const mass = atomMasses[a.idx] || 28.0;
+      const invSqrtM = 1.0 / Math.sqrt(mass);
+      const amp = baseAmplitude * invSqrtM;
+
+      // Pseudo-random harmonic vibration using atom index as phase offset
+      const phase = a.idx * 2.654;
+      const dx = amp * Math.sin(now * 12.0 + phase);
+      const dy = amp * Math.sin(now * 14.3 + phase * 1.37);
+      const dz = amp * Math.sin(now * 11.1 + phase * 0.83);
+
+      dummy.position.set(base[0] + dx, base[1] + dy, base[2] + dz);
+      const r = (a.r || (elemRadii[a.e] || 0.8)) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    meshIdx++;
+  }
+}
+
+function resetAtomPositions() {
+  if (!data || atomBasicPositions.length === 0) return;
+
+  const s = data.structures[currentIdx];
+  const dummy = new THREE.Object3D();
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  let meshIdx = 0;
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    if (meshIdx >= atomMeshes.length) break;
+    const mesh = atomMeshes[meshIdx];
+
+    atoms.forEach((a, ii) => {
+      const base = atomBasicPositions[a.idx];
+      if (!base) return;
+      dummy.position.set(base[0], base[1], base[2]);
+      const r = (a.r || (elemRadii[a.e] || 0.8)) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    meshIdx++;
+  }
+}
+
+// ── Phase 3: Spatial Understanding ──────────────────────────
+
+// ── Coordination Polyhedra ──
+function buildPolyhedra() {
+  clearPolyhedra();
+  if (!showPolyhedra || !data) return;
+
+  const s = data.structures[currentIdx];
+  // Build adjacency list from bonds
+  const adj = new Map();
+  s.bonds.forEach(([i, j]) => {
+    if (!adj.has(i)) adj.set(i, []);
+    if (!adj.has(j)) adj.set(j, []);
+    adj.get(i).push(j);
+    adj.get(j).push(i);
+  });
+
+  const tetraColor = new THREE.Color(0x4488ff);  // blue for SiO₄
+  const octaColor = new THREE.Color(0x44cc88);   // green for AlO₆
+
+  s.atoms.forEach((atom, i) => {
+    let color;
+    if (atom.e === 'Si') color = tetraColor;
+    else if (atom.e === 'Al') color = octaColor;
+    else return;
+
+    const neighbors = adj.get(i) || [];
+    const oNeighbors = neighbors.filter(j => s.atoms[j].e === 'O');
+    if (oNeighbors.length < 3) return;
+
+    const points = oNeighbors.map(j =>
+      new THREE.Vector3(s.atoms[j].x, s.atoms[j].y, s.atoms[j].z)
+    );
+
+    try {
+      const geo = new ConvexGeometry(points);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color, transparent: true, opacity: 0.18,
+        side: THREE.DoubleSide, depthWrite: false,
+        roughness: 0.3, metalness: 0.0,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      crystalGroup.add(mesh);
+      polyhedraMeshes.push(mesh);
+
+      // Wireframe edges
+      const edges = new THREE.EdgesGeometry(geo);
+      const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.4 });
+      const wire = new THREE.LineSegments(edges, lineMat);
+      crystalGroup.add(wire);
+      polyhedraMeshes.push(wire);
+    } catch (e) { /* skip degenerate hulls */ }
+  });
+}
+
+function clearPolyhedra() {
+  polyhedraMeshes.forEach(m => {
+    crystalGroup.remove(m);
+    if (m.geometry) m.geometry.dispose();
+    if (m.material) m.material.dispose();
+  });
+  polyhedraMeshes = [];
+}
+
+// ── Slice Plane ──
+function updateSlicePlane() {
+  if (slicePlaneMesh) {
+    crystalGroup.remove(slicePlaneMesh);
+    slicePlaneMesh.geometry.dispose();
+    slicePlaneMesh.material.dispose();
+    slicePlaneMesh = null;
+  }
+
+  if (!sliceEnabled || !data) {
+    atomMeshes.forEach(m => { m.material.clippingPlanes = []; });
+    if (bondMesh) bondMesh.material.clippingPlanes = [];
+    renderer.localClippingEnabled = false;
+    return;
+  }
+
+  renderer.localClippingEnabled = true;
+  const s = data.structures[currentIdx];
+
+  // Bounding range along chosen axis
+  const axisIdx = { x: 0, y: 1, z: 2 }[sliceAxis];
+  let amin = Infinity, amax = -Infinity;
+  s.atoms.forEach(a => {
+    const v = [a.x, a.y, a.z][axisIdx];
+    if (v < amin) amin = v;
+    if (v > amax) amax = v;
+  });
+  const range = amax - amin || 1;
+  const margin = range * 0.1;
+  const pos = amin - margin + slicePosition * (range + 2 * margin);
+
+  // Clip atoms above the plane
+  const normal = new THREE.Vector3(
+    sliceAxis === 'x' ? -1 : 0,
+    sliceAxis === 'y' ? -1 : 0,
+    sliceAxis === 'z' ? -1 : 0
+  );
+  sliceClipPlane.set(normal, pos);
+  atomMeshes.forEach(m => { m.material.clippingPlanes = [sliceClipPlane]; });
+  if (bondMesh) bondMesh.material.clippingPlanes = [sliceClipPlane];
+
+  // Visual plane mesh
+  const planeSize = Math.max(range, 5) * 1.3;
+  const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+  const planeMat = new THREE.MeshBasicMaterial({
+    color: 0xc4826e, transparent: true, opacity: 0.08,
+    side: THREE.DoubleSide, depthWrite: false,
+  });
+  slicePlaneMesh = new THREE.Mesh(planeGeo, planeMat);
+
+  if (sliceAxis === 'x') {
+    slicePlaneMesh.rotation.y = Math.PI / 2;
+    slicePlaneMesh.position.set(pos, 0, 0);
+  } else if (sliceAxis === 'y') {
+    slicePlaneMesh.rotation.x = -Math.PI / 2;
+    slicePlaneMesh.position.set(0, pos, 0);
+  } else {
+    slicePlaneMesh.position.set(0, 0, pos);
+  }
+  crystalGroup.add(slicePlaneMesh);
+}
+
+// ── Bond Length Measurement ──
+function makeTextSprite(text) {
+  const c = document.createElement('canvas');
+  c.width = 192; c.height = 56;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = 'rgba(10,10,12,0.85)';
+  ctx.beginPath();
+  ctx.roundRect(2, 2, 188, 52, 8);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 96, 28);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(1.8, 0.55, 1);
+  return sprite;
+}
+
+function addMeasurement(idx1, idx2) {
+  if (idx1 === idx2) return;
+  const s = data.structures[currentIdx];
+  const a1 = s.atoms[idx1], a2 = s.atoms[idx2];
+  const p1 = new THREE.Vector3(a1.x, a1.y, a1.z);
+  const p2 = new THREE.Vector3(a2.x, a2.y, a2.z);
+  const dist = p1.distanceTo(p2);
+
+  // Dashed line
+  const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+  const mat = new THREE.LineDashedMaterial({
+    color: 0xffffff, dashSize: 0.15, gapSize: 0.1,
+    transparent: true, opacity: 0.7,
+  });
+  const line = new THREE.Line(geo, mat);
+  line.computeLineDistances();
+  crystalGroup.add(line);
+
+  // Distance label
+  const mid = p1.clone().add(p2).multiplyScalar(0.5);
+  const label = makeTextSprite(`${dist.toFixed(2)} Å`);
+  label.position.copy(mid);
+  label.position.y += 0.4;
+  crystalGroup.add(label);
+
+  measurements.push({ line, label, idx1, idx2, dist });
+  updateMeasurementList();
+}
+
+function clearMeasurements() {
+  measurements.forEach(m => {
+    crystalGroup.remove(m.line);
+    m.line.geometry.dispose();
+    m.line.material.dispose();
+    crystalGroup.remove(m.label);
+    if (m.label.material.map) m.label.material.map.dispose();
+    m.label.material.dispose();
+  });
+  measurements = [];
+  measureFirst = -1;
+  updateMeasurementList();
+}
+
+function updateMeasurementList() {
+  const el = document.getElementById('measure-list');
+  if (!el) return;
+  if (measurements.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:10px">Click two atoms to measure</div>';
+    return;
+  }
+  const s = data.structures[currentIdx];
+  el.innerHTML = measurements.map(m => {
+    const a1 = s.atoms[m.idx1], a2 = s.atoms[m.idx2];
+    return `<div class="measure-item">${a1.e}${m.idx1}\u2014${a2.e}${m.idx2}: <b>${m.dist.toFixed(2)} \u00c5</b></div>`;
+  }).join('');
+}
+
+// ── Symmetry Overlay ──
+function buildSymmetry() {
+  clearSymmetry();
+  if (!showSymmetry || !data) return;
+
+  const s = data.structures[currentIdx];
+  const system = (s.system || '').toLowerCase();
+
+  // Crystal extent
+  const bmin = new THREE.Vector3(Infinity, Infinity, Infinity);
+  const bmax = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+  s.atoms.forEach(a => {
+    bmin.min(new THREE.Vector3(a.x, a.y, a.z));
+    bmax.max(new THREE.Vector3(a.x, a.y, a.z));
+  });
+  const center = bmin.clone().add(bmax).multiplyScalar(0.5);
+  const extent = bmax.clone().sub(bmin);
+  const maxExt = Math.max(extent.x, extent.y, extent.z) * 0.7;
+
+  const axisColors = { 2: 0xffaa44, 3: 0x44aaff, 4: 0xff4488, 6: 0x44ff88 };
+
+  function addAxis(dir, fold) {
+    const color = axisColors[fold] || 0xffffff;
+    const geo = new THREE.CylinderGeometry(0.04, 0.04, maxExt * 2, 8);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    const mesh = new THREE.Mesh(geo, mat);
+    const up = new THREE.Vector3(0, 1, 0);
+    mesh.quaternion.setFromUnitVectors(up, dir.clone().normalize());
+    mesh.position.copy(center);
+    crystalGroup.add(mesh);
+    symmetryMeshes.push(mesh);
+
+    const label = makeTextSprite(`${fold}-fold`);
+    label.position.copy(center).addScaledVector(dir.clone().normalize(), maxExt + 0.6);
+    label.scale.set(1.0, 0.35, 1);
+    crystalGroup.add(label);
+    symmetryMeshes.push(label);
+  }
+
+  function addMirrorPlane(normal) {
+    const size = maxExt * 1.5;
+    const geo = new THREE.PlaneGeometry(size, size);
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xc4826e, transparent: true, opacity: 0.06,
+      side: THREE.DoubleSide, depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    const fwd = new THREE.Vector3(0, 0, 1);
+    mesh.quaternion.setFromUnitVectors(fwd, normal.clone().normalize());
+    mesh.position.copy(center);
+    crystalGroup.add(mesh);
+    symmetryMeshes.push(mesh);
+  }
+
+  if (system.includes('cubic')) {
+    addAxis(new THREE.Vector3(1, 0, 0), 4);
+    addAxis(new THREE.Vector3(0, 1, 0), 4);
+    addAxis(new THREE.Vector3(0, 0, 1), 4);
+    addAxis(new THREE.Vector3(1, 1, 1).normalize(), 3);
+    addMirrorPlane(new THREE.Vector3(1, 0, 0));
+    addMirrorPlane(new THREE.Vector3(0, 1, 0));
+    addMirrorPlane(new THREE.Vector3(0, 0, 1));
+  } else if (system.includes('hexagonal') || system.includes('trigonal')) {
+    const fold = system.includes('hexagonal') ? 6 : 3;
+    addAxis(new THREE.Vector3(0, 0, 1), fold);
+    addMirrorPlane(new THREE.Vector3(0, 0, 1));
+  } else if (system.includes('orthorhombic')) {
+    addAxis(new THREE.Vector3(1, 0, 0), 2);
+    addAxis(new THREE.Vector3(0, 1, 0), 2);
+    addAxis(new THREE.Vector3(0, 0, 1), 2);
+    addMirrorPlane(new THREE.Vector3(1, 0, 0));
+    addMirrorPlane(new THREE.Vector3(0, 1, 0));
+    addMirrorPlane(new THREE.Vector3(0, 0, 1));
+  } else if (system.includes('tetragonal')) {
+    addAxis(new THREE.Vector3(0, 0, 1), 4);
+    addAxis(new THREE.Vector3(1, 0, 0), 2);
+    addAxis(new THREE.Vector3(0, 1, 0), 2);
+    addMirrorPlane(new THREE.Vector3(0, 0, 1));
+  } else if (system.includes('monoclinic')) {
+    addAxis(new THREE.Vector3(0, 1, 0), 2);
+    addMirrorPlane(new THREE.Vector3(0, 1, 0));
+  }
+  // Triclinic: no symmetry elements
+}
+
+function clearSymmetry() {
+  symmetryMeshes.forEach(m => {
+    crystalGroup.remove(m);
+    if (m.geometry) m.geometry.dispose();
+    if (m.material) {
+      if (m.material.map) m.material.map.dispose();
+      m.material.dispose();
+    }
+  });
+  symmetryMeshes = [];
+}
+
+// ── Layer Highlighting ──
+function updateLayerHighlight(dt) {
+  if (!highlightLayers || !data || atomMeshes.length === 0) return;
+
+  layerPulseTime += dt;
+  const s = data.structures[currentIdx];
+
+  // Layer boundaries along y-axis
+  const yCoords = s.atoms.map(a => a.y);
+  const yMin = Math.min(...yCoords);
+  const yMax = Math.max(...yCoords);
+  const range = yMax - yMin;
+  if (range < 0.1) return;
+
+  const numLayers = Math.max(2, Math.round(range / 2.5));
+  const layerHeight = range / numLayers;
+  const pulseLayer = Math.floor(layerPulseTime * 0.5) % numLayers;
+
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  let meshIdx = 0;
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    if (meshIdx >= atomMeshes.length) break;
+    const mesh = atomMeshes[meshIdx];
+    const colorArr = new Float32Array(atoms.length * 3);
+    const bc = getAtomColor(elem);
+
+    atoms.forEach((a, ii) => {
+      const layer = Math.min(numLayers - 1, Math.floor((a.y - yMin) / layerHeight));
+      const pulse = layer === pulseLayer ? 0.5 + 0.5 * Math.sin(layerPulseTime * 4) : 0;
+      colorArr[ii * 3]     = Math.min(1, bc.r + pulse * 0.5);
+      colorArr[ii * 3 + 1] = Math.min(1, bc.g + pulse * 0.15);
+      colorArr[ii * 3 + 2] = Math.min(1, bc.b + pulse * 0.15);
+    });
+
+    mesh.instanceColor = new THREE.InstancedBufferAttribute(colorArr, 3);
+    meshIdx++;
+  }
+}
+
+function resetLayerColors() {
+  atomMeshes.forEach(mesh => {
+    mesh.instanceColor = null;
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+}
+
+// ── Scale Reference ──
+function buildScaleReference() {
+  clearScaleReference();
+  if (!showScaleRef || !data) return;
+
+  scaleRefGroup = new THREE.Group();
+  const s = data.structures[currentIdx];
+
+  const bmax = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+  s.atoms.forEach(a => bmax.max(new THREE.Vector3(a.x, a.y, a.z)));
+
+  const refX = bmax.x + 3;
+
+  // Water molecule (O-H = 0.96Å, angle 104.5°)
+  const waterO = new THREE.Mesh(
+    getSphereGeo(1),
+    new THREE.MeshStandardMaterial({ color: 0xff4444, roughness: 0.35, metalness: 0.1 })
+  );
+  waterO.scale.setScalar(0.4);
+  waterO.position.set(refX, 1, 0);
+  scaleRefGroup.add(waterO);
+
+  const ang = 104.5 * Math.PI / 180;
+  const ohDist = 0.96;
+  [1, -1].forEach(sign => {
+    const hMesh = new THREE.Mesh(
+      getSphereGeo(1),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.1 })
+    );
+    hMesh.scale.setScalar(0.2);
+    hMesh.position.set(refX + sign * ohDist * Math.sin(ang / 2), 1 + ohDist * Math.cos(ang / 2), 0);
+    scaleRefGroup.add(hMesh);
+
+    // Bond
+    const bGeo = new THREE.BufferGeometry().setFromPoints([
+      waterO.position.clone(), hMesh.position.clone()
+    ]);
+    const bLine = new THREE.Line(bGeo, new THREE.LineBasicMaterial({ color: 0x888888 }));
+    scaleRefGroup.add(bLine);
+  });
+
+  const waterLabel = makeTextSprite('H\u2082O (2.75\u00c5)');
+  waterLabel.position.set(refX, -0.2, 0);
+  waterLabel.scale.set(2.0, 0.6, 1);
+  scaleRefGroup.add(waterLabel);
+
+  // Scale bar (5Å)
+  const barLen = 5.0;
+  const barY = -2;
+  const barGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(refX - barLen / 2, barY, 0),
+    new THREE.Vector3(refX + barLen / 2, barY, 0),
+  ]);
+  const barMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+  scaleRefGroup.add(new THREE.Line(barGeo, barMat));
+
+  // End caps
+  [-1, 1].forEach(sign => {
+    const capGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(refX + sign * barLen / 2, barY - 0.3, 0),
+      new THREE.Vector3(refX + sign * barLen / 2, barY + 0.3, 0),
+    ]);
+    scaleRefGroup.add(new THREE.Line(capGeo, barMat));
+  });
+
+  const barLabel = makeTextSprite('5 \u00c5');
+  barLabel.position.set(refX, barY - 0.9, 0);
+  barLabel.scale.set(1.2, 0.45, 1);
+  scaleRefGroup.add(barLabel);
+
+  // Context label
+  const ctxLabel = makeTextSprite('Hair: ~500,000 \u00c5');
+  ctxLabel.position.set(refX, barY - 2.2, 0);
+  ctxLabel.scale.set(2.4, 0.6, 1);
+  scaleRefGroup.add(ctxLabel);
+
+  crystalGroup.add(scaleRefGroup);
+}
+
+function clearScaleReference() {
+  if (scaleRefGroup) {
+    scaleRefGroup.traverse(obj => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (obj.material.map) obj.material.map.dispose();
+        obj.material.dispose();
+      }
+    });
+    crystalGroup.remove(scaleRefGroup);
+    scaleRefGroup = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 4 Feature #23: Side-by-Side Compare ─────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function buildCompareList() {
+  const container = document.getElementById('compare-list');
+  container.innerHTML = '';
+  data.structures.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'struct-btn' + (i === compareIdx ? ' active' : '');
+    btn.innerHTML = `${s.name} <span class="formula">${s.formula}</span>`;
+    btn.addEventListener('click', () => switchCompare(i));
+    container.appendChild(btn);
+  });
+}
+
+function switchCompare(idx) {
+  if (idx === compareIdx) return;
+  compareIdx = idx;
+
+  // Update compare list button states
+  document.querySelectorAll('#compare-list .struct-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+
+  // Offset main crystal left
+  crystalGroup.position.x = -COMPARE_OFFSET / 2;
+
+  // Build compare crystal
+  clearCompare();
+  compareGroup = new THREE.Group();
+  compareGroup.position.x = COMPARE_OFFSET / 2;
+  compareGroup.scale.copy(crystalGroup.scale);
+  scene.add(compareGroup);
+
+  buildCompareAtoms(data.structures[idx]);
+  buildCompareBonds(data.structures[idx]);
+  buildCompareCellWireframe(data.structures[idx]);
+}
+
+function buildCompareAtoms(s) {
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  const dummy = new THREE.Object3D();
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    const geo = getSphereGeo(1);
+    const atomCol = getAtomColor(elem);
+    const mat = new THREE.MeshStandardMaterial({
+      color: atomCol, roughness: 0.35, metalness: 0.1,
+      emissive: atomCol.clone().multiplyScalar(0.08),
+    });
+    const mesh = new THREE.InstancedMesh(geo, mat, atoms.length);
+    mesh.userData.element = elem;
+    mesh.userData.atomIndices = atoms.map(a => a.idx);
+
+    atoms.forEach((a, ii) => {
+      dummy.position.set(a.x, a.y, a.z);
+      const r = (a.r || (elemRadii[elem] || 0.8)) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    compareGroup.add(mesh);
+    compareAtomMeshes.push(mesh);
+  }
+}
+
+function buildCompareBonds(s) {
+  if (!s.bonds.length) return;
+  const n = s.bonds.length;
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xffffff, roughness: 0.5, metalness: 0.05,
+    transparent: true, opacity: 0.7,
+  });
+  compareBondMesh = new THREE.InstancedMesh(bondGeo, mat, n);
+
+  const dummy = new THREE.Object3D();
+  const colorAttr = new THREE.InstancedBufferAttribute(new Float32Array(n * 3), 3);
+  const p1 = new THREE.Vector3(), p2 = new THREE.Vector3();
+
+  s.bonds.forEach(([bi, bj], ii) => {
+    const a1 = s.atoms[bi], a2 = s.atoms[bj];
+    p1.set(a1.x, a1.y, a1.z);
+    p2.set(a2.x, a2.y, a2.z);
+    const len = p1.distanceTo(p2);
+    dummy.position.copy(p1);
+    dummy.scale.set(1, 1, len);
+    dummy.lookAt(p2);
+    dummy.updateMatrix();
+    compareBondMesh.setMatrixAt(ii, dummy.matrix);
+    const pair = [a1.e, a2.e].sort().join('-');
+    const col = bondColors[pair] || new THREE.Color(0x666666);
+    colorAttr.setXYZ(ii, col.r, col.g, col.b);
+  });
+
+  compareBondMesh.instanceMatrix.needsUpdate = true;
+  compareBondMesh.instanceColor = colorAttr;
+  compareGroup.add(compareBondMesh);
+}
+
+function buildCompareCellWireframe(s) {
+  const cv = s.cellVectors;
+  if (!cv) return;
+  const va = new THREE.Vector3(...cv[0]);
+  const vb = new THREE.Vector3(...cv[1]);
+  const vc = new THREE.Vector3(...cv[2]);
+  const sc = s.supercell;
+  const fullCenter = new THREE.Vector3()
+    .addScaledVector(va, sc[0] / 2)
+    .addScaledVector(vb, sc[1] / 2)
+    .addScaledVector(vc, sc[2] / 2);
+  const origin = fullCenter.clone().negate();
+  const points = [];
+
+  for (let ix = 0; ix <= sc[0]; ix++) {
+    for (let iy = 0; iy <= sc[1]; iy++) {
+      for (let iz = 0; iz <= sc[2]; iz++) {
+        const corner = new THREE.Vector3()
+          .addScaledVector(va, ix).addScaledVector(vb, iy).addScaledVector(vc, iz).add(origin);
+        if (ix < sc[0]) { points.push(corner.clone()); points.push(corner.clone().add(va)); }
+        if (iy < sc[1]) { points.push(corner.clone()); points.push(corner.clone().add(vb)); }
+        if (iz < sc[2]) { points.push(corner.clone()); points.push(corner.clone().add(vc)); }
+      }
+    }
+  }
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = new THREE.LineBasicMaterial({ color: 0x4a6a8a, transparent: true, opacity: 0.35 });
+  compareCellLine = new THREE.LineSegments(geo, mat);
+  compareGroup.add(compareCellLine);
+}
+
+function clearCompare() {
+  compareAtomMeshes.forEach(m => { if (compareGroup) compareGroup.remove(m); m.geometry?.dispose(); m.material?.dispose(); });
+  compareAtomMeshes = [];
+  if (compareBondMesh) { compareGroup?.remove(compareBondMesh); compareBondMesh.geometry?.dispose(); compareBondMesh.material?.dispose(); compareBondMesh = null; }
+  if (compareCellLine) { compareGroup?.remove(compareCellLine); compareCellLine.geometry?.dispose(); compareCellLine.material?.dispose(); compareCellLine = null; }
+  compareLabelSprites.forEach(s => { compareGroup?.remove(s); s.material?.map?.dispose(); s.material?.dispose(); });
+  compareLabelSprites = [];
+  if (compareGroup) { scene.remove(compareGroup); compareGroup = null; }
+  compareIdx = -1;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 4 Feature #24: Dual-Track Firing ────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function getDualTrackPhase(track, temp) {
+  for (const p of track) {
+    if (temp >= p.min && temp < p.max) return p;
+  }
+  return track[track.length - 1];
+}
+
+function updateDualTrack() {
+  if (!dualTrackMode || !firingMode) return;
+
+  const clayPhase = getDualTrackPhase(clayTrack, currentTemp);
+  const glazePhase = getDualTrackPhase(glazeTrack, currentTemp);
+
+  // Update track labels
+  document.getElementById('track-clay').textContent = `Clay: ${clayPhase.phase}`;
+  document.getElementById('track-clay').classList.toggle('active', true);
+  document.getElementById('track-glaze').textContent = `Glaze: ${glazePhase.phase}`;
+  document.getElementById('track-glaze').classList.toggle('active', true);
+
+  // Switch main crystal (left = clay body)
+  const clayIdx = getStructureIdxByName(clayPhase.structure);
+  if (clayIdx >= 0 && clayIdx !== currentIdx && !dissolving) {
+    switchStructure(clayIdx);
+  }
+
+  // Switch compare crystal (right = glaze)
+  const glazeIdx = getStructureIdxByName(glazePhase.structure);
+  if (glazeIdx >= 0 && glazeIdx !== compareIdx) {
+    // Enable compare if not already
+    if (!compareMode) {
+      compareMode = true;
+      document.getElementById('chk-compare').checked = true;
+      document.getElementById('compare-panel').style.display = 'block';
+      buildCompareList();
+    }
+    switchCompare(glazeIdx);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 4 Feature #26: Oxygen Bridge Visualization ──────────
+// ═══════════════════════════════════════════════════════════════
+
+function buildBridgeVisualization() {
+  clearBridgeVisualization();
+  if (!showBridges || !data) return;
+
+  const s = data.structures[currentIdx];
+
+  // Build adjacency: for each atom, which atoms it bonds to
+  const adj = new Map();
+  s.bonds.forEach(([i, j]) => {
+    if (!adj.has(i)) adj.set(i, []);
+    if (!adj.has(j)) adj.set(j, []);
+    adj.get(i).push(j);
+    adj.get(j).push(i);
+  });
+
+  // Classify each oxygen atom
+  // Bridging: O bonded to 2+ network-formers (Si, Al, P, B)
+  // Non-bridging: O bonded to exactly 1 network-former + at least 1 modifier (Na, K, Ca, Mg, Li, Ba, Sr, Zn)
+  // Free: O bonded to 0 network-formers (only modifiers)
+  const networkFormers = new Set(['Si', 'Al', 'P', 'B']);
+  const modifiers = new Set(['Na', 'K', 'Ca', 'Mg', 'Li', 'Ba', 'Sr', 'Zn', 'Fe']);
+
+  const BRIDGE_COLOR = new THREE.Color(0xff6644);   // bridging
+  const NBO_COLOR = new THREE.Color(0x44aaff);      // non-bridging
+  const FREE_COLOR = new THREE.Color(0x88ff44);     // free
+
+  const dummy = new THREE.Object3D();
+
+  s.atoms.forEach((atom, i) => {
+    if (atom.e !== 'O') return;
+
+    const neighbors = adj.get(i) || [];
+    const nfCount = neighbors.filter(j => networkFormers.has(s.atoms[j].e)).length;
+    const modCount = neighbors.filter(j => modifiers.has(s.atoms[j].e)).length;
+
+    let color;
+    if (nfCount >= 2) {
+      color = BRIDGE_COLOR;       // bridging oxygen
+    } else if (nfCount === 1 && modCount >= 1) {
+      color = NBO_COLOR;          // non-bridging oxygen
+    } else if (nfCount === 0) {
+      color = FREE_COLOR;         // free oxygen
+    } else if (nfCount === 1 && modCount === 0) {
+      color = NBO_COLOR;          // terminal NBO (dangling bond end)
+    } else {
+      return; // unknown, skip
+    }
+
+    // Glow sphere overlay
+    const radius = (atom.r || 0.73) * atomScale * 1.6;
+    const geo = getSphereGeo(1);
+    const mat = new THREE.MeshBasicMaterial({
+      color, transparent: true, opacity: 0.25, depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(atom.x, atom.y, atom.z);
+    mesh.scale.setScalar(radius);
+    crystalGroup.add(mesh);
+    bridgeMeshes.push(mesh);
+
+    // For non-bridging, also highlight the modifier→oxygen bond
+    if (nfCount === 1 && modCount >= 1) {
+      neighbors.forEach(j => {
+        if (modifiers.has(s.atoms[j].e)) {
+          const a2 = s.atoms[j];
+          const p1 = new THREE.Vector3(atom.x, atom.y, atom.z);
+          const p2 = new THREE.Vector3(a2.x, a2.y, a2.z);
+          const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+          const mat = new THREE.LineDashedMaterial({
+            color: NBO_COLOR, dashSize: 0.2, gapSize: 0.1,
+            transparent: true, opacity: 0.6,
+          });
+          const line = new THREE.Line(geo, mat);
+          line.computeLineDistances();
+          crystalGroup.add(line);
+          bridgeMeshes.push(line);
+        }
+      });
+    }
+  });
+}
+
+function clearBridgeVisualization() {
+  bridgeMeshes.forEach(m => {
+    crystalGroup.remove(m);
+    if (m.geometry) m.geometry.dispose();
+    if (m.material) m.material.dispose();
+  });
+  bridgeMeshes = [];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 4 Feature #27: Melt Progression ─────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function initMeltProgression() {
+  const s = data.structures[currentIdx];
+  meltBasePositions = s.atoms.map(a => [a.x, a.y, a.z]);
+
+  // Generate random melted positions — Brownian drift within bounding sphere
+  const bmin = [Infinity, Infinity, Infinity];
+  const bmax = [-Infinity, -Infinity, -Infinity];
+  s.atoms.forEach(a => {
+    bmin[0] = Math.min(bmin[0], a.x); bmin[1] = Math.min(bmin[1], a.y); bmin[2] = Math.min(bmin[2], a.z);
+    bmax[0] = Math.max(bmax[0], a.x); bmax[1] = Math.max(bmax[1], a.y); bmax[2] = Math.max(bmax[2], a.z);
+  });
+  const cx = (bmin[0] + bmax[0]) / 2, cy = (bmin[1] + bmax[1]) / 2, cz = (bmin[2] + bmax[2]) / 2;
+  const radius = Math.max(bmax[0] - bmin[0], bmax[1] - bmin[1], bmax[2] - bmin[2]) * 0.6;
+
+  // Seeded-ish random for reproducibility within session
+  meltTargetPositions = s.atoms.map((a, i) => {
+    const phi = (i * 2.654 + 0.5) * 6.283;
+    const theta = (i * 1.332 + 0.3) * 3.14159;
+    const r = radius * (0.3 + 0.7 * ((i * 7919 + 104729) % 1000) / 1000);
+    return [
+      cx + r * Math.sin(theta) * Math.cos(phi),
+      cy + r * Math.sin(theta) * Math.sin(phi),
+      cz + r * Math.cos(theta),
+    ];
+  });
+
+  meltProgress = 0;
+  document.getElementById('sl-melt').value = 0;
+  document.getElementById('sl-melt-val').textContent = '0%';
+}
+
+function applyMeltProgression() {
+  if (!meltMode || !data || meltBasePositions.length === 0) return;
+
+  const s = data.structures[currentIdx];
+  const t = meltProgress; // 0 = crystal, 1 = melt
+  const dummy = new THREE.Object3D();
+
+  // Smoothstep for organic feel
+  const ease = t * t * (3 - 2 * t);
+
+  // Move atoms between crystal and random positions
+  const byElem = {};
+  s.atoms.forEach((a, i) => {
+    if (!byElem[a.e]) byElem[a.e] = [];
+    byElem[a.e].push({ ...a, idx: i });
+  });
+
+  let meshIdx = 0;
+  for (const [elem, atoms] of Object.entries(byElem)) {
+    if (meshIdx >= atomMeshes.length) break;
+    const mesh = atomMeshes[meshIdx];
+
+    atoms.forEach((a, ii) => {
+      const base = meltBasePositions[a.idx];
+      const target = meltTargetPositions[a.idx];
+      if (!base || !target) return;
+
+      // Add Brownian jitter that increases with melt progress
+      const jitter = ease * 0.15;
+      const now = performance.now() * 0.001;
+      const jx = jitter * Math.sin(now * 3.5 + a.idx * 1.7);
+      const jy = jitter * Math.sin(now * 4.1 + a.idx * 2.3);
+      const jz = jitter * Math.sin(now * 2.9 + a.idx * 3.1);
+
+      const x = base[0] + (target[0] - base[0]) * ease + jx;
+      const y = base[1] + (target[1] - base[1]) * ease + jy;
+      const z = base[2] + (target[2] - base[2]) * ease + jz;
+
+      dummy.position.set(x, y, z);
+      const r = (a.r || (elemRadii[a.e] || 0.8)) * atomScale;
+      dummy.scale.setScalar(r);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(ii, dummy.matrix);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    meshIdx++;
+  }
+
+  // Progressively hide bonds — break from weakest to strongest
+  if (bondMesh) {
+    const n = s.bonds.length;
+    const visibleCount = Math.round(n * (1 - ease));
+    // Simply hide bonds by reducing instance count
+    bondMesh.count = Math.max(0, visibleCount);
+  }
+}
+
+// ── Structure Switching ─────────────────────────────────────
+function switchStructure(idx) {
+  if (idx === currentIdx && !dissolving) return;
+  if (dissolving) return; // wait for current transition
+
+  dissolving = true;
+  dissolveStart = performance.now();
+  dissolveFromIdx = currentIdx;
+  dissolveToIdx = idx;
+
+  // Start fade-out
+  setGroupOpacity(0.0, DISSOLVE_MS / 2).then(() => {
+    buildCrystal(idx);
+    updateInfoPanel();
+    buildLegend();
+    // Rebuild Phase 3 features
+    clearMeasurements();
+    if (showPolyhedra) buildPolyhedra();
+    if (showSymmetry) buildSymmetry();
+    if (sliceEnabled) updateSlicePlane();
+    if (showScaleRef) buildScaleReference();
+    // Rebuild Phase 4 features
+    if (showBridges) buildBridgeVisualization();
+    if (meltMode) initMeltProgression();
+    // Fade in
+    setGroupOpacity(1.0, DISSOLVE_MS / 2).then(() => {
+      dissolving = false;
+    });
+  });
+}
+
+function setGroupOpacity(target, duration) {
+  return new Promise(resolve => {
+    const start = performance.now();
+    const startOpacities = [];
+
+    // Collect current opacities
+    crystalGroup.traverse(obj => {
+      if (obj.material) {
+        const current = obj.material.opacity !== undefined ? obj.material.opacity : 1;
+        startOpacities.push({ obj, start: current, mat: obj.material });
+        obj.material.transparent = true;
+      }
+    });
+
+    const initialOpacity = startOpacities.length > 0 ? startOpacities[0].start : (target > 0.5 ? 0 : 1);
+
+    function tick() {
+      const elapsed = performance.now() - start;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = t * t * (3 - 2 * t); // smoothstep
+
+      startOpacities.forEach(({ obj, start: s, mat }) => {
+        const targetOp = mat.userData?.baseOpacity ?? target;
+        mat.opacity = s + (targetOp - s) * eased;
+      });
+
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        resolve();
+      }
+    }
+    tick();
+  });
+}
+
+// ── Selection / Raycasting ──────────────────────────────────
+function onPointerMove(e) {
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+}
+
+function onPointerClick() {
+  raycaster.setFromCamera(mouse, camera);
+  const hit = raycastAtoms(raycaster);
+  if (hit) {
+    if (measureMode) {
+      if (measureFirst < 0) {
+        measureFirst = hit.structAtomIdx;
+        selectAtom(measureFirst);
+      } else {
+        addMeasurement(measureFirst, hit.structAtomIdx);
+        measureFirst = -1;
+        deselectAtom();
+      }
+    } else {
+      selectAtom(hit.structAtomIdx);
+    }
+  } else {
+    if (measureMode) measureFirst = -1;
+    deselectAtom();
+  }
+}
+
+function raycastAtoms(rc) {
+  // Raycast against each InstancedMesh
+  for (const mesh of atomMeshes) {
+    const hits = rc.intersectObject(mesh);
+    if (hits.length > 0) {
+      const instanceId = hits[0].instanceId;
+      const globalIdx = mesh.userData.atomIndices[instanceId];
+      return { mesh, instanceId, structAtomIdx: globalIdx };
+    }
+  }
+  return null;
+}
+
+function selectAtom(idx) {
+  const s = data.structures[currentIdx];
+  if (idx < 0 || idx >= s.atoms.length) return;
+
+  selectedAtom = idx;
+  const a = s.atoms[idx];
+  const info = data.elements[a.e];
+
+  // Position highlight
+  const r = (a.r || (elemRadii[a.e] || 0.8)) * atomScale * 1.4;
+  highlightMesh.scale.setScalar(r);
+  highlightMesh.position.set(a.x, a.y, a.z);
+  highlightMesh.visible = true;
+
+  // Update atom info panel
+  const atomInfoDiv = document.getElementById('atom-info');
+  const atomDetail = document.getElementById('atom-detail');
+  atomInfoDiv.style.display = 'block';
+  atomDetail.innerHTML = `
+    <div><b>${a.e}</b> — ${info?.name || a.e}</div>
+    <div>Position: (${a.x.toFixed(2)}, ${a.y.toFixed(2)}, ${a.z.toFixed(2)})</div>
+    <div>Radius: ${a.r.toFixed(2)} Å</div>
+    <div>Coordination: ${a.cn}</div>
+    ${info?.mass ? `<div>Mass: ${info.mass.toFixed(1)} u</div>` : ''}
+  `;
+}
+
+function deselectAtom() {
+  selectedAtom = -1;
+  highlightMesh.visible = false;
+  document.getElementById('atom-info').style.display = 'none';
+}
+
+// ── VR Setup ────────────────────────────────────────────────
+function setupVR() {
+  if (!navigator.xr) return;
+
+  const btn = VRButton.createButton(renderer);
+  btn.id = 'VRButton';
+  document.body.appendChild(btn);
+
+  renderer.xr.addEventListener('sessionstart', () => {
+    document.getElementById('hud').style.display = 'none';
+    crystalGroup.scale.setScalar(0.3);
+    crystalGroup.position.set(0, 1.2, -1.0);
+    // Auto-enable firing mode in VR
+    if (!firingMode) {
+      firingMode = true;
+      document.getElementById('chk-firing').checked = true;
+    }
+  });
+  renderer.xr.addEventListener('sessionend', () => {
+    document.getElementById('hud').style.display = '';
+    crystalGroup.scale.setScalar(worldScale);
+    crystalGroup.position.set(0, 0, 0);
+  });
+
+  const factory = new XRControllerModelFactory();
+  for (let i = 0; i < 2; i++) {
+    const ctrl = renderer.xr.getController(i);
+    ctrl.addEventListener('selectstart', () => vrSelect(ctrl));
+
+    // Grab-the-world: grip/squeeze
+    ctrl.addEventListener('squeezestart', () => {
+      vrGripState[i] = true;
+      ctrl.getWorldPosition(vrGripPrev[i]);
+      if (vrGripState[0] && vrGripState[1]) {
+        const p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
+        vrControllers[0].getWorldPosition(p0);
+        vrControllers[1].getWorldPosition(p1);
+        vrPrevGripDist = p0.distanceTo(p1);
+      }
+    });
+    ctrl.addEventListener('squeezeend', () => {
+      vrGripState[i] = false;
+      vrPrevGripDist = 0;
+    });
+
+    scene.add(ctrl);
+
+    const grip = renderer.xr.getControllerGrip(i);
+    grip.add(factory.createControllerModel(grip));
+    scene.add(grip);
+
+    // Ray visual
+    const ray = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
+      new THREE.LineBasicMaterial({ color: 0xc4826e, transparent: true, opacity: 0.5 })
+    );
+    ray.name = 'ray';
+    ray.scale.z = 10;
+    ctrl.add(ray);
+    vrControllers.push(ctrl);
+  }
+}
+
+function vrSelect(ctrl) {
+  const tempMatrix = new THREE.Matrix4();
+  tempMatrix.identity().extractRotation(ctrl.matrixWorld);
+  vrRaycaster.ray.origin.setFromMatrixPosition(ctrl.matrixWorld);
+  vrRaycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+  const hit = raycastAtoms(vrRaycaster);
+  if (hit) {
+    if (measureMode) {
+      if (measureFirst < 0) {
+        measureFirst = hit.structAtomIdx;
+        selectAtom(measureFirst);
+      } else {
+        addMeasurement(measureFirst, hit.structAtomIdx);
+        measureFirst = -1;
+        deselectAtom();
+      }
+    } else {
+      selectAtom(hit.structAtomIdx);
+    }
+  } else {
+    if (measureMode) measureFirst = -1;
+    deselectAtom();
+  }
+}
+
+function vrGrabUpdate() {
+  const activeGrips = vrGripState.filter(Boolean).length;
+  if (activeGrips === 0) return;
+
+  if (activeGrips === 1) {
+    const i = vrGripState[0] ? 0 : 1;
+    const curr = new THREE.Vector3();
+    vrControllers[i].getWorldPosition(curr);
+    const delta = curr.clone().sub(vrGripPrev[i]);
+    crystalGroup.position.add(delta);
+    if (compareGroup) compareGroup.position.add(delta);
+    vrGripPrev[i].copy(curr);
+  } else {
+    const p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
+    vrControllers[0].getWorldPosition(p0);
+    vrControllers[1].getWorldPosition(p1);
+    const dist = p0.distanceTo(p1);
+
+    if (vrPrevGripDist > 0.01) {
+      const scaleFactor = dist / vrPrevGripDist;
+      const newScale = Math.max(0.05, Math.min(3.0, crystalGroup.scale.x * scaleFactor));
+      crystalGroup.scale.setScalar(newScale);
+      if (compareGroup) compareGroup.scale.setScalar(newScale);
+      const mid = p0.clone().add(p1).multiplyScalar(0.5);
+      const chartMid = crystalGroup.position.clone();
+      crystalGroup.position.lerpVectors(chartMid, mid, 1 - 1 / scaleFactor);
+    }
+    vrPrevGripDist = dist;
+    vrControllers[0].getWorldPosition(vrGripPrev[0]);
+    vrControllers[1].getWorldPosition(vrGripPrev[1]);
+  }
+}
+
+// ── Animate ─────────────────────────────────────────────────
+let frameCount = 0;
+let lastFpsTime = 0;
+
+function animate() {
+  const dt = clock.getDelta();
+
+  // Desktop controls
+  if (!renderer.xr.isPresenting) {
+    controls.update();
+  } else if (firingMode) {
+    // VR: left thumbstick Y-axis controls temperature
+    const session = renderer.xr.getSession();
+    if (session) {
+      for (const source of session.inputSources) {
+        if (source.gamepad && source.handedness === 'left') {
+          const yAxis = source.gamepad.axes[3]; // thumbstick Y (up = negative)
+          if (Math.abs(yAxis) > 0.15) {
+            setTemperature(currentTemp + Math.round(-yAxis * 8));
+          }
+        }
+      }
+    }
+  }
+
+  // VR grab-the-world
+  vrGrabUpdate();
+
+  // Thermal vibration (Phase 2)
+  applyThermalVibration(dt);
+
+  // Layer highlighting (Phase 3)
+  updateLayerHighlight(dt);
+
+  // Phase 4: melt Brownian animation
+  if (meltMode && meltProgress > 0) applyMeltProgression();
+
+  // Highlight animation
+  if (highlightMesh.visible) {
+    highlightMesh.rotation.y += dt * 1.5;
+  }
+
+  renderer.render(scene, camera);
+
+  // FPS counter
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFpsTime > 1000) {
+    const fps = Math.round(frameCount * 1000 / (now - lastFpsTime));
+    const s = data?.structures[currentIdx];
+    const tempStr = firingMode ? ` · ${currentTemp}°C` : '';
+    let roleStr = '';
+    if (colorMode === 'stull-roles' && s) {
+      let glass = 0, inter = 0, flux = 0;
+      s.atoms.forEach(a => {
+        if (['Si','P','B'].includes(a.e)) glass++;
+        else if (['Al','Fe','Ti','Zr'].includes(a.e)) inter++;
+        else if (['Na','K','Li','Ca','Mg','Ba','Sr','Zn'].includes(a.e)) flux++;
+      });
+      roleStr = ` · G:${glass} I:${inter} F:${flux}`;
+    }
+    document.getElementById('stats').textContent = s
+      ? `${s.atoms.length} atoms · ${s.bonds.length} bonds${tempStr}${roleStr} · ${fps} fps`
+      : `${fps} fps`;
+    frameCount = 0;
+    lastFpsTime = now;
+  }
+}
+
+// ── Resize ──────────────────────────────────────────────────
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+
+// ── Go ──────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
