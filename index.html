@@ -252,6 +252,14 @@ let vrGripState = [false, false];
 let vrGripPrev = [new THREE.Vector3(), new THREE.Vector3()];
 let vrPrevGripDist = 0;
 
+// VR advanced controls
+let vrButtonCooldown = {};      // 'rA' | 'rB' | 'lX' | 'lY' → timestamp
+let vrSnapTurnCooldown = 0;
+let vrHudSprite = null;
+let vrHudCanvas = null;
+let vrHudCtx = null;
+let vrHudDirty = true;          // flag to redraw HUD
+
 // Dissolve transition
 let dissolving = false;
 let dissolveStart = 0;
@@ -2114,17 +2122,17 @@ function setupVR() {
     document.getElementById('hud').style.display = 'none';
     crystalGroup.scale.setScalar(0.3);
     crystalGroup.position.set(0, 1.2, -1.0);
-    // Auto-enable firing mode in VR
-    if (!firingMode) {
-      firingMode = true;
-      document.getElementById('chk-firing').checked = true;
-    }
+    vrHudDirty = true;
   });
   renderer.xr.addEventListener('sessionend', () => {
     document.getElementById('hud').style.display = '';
     crystalGroup.scale.setScalar(worldScale);
     crystalGroup.position.set(0, 0, 0);
+    if (vrHudSprite) vrHudSprite.visible = false;
   });
+
+  // Create floating VR HUD
+  createVrHud();
 
   const factory = new XRControllerModelFactory();
   for (let i = 0; i < 2; i++) {
@@ -2224,6 +2232,204 @@ function vrGrabUpdate() {
   }
 }
 
+// ── VR Gamepad Handler ───────────────────────────────────────
+function handleVrGamepads(dt) {
+  const session = renderer.xr.getSession();
+  if (!session || !data) return;
+  const now = performance.now();
+
+  for (const source of session.inputSources) {
+    if (!source.gamepad) continue;
+    const hand = source.handedness;
+    const axes = source.gamepad.axes;
+    const btns = source.gamepad.buttons;
+    const stickX = axes[2] || 0;
+    const stickY = axes[3] || 0;
+
+    if (hand === 'right') {
+      // Right stick X: smooth-rotate crystal (turntable)
+      if (Math.abs(stickX) > 0.2) {
+        const angle = -stickX * dt * 1.8;
+        crystalGroup.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle);
+        if (compareGroup) compareGroup.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle);
+      }
+
+      // Right stick Y: move crystal closer / further
+      if (Math.abs(stickY) > 0.15) {
+        const cam = renderer.xr.getCamera();
+        const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+        dir.y = 0;
+        dir.normalize();
+        crystalGroup.position.addScaledVector(dir, stickY * 0.02);
+        if (compareGroup) compareGroup.position.addScaledVector(dir, stickY * 0.02);
+      }
+
+      // A button: next structure
+      if (btns[4]?.pressed && now - (vrButtonCooldown.rA || 0) > 400) {
+        const next = (currentIdx + 1) % data.structures.length;
+        switchStructure(next);
+        vrButtonCooldown.rA = now;
+        vrHudDirty = true;
+      }
+
+      // B button: previous structure
+      if (btns[5]?.pressed && now - (vrButtonCooldown.rB || 0) > 400) {
+        const prev = (currentIdx - 1 + data.structures.length) % data.structures.length;
+        switchStructure(prev);
+        vrButtonCooldown.rB = now;
+        vrHudDirty = true;
+      }
+    }
+
+    if (hand === 'left') {
+      // Left stick Y: temperature (auto-enables firing if off)
+      if (Math.abs(stickY) > 0.15) {
+        if (!firingMode) {
+          firingMode = true;
+          document.getElementById('chk-firing').checked = true;
+          document.getElementById('temp-panel').style.display = 'flex';
+          document.getElementById('milestone-bar').style.display = 'block';
+          buildMilestoneBar();
+        }
+        setTemperature(currentTemp + Math.round(-stickY * 8));
+        vrHudDirty = true;
+      }
+
+      // Left stick X: atom scale
+      if (Math.abs(stickX) > 0.2) {
+        atomScale = Math.max(0.1, Math.min(2, atomScale + stickX * dt * 0.8));
+        document.getElementById('sl-atom').value = atomScale;
+        document.getElementById('sl-atom-val').textContent = atomScale.toFixed(1);
+        updateAtomScales();
+      }
+
+      // X button: toggle polyhedra
+      if (btns[4]?.pressed && now - (vrButtonCooldown.lX || 0) > 400) {
+        showPolyhedra = !showPolyhedra;
+        document.getElementById('chk-polyhedra').checked = showPolyhedra;
+        if (showPolyhedra) buildPolyhedra(); else clearPolyhedra();
+        vrButtonCooldown.lX = now;
+        vrHudDirty = true;
+      }
+
+      // Y button: cycle color mode
+      if (btns[5]?.pressed && now - (vrButtonCooldown.lY || 0) > 400) {
+        colorMode = colorMode === 'element' ? 'stull-roles' : 'element';
+        document.getElementById('btn-color-mode').textContent = colorMode === 'stull-roles' ? 'Color: Stull Roles \u2713' : 'Color: Element';
+        applyColorMode();
+        vrButtonCooldown.lY = now;
+        vrHudDirty = true;
+      }
+    }
+  }
+}
+
+// ── VR Floating HUD ─────────────────────────────────────────
+function createVrHud() {
+  vrHudCanvas = document.createElement('canvas');
+  vrHudCanvas.width = 512;
+  vrHudCanvas.height = 320;
+  vrHudCtx = vrHudCanvas.getContext('2d');
+
+  const texture = new THREE.CanvasTexture(vrHudCanvas);
+  texture.minFilter = THREE.LinearFilter;
+  const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.92, depthTest: false });
+  vrHudSprite = new THREE.Sprite(mat);
+  vrHudSprite.scale.set(0.30, 0.19, 1);
+  vrHudSprite.visible = false;
+  scene.add(vrHudSprite);
+  vrHudDirty = true;
+}
+
+function updateVrHud() {
+  if (!vrHudCtx || !data) return;
+  const ctx = vrHudCtx;
+  ctx.clearRect(0, 0, 512, 320);
+
+  // Background
+  ctx.fillStyle = 'rgba(10, 10, 12, 0.88)';
+  ctx.strokeStyle = 'rgba(196, 130, 110, 0.5)';
+  ctx.lineWidth = 2;
+  if (ctx.roundRect) {
+    ctx.beginPath();
+    ctx.roundRect(4, 4, 504, 312, 12);
+    ctx.fill(); ctx.stroke();
+  } else {
+    ctx.fillRect(4, 4, 504, 312);
+    ctx.strokeRect(4, 4, 504, 312);
+  }
+
+  const s = data.structures[currentIdx];
+
+  // Structure name
+  ctx.fillStyle = '#c4826e';
+  ctx.font = 'bold 28px monospace';
+  ctx.fillText(s ? s.name : '\u2014', 20, 38);
+
+  // Formula
+  ctx.fillStyle = '#999';
+  ctx.font = '18px monospace';
+  ctx.fillText(s ? s.formula : '', 20, 62);
+
+  // Separator
+  ctx.strokeStyle = 'rgba(196,130,110,0.25)';
+  ctx.beginPath(); ctx.moveTo(20, 74); ctx.lineTo(492, 74); ctx.stroke();
+
+  // Temperature
+  if (firingMode) {
+    const t01 = (currentTemp - 20) / 1480;
+    const r = Math.round(80 + t01 * 175);
+    const g = Math.round(80 + (t01 < 0.5 ? t01 * 2 * 100 : (1 - t01) * 2 * 100));
+    const b = Math.round(180 - t01 * 150);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.font = 'bold 24px monospace';
+    ctx.fillText(`${currentTemp}\u00B0C`, 20, 102);
+    // Phase name
+    if (currentPhaseIdx >= 0 && firingPhases[currentPhaseIdx]) {
+      ctx.fillStyle = '#888';
+      ctx.font = '16px monospace';
+      ctx.fillText(firingPhases[currentPhaseIdx].phase, 160, 102);
+    }
+  } else {
+    ctx.fillStyle = '#555';
+    ctx.font = '16px monospace';
+    ctx.fillText('L-stick \u2191\u2193 to start firing', 20, 100);
+  }
+
+  // Active modes
+  let modeY = 124;
+  ctx.font = '14px monospace';
+  if (showPolyhedra) { ctx.fillStyle = '#7ecfdf'; ctx.fillText('\u25C6 Polyhedra', 20, modeY); modeY += 18; }
+  if (colorMode === 'stull-roles') { ctx.fillStyle = '#f0a050'; ctx.fillText('\u25C6 Stull Roles', 20, modeY); modeY += 18; }
+
+  // Separator before controls
+  ctx.strokeStyle = 'rgba(196,130,110,0.2)';
+  ctx.beginPath(); ctx.moveTo(20, 168); ctx.lineTo(492, 168); ctx.stroke();
+
+  // Control hints
+  ctx.fillStyle = '#666';
+  ctx.font = '14px monospace';
+  const hints = [
+    ['R-stick', 'Rotate / Move'],
+    ['A / B', 'Next / Prev structure'],
+    ['L-stick', 'Temperature / Scale'],
+    ['X / Y', 'Polyhedra / Colors'],
+    ['Trigger', 'Select atom'],
+    ['Grip', 'Grab & scale'],
+  ];
+  hints.forEach(([key, desc], i) => {
+    const y = 190 + i * 20;
+    ctx.fillStyle = '#888';
+    ctx.fillText(key, 20, y);
+    ctx.fillStyle = '#555';
+    ctx.fillText(desc, 140, y);
+  });
+
+  if (vrHudSprite?.material?.map) {
+    vrHudSprite.material.map.needsUpdate = true;
+  }
+}
+
 // ── Animate ─────────────────────────────────────────────────
 let frameCount = 0;
 let lastFpsTime = 0;
@@ -2234,23 +2440,27 @@ function animate() {
   // Desktop controls
   if (!renderer.xr.isPresenting) {
     controls.update();
-  } else if (firingMode) {
-    // VR: left thumbstick Y-axis controls temperature
-    const session = renderer.xr.getSession();
-    if (session) {
-      for (const source of session.inputSources) {
-        if (source.gamepad && source.handedness === 'left') {
-          const yAxis = source.gamepad.axes[3]; // thumbstick Y (up = negative)
-          if (Math.abs(yAxis) > 0.15) {
-            setTemperature(currentTemp + Math.round(-yAxis * 8));
-          }
-        }
-      }
-    }
+  } else {
+    // VR: read all gamepad inputs
+    handleVrGamepads(dt);
   }
 
   // VR grab-the-world
   vrGrabUpdate();
+
+  // VR HUD position tracking
+  if (vrHudSprite && renderer.xr.isPresenting && vrControllers.length > 0) {
+    vrHudSprite.visible = true;
+    const wristPos = new THREE.Vector3();
+    vrControllers[0].getWorldPosition(wristPos);
+    wristPos.y += 0.18;
+    vrHudSprite.position.copy(wristPos);
+    const cam = renderer.xr.getCamera();
+    vrHudSprite.quaternion.copy(cam.quaternion);
+    if (vrHudDirty) { updateVrHud(); vrHudDirty = false; }
+  } else if (vrHudSprite) {
+    vrHudSprite.visible = false;
+  }
 
   // Thermal vibration (Phase 2)
   applyThermalVibration(dt);
