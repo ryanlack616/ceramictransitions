@@ -114,6 +114,17 @@ label.opt input{accent-color:var(--accent);}
 @keyframes ssflash{0%{opacity:.6}100%{opacity:0}}
 #ARButton{position:absolute !important;bottom:20px;right:90px;padding:12px 24px;border:1px solid var(--accent);border-radius:4px;background:rgba(10,10,12,.85);color:var(--accent);font-family:var(--mono);font-size:12px;cursor:pointer;backdrop-filter:blur(8px);z-index:999;transition:all .15s;}
 #ARButton:hover{background:rgba(196,130,110,.15);}
+/* ── Phase 5: Share / QR ──────────────────────────── */
+#btn-share,#btn-qr{position:absolute;top:16px;background:rgba(10,10,12,.85);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .15s;pointer-events:all;z-index:50;}
+#btn-share{right:58px;}
+#btn-qr{right:100px;}
+#btn-share:hover,#btn-qr:hover{border-color:var(--accent);color:var(--text);}
+#share-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(196,130,110,.92);color:#fff;padding:8px 20px;border-radius:6px;font-family:var(--mono);font-size:12px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:999;}
+#share-toast.visible{opacity:1;}
+#qr-overlay{position:absolute;top:60px;right:16px;background:rgba(10,10,12,.94);border:1px solid var(--border);border-radius:10px;padding:16px;backdrop-filter:blur(12px);z-index:50;pointer-events:all;display:none;text-align:center;}
+#qr-overlay canvas{border-radius:6px;}
+#qr-overlay .qr-url{font-size:9px;color:var(--text-dim);font-family:var(--mono);margin-top:8px;word-break:break-all;max-width:200px;}
+#qr-close{position:absolute;top:4px;right:8px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;font-family:var(--mono);}
 </style>
 </head>
 <body>
@@ -189,6 +200,10 @@ label.opt input{accent-color:var(--accent);}
   </div>
 
   <button id="btn-screenshot" title="Screenshot (PNG)">📷</button>
+  <button id="btn-share" title="Copy share link">🔗</button>
+  <button id="btn-qr" title="QR code">⊞</button>
+  <div id="share-toast"></div>
+  <div id="qr-overlay"><button id="qr-close">✕</button><canvas id="qr-canvas" width="200" height="200"></canvas><div class="qr-url" id="qr-url"></div></div>
 
   <div id="compare-panel">
     <h3>Compare Structure</h3>
@@ -491,6 +506,9 @@ async function init() {
   // Load data
   await loadData();
 
+  // Restore state from URL hash (share link)
+  applyShareState();
+
   // VR
   setupVR();
 
@@ -716,6 +734,9 @@ function buildStructureList() {
   document.getElementById('tour-pause').addEventListener('click', tourTogglePause);
   document.getElementById('tour-stop').addEventListener('click', stopTour);
   document.getElementById('btn-screenshot').addEventListener('click', takeScreenshot);
+  document.getElementById('btn-share').addEventListener('click', copyShareLink);
+  document.getElementById('btn-qr').addEventListener('click', toggleQR);
+  document.getElementById('qr-close').addEventListener('click', () => { document.getElementById('qr-overlay').style.display = 'none'; });
 }
 
 function updateInfoPanel() {
@@ -2129,6 +2150,162 @@ function tourTogglePause() {
     fill.style.width = (parentRect.width > 0 ? rect.width / parentRect.width * 100 : 0) + '%';
   } else {
     showTourStop();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 5 Feature #30: Screenshot ───────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 5 Feature #31: Share Links ──────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function encodeShareState() {
+  const p = new URLSearchParams();
+  p.set('s', currentIdx);
+  if (!showBonds) p.set('b', '0');
+  if (!showCell) p.set('c', '0');
+  if (showLabels) p.set('l', '1');
+  if (worldScale !== 1) p.set('sc', worldScale.toFixed(2));
+  if (atomScale !== 0.6) p.set('as', atomScale.toFixed(2));
+  if (colorMode !== 'element') p.set('cm', 's');
+  if (firingMode) { p.set('f', '1'); p.set('t', currentTemp); }
+  if (!thermalVibration) p.set('v', '0');
+  if (showPolyhedra) p.set('p', '1');
+  if (sliceEnabled) { p.set('sl', '1'); p.set('sa', sliceAxis); p.set('sp', slicePosition.toFixed(2)); }
+  if (showSymmetry) p.set('sy', '1');
+  if (highlightLayers) p.set('ly', '1');
+  if (showScaleRef) p.set('sr', '1');
+  if (compareMode && compareIdx >= 0) { p.set('cmp', '1'); p.set('ci', compareIdx); }
+  if (dualTrackMode) p.set('dt', '1');
+  if (showBridges) p.set('br', '1');
+  if (meltMode) { p.set('mt', '1'); p.set('mp', meltProgress.toFixed(2)); }
+  return p.toString();
+}
+
+function applyShareState() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const p = new URLSearchParams(hash);
+
+  // Structure
+  if (p.has('s')) {
+    const idx = parseInt(p.get('s'));
+    if (idx >= 0 && idx < data.structures.length && idx !== currentIdx) switchStructure(idx);
+  }
+  // Display
+  if (p.get('b') === '0') { showBonds = false; document.getElementById('chk-bonds').checked = false; if (bondMesh) bondMesh.visible = false; }
+  if (p.get('c') === '0') { showCell = false; document.getElementById('chk-cell').checked = false; if (cellLine) cellLine.visible = false; }
+  if (p.get('l') === '1') { showLabels = true; document.getElementById('chk-labels').checked = true; buildLabels(data.structures[currentIdx]); }
+  if (p.has('sc')) { worldScale = parseFloat(p.get('sc')); document.getElementById('sl-scale').value = worldScale; document.getElementById('sl-scale-val').textContent = worldScale.toFixed(1); crystalGroup.scale.setScalar(worldScale); }
+  if (p.has('as')) { atomScale = parseFloat(p.get('as')); document.getElementById('sl-atom').value = atomScale; document.getElementById('sl-atom-val').textContent = atomScale.toFixed(1); updateAtomScales(); }
+  if (p.get('cm') === 's') { colorMode = 'stull-roles'; document.getElementById('btn-color-mode').textContent = 'Color: Stull Roles ✓'; document.getElementById('btn-color-mode').classList.add('active'); applyColorMode(); }
+  // Firing
+  if (p.get('f') === '1') {
+    firingMode = true; document.getElementById('chk-firing').checked = true;
+    document.getElementById('temp-panel').style.display = 'flex'; document.getElementById('milestone-bar').style.display = 'block';
+    document.getElementById('phase-narrative').style.display = 'block'; buildMilestoneBar();
+    if (p.has('t')) { const t = parseInt(p.get('t')); document.getElementById('temp-slider').value = t; setTemperature(t); }
+  }
+  if (p.get('v') === '0') { thermalVibration = false; document.getElementById('chk-vibration').checked = false; }
+  // Spatial
+  if (p.get('p') === '1') { showPolyhedra = true; document.getElementById('chk-polyhedra').checked = true; buildPolyhedra(); }
+  if (p.get('sl') === '1') {
+    sliceEnabled = true; document.getElementById('chk-slice').checked = true; document.getElementById('slice-controls').style.display = 'block';
+    if (p.has('sa')) { sliceAxis = p.get('sa'); document.getElementById('sl-slice-axis').value = sliceAxis; }
+    if (p.has('sp')) { slicePosition = parseFloat(p.get('sp')); document.getElementById('sl-slice').value = slicePosition; }
+    updateSlicePlane();
+  }
+  if (p.get('sy') === '1') { showSymmetry = true; document.getElementById('chk-symmetry').checked = true; buildSymmetry(); }
+  if (p.get('ly') === '1') { highlightLayers = true; document.getElementById('chk-layers').checked = true; }
+  if (p.get('sr') === '1') { showScaleRef = true; document.getElementById('chk-scaleref').checked = true; buildScaleReference(); }
+  // Phase 4
+  if (p.get('cmp') === '1' && p.has('ci')) {
+    compareMode = true; document.getElementById('chk-compare').checked = true;
+    document.getElementById('compare-panel').style.display = 'block'; buildCompareList();
+    switchCompare(parseInt(p.get('ci')));
+  }
+  if (p.get('dt') === '1') { dualTrackMode = true; document.getElementById('chk-dual-track').checked = true; document.getElementById('dual-tracks').style.display = 'flex'; updateDualTrack(); }
+  if (p.get('br') === '1') { showBridges = true; document.getElementById('chk-bridges').checked = true; document.getElementById('bridge-legend').style.display = 'block'; buildBridgeVisualization(); }
+  if (p.get('mt') === '1') {
+    meltMode = true; document.getElementById('chk-melt').checked = true; document.getElementById('melt-controls').style.display = 'block';
+    initMeltProgression();
+    if (p.has('mp')) { meltProgress = parseFloat(p.get('mp')); document.getElementById('sl-melt').value = meltProgress; document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%'; applyMeltProgression(); }
+  }
+}
+
+function copyShareLink() {
+  const hash = encodeShareState();
+  const url = location.origin + location.pathname + '#' + hash;
+  history.replaceState(null, '', '#' + hash);
+  navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast(url));
+}
+
+function showToast(msg) {
+  const el = document.getElementById('share-toast');
+  el.textContent = msg;
+  el.classList.add('visible');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('visible'), 2000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 5 Feature #29: QR Code ──────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function toggleQR() {
+  const overlay = document.getElementById('qr-overlay');
+  if (overlay.style.display === 'block') { overlay.style.display = 'none'; return; }
+  const hash = encodeShareState();
+  const url = location.origin + location.pathname + '#' + hash;
+  history.replaceState(null, '', '#' + hash);
+  generateQR(url);
+  document.getElementById('qr-url').textContent = url.length > 80 ? url.slice(0, 77) + '…' : url;
+  overlay.style.display = 'block';
+}
+
+function generateQR(text) {
+  // Minimal QR code generator — alphanumeric mode, version auto-selected
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 200;
+  canvas.width = size; canvas.height = size;
+  ctx.fillStyle = '#0a0a0c'; ctx.fillRect(0, 0, size, size);
+
+  // Use dynamic script load for qrcode-generator (cached after first use)
+  if (window._qrCreate) {
+    renderQR(text, canvas, ctx, size);
+  } else {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+    script.onload = () => {
+      window._qrCreate = qrcode; // qrcode-generator sets global 'qrcode'
+      renderQR(text, canvas, ctx, size);
+    };
+    script.onerror = () => {
+      ctx.fillStyle = 'var(--text-dim)'; ctx.font = '11px monospace'; ctx.fillStyle = '#666';
+      ctx.fillText('QR unavailable', 50, 100);
+    };
+    document.head.appendChild(script);
+  }
+}
+
+function renderQR(text, canvas, ctx, size) {
+  const qr = window._qrCreate(0, 'M');
+  qr.addData(text);
+  qr.make();
+  const modules = qr.getModuleCount();
+  const cellSize = size / (modules + 8); // padding
+  const offset = (size - modules * cellSize) / 2;
+  ctx.fillStyle = '#0a0a0c'; ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#c4826e'; // accent color
+  for (let r = 0; r < modules; r++) {
+    for (let c = 0; c < modules; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize + 0.5, cellSize + 0.5);
+      }
+    }
   }
 }
 
