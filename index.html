@@ -99,6 +99,21 @@ label.opt input{accent-color:var(--accent);}
 #dual-tracks .track{padding:3px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;flex:1;text-align:center;}
 #dual-tracks .track.active{border-color:var(--accent);color:var(--text);}
 #melt-controls{margin-top:4px;}
+/* ── Phase 5: Tour / Screenshot / AR ──────────────── */
+#tour-overlay{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);width:min(500px,90vw);background:rgba(10,10,12,.94);border:1px solid var(--border);border-radius:10px;padding:16px 20px;pointer-events:all;backdrop-filter:blur(12px);display:none;text-align:center;z-index:50;}
+#tour-overlay .tour-title{font-size:16px;color:var(--accent);font-family:var(--mono);margin-bottom:6px;}
+#tour-overlay .tour-text{font-size:12px;color:var(--text);line-height:1.6;font-family:var(--mono);}
+#tour-overlay .tour-progress{margin-top:10px;height:3px;background:var(--surface);border-radius:2px;overflow:hidden;}
+#tour-overlay .tour-fill{height:100%;background:var(--accent);width:0%;}
+#tour-controls{display:flex;gap:6px;margin-top:8px;justify-content:center;}
+#tour-controls button{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:4px 12px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--mono);transition:all .15s;}
+#tour-controls button:hover{border-color:var(--accent);color:var(--text);}
+#btn-screenshot{position:absolute;top:16px;right:16px;background:rgba(10,10,12,.85);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .15s;pointer-events:all;z-index:50;}
+#btn-screenshot:hover{border-color:var(--accent);color:var(--text);}
+.screenshot-flash{position:fixed;inset:0;background:#fff;pointer-events:none;opacity:0;animation:ssflash .3s ease-out;}
+@keyframes ssflash{0%{opacity:.6}100%{opacity:0}}
+#ARButton{position:absolute !important;bottom:20px;right:90px;padding:12px 24px;border:1px solid var(--accent);border-radius:4px;background:rgba(10,10,12,.85);color:var(--accent);font-family:var(--mono);font-size:12px;cursor:pointer;backdrop-filter:blur(8px);z-index:999;transition:all .15s;}
+#ARButton:hover{background:rgba(196,130,110,.15);}
 </style>
 </head>
 <body>
@@ -169,7 +184,11 @@ label.opt input{accent-color:var(--accent);}
         <span class="val" id="sl-melt-val">0%</span>
       </div>
     </div>
+    <h3>Polish</h3>
+    <button class="btn-mode" id="btn-tour">▶ Guided Tour</button>
   </div>
+
+  <button id="btn-screenshot" title="Screenshot (PNG)">📷</button>
 
   <div id="compare-panel">
     <h3>Compare Structure</h3>
@@ -199,6 +218,18 @@ label.opt input{accent-color:var(--accent);}
   <div id="phase-narrative"><div class="phase-name"></div><div class="phase-range"></div><div class="phase-desc"></div></div>
 
   <div id="stats"></div>
+</div>
+
+<div id="tour-overlay">
+  <div class="tour-title" id="tour-title"></div>
+  <div class="tour-text" id="tour-text"></div>
+  <div class="tour-progress"><div class="tour-fill" id="tour-fill"></div></div>
+  <div id="tour-controls">
+    <button id="tour-prev">◀ Prev</button>
+    <button id="tour-pause">⏸ Pause</button>
+    <button id="tour-next">Next ▶</button>
+    <button id="tour-stop">✕ End</button>
+  </div>
 </div>
 
 <script type="importmap">
@@ -344,6 +375,16 @@ let meltBasePositions = [];     // original positions
 let meltTargetPositions = [];   // randomized (melted) positions
 let meltBrokenBonds = [];       // which bonds are broken at current progress
 
+// ── Phase 5: Guided Tour ─────────────────────────────────────
+let tourActive = false;
+let tourPaused = false;
+let tourIdx = 0;
+let tourTimer = null;
+const TOUR_DURATION = 10000;   // ms per stop
+
+// ── Phase 5: AR Passthrough ──────────────────────────────────
+let arMode = false;
+
 // Geometry cache (shared across structures)
 const sphereGeoCache = {};  // radius → SphereGeometry
 const bondGeo = new THREE.CylinderGeometry(BOND_RADIUS, BOND_RADIUS, 1, BOND_SEGMENTS);
@@ -402,7 +443,7 @@ async function init() {
   camera.position.set(0, 8, 20);
 
   // Renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.xr.enabled = true;
@@ -667,6 +708,14 @@ function buildStructureList() {
     document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%';
     applyMeltProgression();
   });
+
+  // ── Phase 5: Tour + Screenshot ──
+  document.getElementById('btn-tour').addEventListener('click', startTour);
+  document.getElementById('tour-prev').addEventListener('click', tourPrev);
+  document.getElementById('tour-next').addEventListener('click', tourNext);
+  document.getElementById('tour-pause').addEventListener('click', tourTogglePause);
+  document.getElementById('tour-stop').addEventListener('click', stopTour);
+  document.getElementById('btn-screenshot').addEventListener('click', takeScreenshot);
 }
 
 function updateInfoPanel() {
@@ -1975,6 +2024,132 @@ function applyMeltProgression() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 5 Feature #28: Guided Tour ──────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+const TOUR_TEXT = {
+  'α-Quartz': 'The most common mineral on Earth and the backbone of every glaze. Tetrahedral SiO₄ units link together sharing oxygen atoms, creating the rigid silica network that gives glass its structure.',
+  'β-Cristobalite': 'When quartz is heated above 1470°C it transforms into this more open structure. On cooling, the β→α transition at 220°C causes a sudden 3% volume change — the dreaded source of dunting cracks.',
+  'Kaolinite': 'The essential clay mineral. Alternating layers of silica tetrahedra and alumina octahedra, held together by hydrogen bonds. When you wedge clay, you\'re sliding these layers past each other.',
+  'Mullite': 'The holy grail of high-fire ceramics. Forms above 1000°C as kaolinite decomposes. Its interlocking needle-like crystals give fired stoneware its legendary strength and thermal shock resistance.',
+  'Orthoclase': 'Potassium feldspar — a key flux in stoneware and porcelain glazes. Melts gradually over a wide range, making it forgiving in the kiln. Potassium ions wedge into the silica network, lowering the melting point.',
+  'Albite': 'Sodium feldspar — a stronger flux than orthoclase. The smaller sodium ion disrupts the silica network more effectively. Used in lower-temperature glazes and as a eutectic partner with potash feldspar.',
+  'Nepheline': 'A feldspathoid with less silica than true feldspar. Its open framework makes it an aggressive flux — used in ancient Egyptian faience, one of humanity\'s first engineered ceramics.',
+  'Wollastonite': 'Calcium silicate — forms in lime-rich glazes. Its chain-like SiO₄ tetrahedra create the matte surfaces prized in contemporary ceramics. A key player in calcium-matte glazes.',
+  'Spinel': 'A transitional phase forming around 900°C in alumina-rich clays. Its cubic structure is exceptionally stable, making spinels ideal for kiln furniture and refractory applications.',
+  'Corundum': 'Pure alumina — the second hardest natural mineral after diamond. Forms the backbone of kiln shelves, thermocouple sheaths, and high-temperature refractory materials.',
+  'Rutile': 'Titanium dioxide — responsible for spectacular crystal patterns in art glazes. During cooling, rutile crystals nucleate and grow, creating golden "tiger skin" and blue effects.',
+  'Periclase': 'Magnesium oxide — highly refractory, melting above 2800°C. In glazes, magnesia promotes crystal growth at high temperatures. Essential in spinel refractories.',
+};
+
+function startTour() {
+  if (tourActive) { stopTour(); return; }
+  tourActive = true;
+  tourPaused = false;
+  tourIdx = 0;
+  document.getElementById('btn-tour').textContent = '■ Stop Tour';
+  document.getElementById('btn-tour').classList.add('active');
+  showTourStop();
+}
+
+function stopTour() {
+  tourActive = false;
+  tourPaused = false;
+  if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
+  document.getElementById('tour-overlay').style.display = 'none';
+  document.getElementById('btn-tour').textContent = '▶ Guided Tour';
+  document.getElementById('btn-tour').classList.remove('active');
+}
+
+function showTourStop() {
+  if (!tourActive || !data) return;
+  const s = data.structures[tourIdx];
+  const text = TOUR_TEXT[s.name] || (s.info ? s.info.join(' ') : s.name + ' — ' + s.formula + ', ' + s.system + ' crystal system.');
+
+  document.getElementById('tour-title').textContent = (tourIdx + 1) + '/' + data.structures.length + ': ' + s.name;
+  document.getElementById('tour-text').textContent = text;
+  const fill = document.getElementById('tour-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+  document.getElementById('tour-overlay').style.display = 'block';
+  document.getElementById('tour-pause').textContent = tourPaused ? '▶ Resume' : '⏸ Pause';
+
+  if (tourIdx !== currentIdx) switchStructure(tourIdx);
+
+  requestAnimationFrame(() => {
+    fill.style.transition = 'width ' + TOUR_DURATION + 'ms linear';
+    fill.style.width = '100%';
+  });
+
+  if (!tourPaused) {
+    if (tourTimer) clearTimeout(tourTimer);
+    tourTimer = setTimeout(() => {
+      if (!tourActive || tourPaused) return;
+      if (tourIdx < data.structures.length - 1) {
+        tourIdx++;
+        showTourStop();
+      } else {
+        document.getElementById('tour-title').textContent = 'Tour Complete';
+        document.getElementById('tour-text').textContent = 'Explored all ' + data.structures.length + ' crystal structures — the atomic foundation of ceramic science, from raw clay to fired stoneware.';
+        fill.style.transition = 'none';
+        fill.style.width = '100%';
+        tourTimer = setTimeout(stopTour, 5000);
+      }
+    }, TOUR_DURATION);
+  }
+}
+
+function tourPrev() {
+  if (!tourActive || tourIdx <= 0) return;
+  tourIdx--;
+  if (tourTimer) clearTimeout(tourTimer);
+  showTourStop();
+}
+
+function tourNext() {
+  if (!tourActive || !data) return;
+  if (tourIdx < data.structures.length - 1) {
+    tourIdx++;
+    if (tourTimer) clearTimeout(tourTimer);
+    showTourStop();
+  }
+}
+
+function tourTogglePause() {
+  if (!tourActive) return;
+  tourPaused = !tourPaused;
+  document.getElementById('tour-pause').textContent = tourPaused ? '▶ Resume' : '⏸ Pause';
+  if (tourPaused) {
+    if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
+    const fill = document.getElementById('tour-fill');
+    const rect = fill.getBoundingClientRect();
+    const parentRect = fill.parentElement.getBoundingClientRect();
+    fill.style.transition = 'none';
+    fill.style.width = (parentRect.width > 0 ? rect.width / parentRect.width * 100 : 0) + '%';
+  } else {
+    showTourStop();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Phase 5 Feature #30: Screenshot ───────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+function takeScreenshot() {
+  renderer.render(scene, camera);
+  const dataUrl = renderer.domElement.toDataURL('image/png');
+  const a = document.createElement('a');
+  const name = data ? data.structures[currentIdx].name.replace(/[^a-zA-Z0-9]/g, '_') : 'crystal';
+  a.download = 'crystal_' + name + '_' + Date.now() + '.png';
+  a.href = dataUrl;
+  a.click();
+  const flash = document.createElement('div');
+  flash.className = 'screenshot-flash';
+  document.body.appendChild(flash);
+  flash.addEventListener('animationend', () => flash.remove());
+}
+
 // ── Structure Switching ─────────────────────────────────────
 function switchStructure(idx) {
   if (idx === currentIdx && !dissolving) return;
@@ -2124,10 +2299,38 @@ function setupVR() {
   btn.id = 'VRButton';
   document.body.appendChild(btn);
 
+  // Phase 5: AR passthrough (Quest 3 mixed reality)
+  navigator.xr.isSessionSupported('immersive-ar').then(supported => {
+    if (!supported) return;
+    const arBtn = document.createElement('button');
+    arBtn.id = 'ARButton';
+    arBtn.textContent = 'ENTER AR';
+    arBtn.addEventListener('click', async () => {
+      if (renderer.xr.isPresenting) return;
+      arMode = true;
+      try {
+        const session = await navigator.xr.requestSession('immersive-ar', {
+          optionalFeatures: ['local-floor', 'hand-tracking'],
+        });
+        renderer.xr.setReferenceSpaceType('local-floor');
+        await renderer.xr.setSession(session);
+      } catch (e) { arMode = false; console.warn('AR session failed:', e); }
+    });
+    document.body.appendChild(arBtn);
+  });
+
   renderer.xr.addEventListener('sessionstart', () => {
     document.getElementById('hud').style.display = 'none';
-    crystalGroup.scale.setScalar(0.3);
-    crystalGroup.position.set(0, 1.2, -1.0);
+    if (arMode) {
+      scene.background = null;
+      scene.fog = null;
+      renderer.setClearColor(0x000000, 0);
+      crystalGroup.scale.setScalar(0.15);
+      crystalGroup.position.set(0, 0.8, -0.5);
+    } else {
+      crystalGroup.scale.setScalar(0.3);
+      crystalGroup.position.set(0, 1.2, -1.0);
+    }
     vrMenuVisible = true;
     vrMenuDirty = true;
     if (vrMenuPanel) vrMenuPanel.visible = true;
@@ -2135,9 +2338,13 @@ function setupVR() {
   });
   renderer.xr.addEventListener('sessionend', () => {
     document.getElementById('hud').style.display = '';
+    scene.background = new THREE.Color(0x0a0a0c);
+    scene.fog = new THREE.FogExp2(0x0a0a0c, 0.015);
+    renderer.setClearColor(0x0a0a0c, 1);
     crystalGroup.scale.setScalar(worldScale);
     crystalGroup.position.set(0, 0, 0);
     if (vrMenuPanel) vrMenuPanel.visible = false;
+    arMode = false;
   });
 
   // Create interactive VR menu
