@@ -14,7 +14,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 #hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
 
-#panel{position:absolute;top:16px;left:16px;width:220px;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);}
+#panel{position:absolute;top:16px;left:16px;width:220px;max-height:calc(100vh - 32px);overflow-y:auto;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);}
 #panel h2{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:-.3px;}
 #panel .subtitle{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;}
 #panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:10px 0 5px;}
@@ -110,6 +110,12 @@ label.opt input{accent-color:var(--accent);}
 #tour-controls button:hover{border-color:var(--accent);color:var(--text);}
 #btn-screenshot{position:absolute;top:16px;right:16px;background:rgba(10,10,12,.85);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .15s;pointer-events:all;z-index:50;}
 #btn-screenshot:hover{border-color:var(--accent);color:var(--text);}
+/* changelog */
+.cl-entry{padding:4px 0;border-bottom:1px solid var(--border);}
+.cl-entry:last-child{border-bottom:none;}
+.cl-date{font-size:9px;color:var(--accent);font-family:var(--mono);margin-bottom:2px;}
+.cl-item{font-size:10px;color:var(--text-dim);line-height:1.5;padding-left:8px;text-indent:-8px;}
+.cl-item::before{content:"\00B7\00A0";color:var(--accent);}
 .screenshot-flash{position:fixed;inset:0;background:#fff;pointer-events:none;opacity:0;animation:ssflash .3s ease-out;}
 @keyframes ssflash{0%{opacity:.6}100%{opacity:0}}
 #ARButton{position:absolute !important;bottom:20px;right:90px;padding:12px 24px;border:1px solid var(--accent);border-radius:4px;background:rgba(10,10,12,.85);color:var(--accent);font-family:var(--mono);font-size:12px;cursor:pointer;backdrop-filter:blur(8px);z-index:999;transition:all .15s;}
@@ -197,6 +203,29 @@ label.opt input{accent-color:var(--accent);}
     </div>
     <h3>Polish</h3>
     <button class="btn-mode" id="btn-tour">▶ Guided Tour</button>
+    <h3>Version History</h3>
+    <div class="cl-entry">
+      <div class="cl-date">May 8, 2026</div>
+      <div class="cl-item">Eval run — all rubrics scored</div>
+    </div>
+    <div class="cl-entry">
+      <div class="cl-date">May 5–7, 2026</div>
+      <div class="cl-item">22 structures — added enstatite, periclase, brucite</div>
+      <div class="cl-item">NBO/T display (BO / NBO / FO counts)</div>
+      <div class="cl-item">COE (×10⁻⁶/°C) for all minerals</div>
+      <div class="cl-item">Bond color legend in stats panel</div>
+    </div>
+    <div class="cl-entry">
+      <div class="cl-date">May 3–4, 2026</div>
+      <div class="cl-item">Added magnetite, calcite, diopside, willemite, anorthite, talc</div>
+      <div class="cl-item">C + Zn elements added throughout</div>
+    </div>
+    <div class="cl-entry">
+      <div class="cl-date">Apr–May 2026</div>
+      <div class="cl-item">v3: 13 structures, metric tensor coords, vectorized bonds</div>
+      <div class="cl-item">v2: spinel, orthoclase, forsterite, hematite</div>
+      <div class="cl-item">v1: 9 structures, Taichi GGUI, firing phases</div>
+    </div>
   </div>
 
   <button id="btn-screenshot" title="Screenshot (PNG)">📷</button>
