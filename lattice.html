@@ -77,7 +77,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 <div id="header">
   <div style="display:flex;align-items:baseline;gap:4px">
     <h1>Ceramic Crystal <span>Lattices</span></h1>
-    <span class="sub">12 structures repeating in space</span>
+    <span class="sub" id="structure-count-sub">Loading structures…</span>
   </div>
   <a href="index.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">← Crystal Viewer</a>
 </div>
@@ -208,6 +208,7 @@ async function loadData() {
   fill.style.width = '30%';
   const resp = await fetch(DATA_URL);
   data = await resp.json();
+  document.getElementById('structure-count-sub').textContent = `${data.structures.length} structures repeating in space`;
   fill.style.width = '80%';
 
   for (const [sym, info] of Object.entries(data.elements)) {
@@ -271,7 +272,7 @@ function updateInfo(idx) {
   const s = data.structures[idx];
   document.getElementById('info-name').textContent    = s.name;
   document.getElementById('info-formula').textContent  = s.formula;
-  document.getElementById('info-system').textContent   = s.crystalSystem || '';
+  document.getElementById('info-system').textContent   = s.system || '';
 
   const cv = s.cellVectors;
   const va = Math.sqrt(cv[0][0]**2 + cv[0][1]**2 + cv[0][2]**2).toFixed(2);

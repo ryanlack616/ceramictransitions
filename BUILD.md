@@ -74,6 +74,8 @@ git push origin master
 
 ## 8) Project Status & Plans
 
+Roadmap constraint: Phase 3 and beyond are implemented in the existing Taichi codebase at `C:\rje\dev\ceramictransitions-taichi`. This repository remains the completed Phase 1-2 web artifact track.
+
 ### Phase 1: Core Ceramic Structures (COMPLETE)
 - **38 baseline materials** in `data/crystal_vr.json` (silicates, oxides, refractories)
 - Three.js visualization with full atomic coordinates, bonds, supercell info
@@ -101,7 +103,7 @@ git push origin master
 **Approach:**
 1. Use Materials Project / ICSD databases for ultra-high-temp ceramics where crystal data exists
 2. Generate pseudo-structures for composites/coatings (layered models showing TBC stacking)
-3. Import/convert structures via phonopy/ASE into Three.js JSON format
+3. Import/convert structures via phonopy/ASE into Taichi simulation/render schemas in `C:\rje\dev\ceramictransitions-taichi`
 4. Extend `_inspect.py` to validate complete structures
 
 **Priority:** ZrB₂, HfB₂, YSZ variants (industry-standard; data widely available)
@@ -149,7 +151,7 @@ git push origin master
 
 ### howell-help → ceramictransitions (Source → Consumer)
 - **Sync direction:** howell-help `high_temp_ceramics_starter.json` (28 materials) → ceramictransitions `data/crystal_vr.json` (23 new entries)
-- **Trigger:** Manual via `add_aerospace_materials.py`; future: automated on push to howell-help
+- **Trigger:** Manual via `add_aerospace_materials.py`; future: automated on push to howell-help, with Taichi pipeline sync in `C:\rje\dev\ceramictransitions-taichi`
 - **Versioning:** ceramictransitions ships complete material list; howell-help is source of truth for aerospace spec data
 - **Last sync:** May 10, 2026 (all 23 aerospace + baseline materials integrated; validation passed)
 

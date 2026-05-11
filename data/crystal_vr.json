@@ -159052,6 +159052,206 @@
         "bondLengths": {},
         "coordDist": {}
       }
+    },
+    {
+      "name": "β-Cristobalite",
+      "formula": "SiO₂",
+      "system": "Cubic Fd-3m",
+      "info": [
+        "High-temperature SiO₂ polymorph",
+        "a≈7.1 Angstrom (above 1470°C)",
+        "β→α inversion on cooling causes severe thermal shock",
+        "Used in low-expansion refractories when stabilized"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
+      "formula": "ZrO₂-3Y₂O₃",
+      "system": "Tetragonal P4₂/nmc",
+      "info": [
+        "Industry-standard thermal barrier coating (TBC)",
+        "Service temperature ~1200°C in jet engines",
+        "Tetragonal → monoclinic transformation risk on cooling",
+        "Excellent insulation (low thermal conductivity ~2 W/m·K) for gas turbine blades"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
+      "formula": "ZrO₂-8Y₂O₃",
+      "system": "Cubic Fm-3m",
+      "info": [
+        "Cubic-stabilized thermal barrier coating",
+        "Service temperature up to 1300°C with minimal phase transition",
+        "Superior cyclic thermal performance vs 3YSZ",
+        "Higher yttria content eliminates damaging tetragonal transformation"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "SiC-SiC Ceramic Matrix Composite",
+      "formula": "SiC (fiber-reinforced)",
+      "system": "Composite (hexagonal fiber + matrix)",
+      "info": [
+        "Game-changing composite for aerospace propulsion",
+        "Service temperature up to 1300°C in next-gen engines",
+        "Low density combined with high strength and fracture toughness",
+        "Combines SiC fibers with SiC matrix; fiber coatings enable crack bridging"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Sialon",
+      "formula": "Si₆₋ₓAlₓOₓN₈₋ₓ",
+      "system": "Hexagonal or orthorhombic (composition-dependent)",
+      "info": [
+        "Silicon-aluminum oxynitride ceramic alloy",
+        "Service temperature up to 1400°C",
+        "High strength and creep resistance at temperature",
+        "Used in structural aerospace and high-speed machining applications"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "β-Cristobalite",
+      "formula": "SiO₂",
+      "system": "Cubic Fd-3m",
+      "info": [
+        "High-temperature SiO₂ polymorph",
+        "a≈7.1 Angstrom (above 1470°C)",
+        "β→α inversion on cooling causes severe thermal shock",
+        "Used in low-expansion refractories when stabilized"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
+      "formula": "ZrO₂-3Y₂O₃",
+      "system": "Tetragonal P4₂/nmc",
+      "info": [
+        "Industry-standard thermal barrier coating (TBC)",
+        "Service temperature ~1200°C in jet engines",
+        "Tetragonal → monoclinic transformation risk on cooling",
+        "Excellent insulation (low thermal conductivity ~2 W/m·K) for gas turbine blades"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
+      "formula": "ZrO₂-8Y₂O₃",
+      "system": "Cubic Fm-3m",
+      "info": [
+        "Cubic-stabilized thermal barrier coating",
+        "Service temperature up to 1300°C with minimal phase transition",
+        "Superior cyclic thermal performance vs 3YSZ",
+        "Higher yttria content eliminates damaging tetragonal transformation"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "SiC-SiC Ceramic Matrix Composite",
+      "formula": "SiC (fiber-reinforced)",
+      "system": "Composite (hexagonal fiber + matrix)",
+      "info": [
+        "Game-changing composite for aerospace propulsion",
+        "Service temperature up to 1300°C in next-gen engines",
+        "Low density combined with high strength and fracture toughness",
+        "Combines SiC fibers with SiC matrix; fiber coatings enable crack bridging"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
+    },
+    {
+      "name": "Sialon",
+      "formula": "Si₆₋ₓAlₓOₓN₈₋ₓ",
+      "system": "Hexagonal or orthorhombic (composition-dependent)",
+      "info": [
+        "Silicon-aluminum oxynitride ceramic alloy",
+        "Service temperature up to 1400°C",
+        "High strength and creep resistance at temperature",
+        "Used in structural aerospace and high-speed machining applications"
+      ],
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      }
     }
   ],
   "elements": {

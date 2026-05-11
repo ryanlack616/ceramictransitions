@@ -18,6 +18,8 @@
 4. **ceramictransitions:** `BUILD.md` (6-phase development roadmap)
 5. **Both projects:** Updated memory, integration docs, validation scripts
 
+**Roadmap constraint (effective now):** All remaining implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1-2 web delivery track.
+
 ---
 
 ## Phase Overview & Completion Status
@@ -129,6 +131,18 @@ ceramictransitions/
 └── [future] 3D models/ (atomic coordinates for aerospace materials)
 ```
 
+### Implementation Runtime: ceramictransitions-taichi
+
+```
+ceramictransitions-taichi/
+├── main.py (Taichi runtime entrypoint)
+├── crystal_structures.py (Taichi structure rendering path)
+├── crystal_structures_v2.py (advanced structure path)
+├── data_loader.py (data ingestion for Taichi fields)
+├── requirements.txt (taichi runtime dependency)
+└── BUILD.md (Taichi operator workflow)
+```
+
 ### Integration Layer (Bidirectional Sync · PLANNED)
 ```
 howell-help/data/high_temp_ceramics_starter.json
@@ -197,7 +211,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 ### Approach
 1. Query **Materials Project** (mp-web-api) for crystal structures of diborides/carbides/rare-earth silicates
-2. Parse & convert via **pymatgen** → Three.js JSON format (atoms, bonds, supercell)
+2. Parse & convert via **pymatgen** → Taichi simulation/render schema in `ceramictransitions-taichi` (atoms, bonds, supercell)
 3. Generate pseudo-structures for composites/coatings (layered TBC models)
 4. Validate with `_inspect.py` (extend to check non-empty atoms)
 5. Deploy update to GitHub Pages
@@ -213,7 +227,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Goal:** Animate thermal transformations and field-use degradation in 3D viewer  
 **Timeline:** 4–8 weeks  
-**Tech:** Three.js animation loops, WebGL shaders, data-driven phase paths
+**Tech:** Taichi kernels, Taichi scene pipelines, data-driven phase paths
 
 ### Features
 1. **Thermal transformation paths**
@@ -246,7 +260,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Goal:** Faceted search + filtering on studio and aerospace properties  
 **Timeline:** 3–4 weeks  
-**Tech:** WebSQL / IndexedDB backend, React/Vue frontend components
+**Tech:** Taichi-backed data pipeline with web UI surfaces for query and comparison
 
 ### Features
 1. **Faceted Filters**
@@ -331,6 +345,12 @@ Each material in `high_temp_ceramics_starter.json` includes:
 - `C:\rje\dev\ceramictransitions\BUILD.md` (6-phase roadmap)
 - `C:\rje\dev\ceramictransitions\add_aerospace_materials.py` (integration script)
 
+### ceramictransitions-taichi
+- `C:\rje\dev\ceramictransitions-taichi\main.py` (Taichi runtime)
+- `C:\rje\dev\ceramictransitions-taichi\crystal_structures.py` (structure visualization)
+- `C:\rje\dev\ceramictransitions-taichi\data_loader.py` (schema/data ingestion)
+- `C:\rje\dev\ceramictransitions-taichi\BUILD.md` (operator workflow)
+
 ### Memory (persist across sessions)
 - `/memories/repo/howell-help.md` (cross-project status)
 - `/memories/session/ceramictransitions-aerospace-phase2.md` (Phase 2 completion notes)
@@ -371,7 +391,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 - Pymatgen installation? Covered in existing howell-help environment
 
 **For Phase 4–6 (visualization + integration):**
-- Three.js expertise? Existing ceramictransitions viewer as baseline
+- Taichi pipeline alignment? Existing `ceramictransitions-taichi` implementation is the baseline
 - CMW embedding? Coordinate with Matt Katz
 - Howell bridge KG sync? Coordinate with howell bridge daemon
 
