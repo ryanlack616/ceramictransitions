@@ -1,3 +1,14 @@
 yfiles/
 yfiles-demo/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+.pass.local
+*.local
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
 

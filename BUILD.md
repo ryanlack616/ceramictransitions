@@ -6,16 +6,22 @@ Operator playbook for building, verifying, and releasing ceramictransitions.
 
 - Git
 - GitHub repository access
-- GitHub Pages enabled for this repository
+- Python 3.10+ (for `validate_crystal_vr.py` and `_deploy.py`)
+- Node 18+ (for `test_prototype_generators.js`)
+- Porkbun / pixie-sh FTP credentials (only for deploys)
 
 ## 2) Repo Layout (Build-Relevant)
 
 - `index.html` - primary static viewer (Three.js + VR crystal structure visualization)
-- `.github/workflows/pages.yml` - deploy workflow (automatic on push to master)
-- `data/crystal_vr.json` - crystal structure library (61 materials: 38 baseline + 23 aerospace)
-- `_inspect.py` - utility to audit structure inventory
+- `lattice.html` - compact lattice viewer (shares procedural module with index.html)
+- `data/crystal_vr.json` - crystal structure library (60 materials: 38 native atomic + 17 procedural + 5 metadata-only stubs)
+- `validate_crystal_vr.py` - structure inventory + renderable-count audit
+- `test_prototype_generators.js` - Node smoke test for procedural module (215 invariants)
+- `_deploy.py` - FTP deploy script to ceramictransitions.com (pixie-sh)
+- `_inspect.py` - quick structure dump helper
 - `add_aerospace_materials.py` - integration script (howell-help → crystal_vr.json)
-- root-level static assets and HTML files - published as-is
+- `.github/workflows/pages.yml` - LEGACY workflow; GitHub Pages is disabled on the repo and the live site is served from pixie-sh FTP, not Pages
+- root-level static HTML + `data/` are the deploy artifacts
 
 ## 3) Local Setup / Run
 
@@ -42,45 +48,75 @@ Then open <http://localhost:8080>.
 
 ## 5) Deploy
 
-Deployment is automated by GitHub Actions on push to `master`.
-
-Workflow details:
-
-- Workflow file: `.github/workflows/pages.yml`
-- Trigger: push to `master`
-- Artifact path: repository root (`.`)
-- Target: GitHub Pages
+**The live site at https://ceramictransitions.com is served from Porkbun's pixie-sh static hosting via FTP — NOT GitHub Pages.** `git push` updates the GitHub repo but does **not** push to production. GitHub Pages is currently disabled on the repo (the `.github/workflows/pages.yml` workflow is a leftover and produces no live artifact).
 
 Deploy command sequence:
 
 ```powershell
 cd C:\rje\dev\ceramictransitions
+# 1. commit + push source
 git add .
-git commit -m "Update site + materials"
+git commit -m "<message>"
 git push origin master
+
+# 2. push to live site
+$env:CERAMICTRANSITIONS_FTP_PASS = '<porkbun ftp password>'
+python _deploy.py --dry-run   # preview which files would upload
+python _deploy.py             # actual upload (size-compare optimization)
+python _deploy.py --force     # upload every file unconditionally
+python _deploy.py --tls       # use FTP_TLS if plain FTP is blocked (per howell.help gotcha)
 ```
+
+FTP target:
+- Host: `pixie-ss1-ftp.porkbun.com` (override with `CERAMICTRANSITIONS_FTP_HOST`)
+- User: `ceramictransitions.com` (override with `CERAMICTRANSITIONS_FTP_USER`)
+- Password: env `CERAMICTRANSITIONS_FTP_PASS` (required; never commit)
+
+What `_deploy.py` uploads:
+- `index.html`, `lattice.html`, `transitions-graph.html`, `transitions-graph-local.html`
+- `data/**/*.json` (notably `data/crystal_vr.json`)
+- Any root-level `.ico`/`.png`/`.svg`/`.css`/`.js` viewer assets
+
+What `_deploy.py` skips (never uploaded):
+- `yfiles/`, `yfiles-demo/` (legacy eval SDKs, gitignored)
+- `.git/`, `.github/`, `__pycache__/`, `node_modules/`, `.vscode/`, `.idea/`
+- `*.py`, `*.md`, `.gitignore`, `.env*`, `.pass.local`, `_deploy.py` itself
+- `test_prototype_generators.js` (dev-only smoke test)
+- Anything containing `taichi` in the path (sibling-repo guard)
 
 ## 6) Secrets and Env Vars (Names Only)
 
-- None required for this static Pages deploy flow.
+- `CERAMICTRANSITIONS_FTP_PASS` - Porkbun pixie-sh FTP password (required for deploy)
+- `CERAMICTRANSITIONS_FTP_HOST` - optional override of FTP host
+- `CERAMICTRANSITIONS_FTP_USER` - optional override of FTP user
+
+No secrets are required to develop locally — only to deploy.
 
 ## 7) Verification Checklist
 
-1. Confirm GitHub Actions run succeeds (`Deploy to GitHub Pages`).
-2. Confirm live site shows latest changes.
-3. Validate no major console/runtime errors in browser.
-4. Test 3D viewer loads and rotates structures smoothly.
-5. Verify new aerospace materials appear in sidebar/search.
+Before deploy:
+
+1. `python validate_crystal_vr.py` reports `60 structures · 38 native + 17 procedural = 55 renderable · 5 metadata-only stubs`.
+2. `node test_prototype_generators.js` reports `PASS: 215 checks passed, 0 failed`.
+3. `python _deploy.py --dry-run` lists exactly the expected viewer + data files (no `.py`, `.md`, or `yfiles/`).
+4. `git status` is clean and pushed to origin/master.
+
+After deploy:
+
+1. `https://ceramictransitions.com/` loads index.html and renders 3D structures.
+2. Hard-refresh (Ctrl+F5) clears any stale CDN/browser cache.
+3. Procedural structures show the cyan info-panel badge; metadata-only stubs show the amber badge.
+4. No `cv[0] is not iterable` or `count=66 + duplicates` symptoms in the browser console (those bugs are fixed in current master).
 
 ## 8) Project Status & Plans
 
 Roadmap constraint: Phase 3 and beyond are implemented in the existing Taichi codebase at `C:\rje\dev\ceramictransitions-taichi`. This repository remains the completed Phase 1-2 web artifact track.
 
 ### Phase 1: Core Ceramic Structures (COMPLETE)
-- **38 baseline materials** in `data/crystal_vr.json` (silicates, oxides, refractories)
-- Three.js visualization with full atomic coordinates, bonds, supercell info
+- **38 native materials** in `data/crystal_vr.json` (silicates, oxides, refractories) with full atomic coordinates + bonds
+- Three.js / InstancedMesh visualization with supercell info
 - VR-ready dual-track phase narratives and firing trajectories
-- GitHub Pages deployment live at https://ceramictransitions.com
+- Live site at https://ceramictransitions.com (served from pixie-sh FTP, see §5)
 
 ### Phase 2: Aerospace Materials Integration (COMPLETE · May 10, 2026)
 **Source:** `C:\rje\dev\howell-help\data\high_temp_ceramics_starter.json` (28 canonical materials)  
@@ -98,15 +134,21 @@ Roadmap constraint: Phase 3 and beyond are implemented in the existing Taichi co
 - Stub atomic structures (empty atoms/bonds arrays) — 3D model generation deferred to Phase 3
 - Full crystal data available via cross-reference to howell-help `high_temp_ceramics_starter.json`
 
-### Phase 3: 3D Model Generation (PLANNED)
-**Goal:** Generate full atomic coordinate sets for aerospace materials (currently stub structures)  
+### Phase 2.5.1: Procedural Prototype Renderer (COMPLETE · May 15, 2026)
+- 17 of 22 aerospace stubs promoted to renderable via in-browser procedural generators (rocksalt, fluorite, zincblende, AlB2, wurtzite, hBN prototypes)
+- 5 stubs remain metadata-only: Si₃N₄ ×2, Yb₂SiO₅, Yb₂Si₂O₇, SiAlON (need β-Si₃N₄ P6₃ + X2 rare-earth silicate prototypes)
+- Procedural structures show cyan info-panel badge; full atomic coordinates from Phase 3 will replace them
+- See `PLANS.md` §2.5.1 for delivery notes; commits `edf89b5` (renderer) + `5434491` (bond-color fallback + smoke test)
+
+### Phase 3: Full 3D Model Generation (PLANNED, in `ceramictransitions-taichi`)
+**Goal:** Replace procedural fallbacks with full ab-initio atomic coordinates for the remaining 5 stubs and any procedural structure where simulation data is available.
 **Approach:**
 1. Use Materials Project / ICSD databases for ultra-high-temp ceramics where crystal data exists
-2. Generate pseudo-structures for composites/coatings (layered models showing TBC stacking)
-3. Import/convert structures via phonopy/ASE into Taichi simulation/render schemas in `C:\rje\dev\ceramictransitions-taichi`
-4. Extend `_inspect.py` to validate complete structures
+2. Run Taichi / phonopy / ASE pipelines in `C:\rje\dev\ceramictransitions-taichi`
+3. Export canonical atomic coordinates back into `data/crystal_vr.json` via `add_aerospace_materials.py`-style integration
+4. Extend `validate_crystal_vr.py` to flag any structure still using `proceduralFallback`
 
-**Priority:** ZrB₂, HfB₂, YSZ variants (industry-standard; data widely available)
+**Priority:** Si₃N₄ (β-phase), Yb-silicates (EBC), then SiAlON.
 
 ### Phase 4: Advanced Visualization Features (PLANNED)
 **Goal:** Phase trajectories showing thermal transformations and field-use degradation  
@@ -141,11 +183,12 @@ Roadmap constraint: Phase 3 and beyond are implemented in the existing Taichi co
 
 ## 9) Common Failure Modes
 
-- **Changes not live yet:** wait for Pages deploy completion (typically <2 min).
-- **Wrong branch pushed:** deploy triggers from `master` only.
-- **Stale client cache:** hard refresh browser; check `index.html` timestamp comment.
-- **Structure not loading in 3D:** verify `atoms` array is non-empty (baseline materials only; aerospace materials are stubs pending Phase 3).
-- **Unicode errors in `_inspect.py`:** script expects UTF-8; ensure terminal is in UTF-8 mode.
+- **Changes not live yet:** `git push` does NOT deploy; you must run `python _deploy.py` (see §5). The pixie-sh FTP upload is the actual production deploy.
+- **`_deploy.py` ConnectionError / timeout on plain FTP:** add `--tls` to use explicit FTPS; if both fail, try `curl.exe --ftp-ssl` on port 990 (per howell.help gotcha, May 12 2026).
+- **`_deploy.py` errors out on missing env var:** export `CERAMICTRANSITIONS_FTP_PASS` before running.
+- **Stale client cache:** hard refresh browser (Ctrl+F5); CloudFront / CDN edges may also cache for ~5 minutes.
+- **Structure not loading in 3D:** verify `atoms` array is non-empty AND a procedural prototype is registered for the formula. The 5 remaining stubs (Si₃N₄, Yb₂SiO₅, Yb₂Si₂O₇, SiAlON) intentionally show metadata only.
+- **Unicode errors in `_inspect.py` / validators:** script expects UTF-8; on Windows run with `python -X utf8` or set `PYTHONUTF8=1`.
 
 ## 10) Integration Points (Cross-Project)
 
@@ -162,7 +205,8 @@ Roadmap constraint: Phase 3 and beyond are implemented in the existing Taichi co
 
 ## 11) Last Verified
 
-- Date: 2026-05-10
-- Status: Pages workflow present; crystal_vr.json updated to 61 materials (38 baseline + 23 aerospace); integration validation complete
-- Latest commit: aerospace materials added + documentation updated
+- Date: 2026-05-15
+- Status: 60 structures (38 native + 17 procedural + 5 metadata-only), validator + Node smoke test (215 checks) both green, `_deploy.py` dry-run produces correct 5-file upload set.
+- Deploy mechanism: pixie-sh FTP via `_deploy.py` (NOT GitHub Pages). The `.github/workflows/pages.yml` workflow file is dormant/legacy.
+- Latest commits on master: `edf89b5` (procedural renderer), `18ccbae` (plans), `5434491` (bond-color fallback + smoke test).
 
