@@ -13,8 +13,11 @@ howell_starter = json.load(open(r'C:\rje\dev\howell-help\data\high_temp_ceramics
 crystal_file = Path('data/crystal_vr.json')
 vr_data = json.load(open(crystal_file, encoding='utf-8'))
 
-# Build a map of existing structures by name
+# Build a map of existing structures by (name, formula) — keyed both ways so
+# that aliases (e.g. howell "Beta-Cristobalite" vs baseline "β-Cristobalite")
+# round-trip safely and we never re-append a material that's already present.
 existing_names = {s['name'] for s in vr_data['structures']}
+existing_keys = {(s['name'], s.get('formula', '')) for s in vr_data['structures']}
 
 # Map howell materials to crystal structure info
 # Some materials already exist (Corundum, Periclase, Mullite, Spinel, Zircon variants)
@@ -261,8 +264,15 @@ new_structures = []
 for mat_data in howell_starter['materials']:
     howell_id = mat_data['id']
     
-    # Skip if already in crystal_vr or already handled
-    if mat_data['name'] in existing_names or howell_id in skip_materials:
+    # Skip if already in crystal_vr or already handled.
+    # Check both the howell name AND the spec-resolved name, since specs
+    # canonicalize formulas (e.g. "Beta-Cristobalite" → "β-Cristobalite").
+    spec_name = material_specs.get(howell_id, {}).get('name', mat_data['name'])
+    spec_formula = material_specs.get(howell_id, {}).get('formula', mat_data.get('formula', ''))
+    if (mat_data['name'] in existing_names
+            or spec_name in existing_names
+            or (spec_name, spec_formula) in existing_keys
+            or howell_id in skip_materials):
         print(f"  Skip: {mat_data['name']} (already in crystal_vr)")
         continue
     

@@ -554,6 +554,35 @@ async function loadData() {
   data = await resp.json();
   loadingFill.style.width = '70%';
 
+  // ── Normalize structures ─────────────────────────────────
+  // (a) Dedupe by (name + formula). The aerospace import (Phase 2) appended
+  //     a handful of materials that were already present in the baseline
+  //     expansion, producing duplicate buttons. Keep the entry with the most
+  //     atoms (i.e. a real model wins over a metadata-only stub).
+  // (b) Flag stubs so the rest of the UI can render a friendly placeholder
+  //     instead of crashing on empty cellVectors / atoms.
+  if (Array.isArray(data.structures)) {
+    const seen = new Map();
+    for (const s of data.structures) {
+      const key = `${(s.name||'').trim()}|${(s.formula||'').trim()}`;
+      const prev = seen.get(key);
+      const aCount = (s.atoms && s.atoms.length) || 0;
+      const pCount = prev ? ((prev.atoms && prev.atoms.length) || 0) : -1;
+      if (!prev || aCount > pCount) seen.set(key, s);
+    }
+    data.structures = Array.from(seen.values());
+    data.structures.forEach(s => {
+      const cv = s.cellVectors;
+      const hasCell = Array.isArray(cv) && cv.length >= 3 && Array.isArray(cv[0]) && cv[0].length >= 3;
+      const hasAtoms = Array.isArray(s.atoms) && s.atoms.length > 0;
+      s.isStub = !(hasCell && hasAtoms);
+      if (!Array.isArray(s.atoms)) s.atoms = [];
+      if (!Array.isArray(s.bonds)) s.bonds = [];
+      if (!Array.isArray(s.supercell) || s.supercell.length !== 3) s.supercell = [1,1,1];
+    });
+    data.structureCount = data.structures.length;
+  }
+
   // Parse element metadata
   for (const [sym, info] of Object.entries(data.elements)) {
     const c = info.color;
@@ -773,12 +802,19 @@ function updateInfoPanel() {
   document.getElementById('info-panel').style.display = 'block';
   document.getElementById('info-name').textContent = s.name;
   document.getElementById('info-formula').textContent = s.formula;
-  document.getElementById('info-system').textContent = `Crystal system: ${s.system}`;
+  document.getElementById('info-system').textContent = `Crystal system: ${s.system || '—'}`;
 
   let html = '';
-  html += `<div class="row"><span class="label">Atoms</span><span class="value">${s.atoms.length}</span></div>`;
-  html += `<div class="row"><span class="label">Bonds</span><span class="value">${s.bonds.length}</span></div>`;
-  html += `<div class="row"><span class="label">Supercell</span><span class="value">${s.supercell.join('×')}</span></div>`;
+  if (s.isStub) {
+    html += `<div style="margin:0 0 8px;padding:6px 8px;border-radius:4px;background:#3a2a18;color:#ffc98a;font-size:10px;line-height:1.45;border-left:3px solid #c98a3a">`
+          + `Metadata only · 3D model pending (Phase 3).<br>`
+          + `Crystal data lives in <code>howell-help/data/high_temp_ceramics_starter.json</code>.`
+          + `</div>`;
+  } else {
+    html += `<div class="row"><span class="label">Atoms</span><span class="value">${s.atoms.length}</span></div>`;
+    html += `<div class="row"><span class="label">Bonds</span><span class="value">${s.bonds.length}</span></div>`;
+    html += `<div class="row"><span class="label">Supercell</span><span class="value">${s.supercell.join('×')}</span></div>`;
+  }
   if (s.info && s.info.length) {
     html += `<div style="margin-top:6px;font-size:10px;color:var(--text-dim);line-height:1.5">`;
     s.info.forEach(line => { html += `${escapeHtml(line)}<br>`; });
@@ -862,10 +898,14 @@ function buildCrystal(idx) {
   const s = data.structures[idx];
   currentIdx = idx;
 
-  buildAtoms(s);
-  buildBonds(s);
-  buildCellWireframe(s);
-  if (showLabels) buildLabels(s);
+  // Stub structures (Phase 2 aerospace imports without 3D models yet) skip
+  // geometry generation — the info panel surfaces a placeholder instead.
+  if (!s.isStub) {
+    buildAtoms(s);
+    buildBonds(s);
+    buildCellWireframe(s);
+    if (showLabels) buildLabels(s);
+  }
 
   // Store base positions & masses for thermal vibration
   atomBasicPositions = s.atoms.map(a => [a.x, a.y, a.z]);
@@ -1003,7 +1043,8 @@ function buildBonds(s) {
 
 function buildCellWireframe(s) {
   const cv = s.cellVectors;
-  if (!cv) return;
+  // Guard: structure may be a metadata-only stub (Phase 3 pending) with empty/missing cellVectors.
+  if (!cv || !Array.isArray(cv) || cv.length < 3 || !Array.isArray(cv[0]) || cv[0].length < 3) return;
 
   const va = new THREE.Vector3(...cv[0]);
   const vb = new THREE.Vector3(...cv[1]);
@@ -1803,7 +1844,7 @@ function buildCompareBonds(s) {
 
 function buildCompareCellWireframe(s) {
   const cv = s.cellVectors;
-  if (!cv) return;
+  if (!cv || !Array.isArray(cv) || cv.length < 3 || !Array.isArray(cv[0]) || cv[0].length < 3) return;
   const va = new THREE.Vector3(...cv[0]);
   const vb = new THREE.Vector3(...cv[1]);
   const vc = new THREE.Vector3(...cv[2]);
@@ -1987,6 +2028,7 @@ function clearBridgeVisualization() {
 
 function initMeltProgression() {
   const s = data.structures[currentIdx];
+  if (s.isStub || !s.atoms.length) { meltBasePositions = []; meltTargetPositions = []; return; }
   meltBasePositions = s.atoms.map(a => [a.x, a.y, a.z]);
 
   // Generate random melted positions — Brownian drift within bounding sphere

@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "structureCount": 38,
+  "structureCount": 60,
   "structures": [
     {
       "name": "Periclase",
@@ -10866,7 +10866,8 @@
           "5": 216,
           "6": 216
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Cuprite",
@@ -16121,7 +16122,8 @@
           "2": 198,
           "4": 91
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Rutile",
@@ -23817,7 +23819,8 @@
           "4": 70,
           "6": 72
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Corundum",
@@ -28237,7 +28240,8 @@
           "5": 36,
           "6": 12
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Hematite",
@@ -32390,7 +32394,8 @@
           "4": 63,
           "6": 4
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Cassiterite",
@@ -40086,7 +40091,8 @@
           "4": 70,
           "6": 72
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Magnetite",
@@ -47244,7 +47250,8 @@
           "5": 48,
           "7": 56
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "α-Quartz",
@@ -49822,7 +49829,8 @@
           "1": 162,
           "2": 36
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "β-Cristobalite",
@@ -52477,7 +52485,8 @@
           "2": 101,
           "4": 45
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Tridymite",
@@ -54037,7 +54046,8 @@
           "1": 96,
           "2": 24
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Forsterite",
@@ -63306,7 +63316,8 @@
           "6": 133,
           "8": 21
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Willemite",
@@ -64802,7 +64813,8 @@
           "2": 44,
           "3": 40
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Zircon",
@@ -66983,7 +66995,8 @@
           "1": 108,
           "2": 27
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Diopside",
@@ -75138,7 +75151,8 @@
           "6": 36,
           "8": 16
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Enstatite",
@@ -78694,7 +78708,8 @@
           "2": 96,
           "3": 96
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Spodumene",
@@ -86746,7 +86761,8 @@
           "5": 136,
           "6": 38
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Wollastonite",
@@ -90647,7 +90663,8 @@
           "5": 40,
           "6": 8
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Albite",
@@ -91983,7 +92000,8 @@
           "3": 15,
           "4": 2
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Orthoclase",
@@ -93339,7 +93357,8 @@
           "3": 21,
           "4": 4
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Anorthite",
@@ -94043,7 +94062,8 @@
           "5": 2,
           "6": 2
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Nepheline",
@@ -98528,7 +98548,8 @@
           "3": 100,
           "4": 40
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Leucite",
@@ -99977,7 +99998,8 @@
         "coordDist": {
           "0": 176
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Akermanite",
@@ -103384,7 +103406,8 @@
           "1": 198,
           "2": 54
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Gehlenite",
@@ -106790,7 +106813,8 @@
           "1": 198,
           "2": 54
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Kaolinite",
@@ -112894,7 +112918,8 @@
           "7": 44,
           "9": 20
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Talc",
@@ -116133,7 +116158,8 @@
           "3": 63,
           "4": 41
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Andalusite",
@@ -117512,7 +117538,8 @@
           "1": 36,
           "2": 18
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Kyanite",
@@ -119072,7 +119099,8 @@
           "1": 36,
           "2": 54
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Sillimanite",
@@ -120451,7 +120479,8 @@
           "1": 36,
           "2": 18
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Spinel",
@@ -127610,7 +127639,8 @@
           "5": 48,
           "7": 56
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Mullite",
@@ -132395,7 +132425,8 @@
           "5": 12,
           "6": 20
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Baddeleyite",
@@ -134250,7 +134281,8 @@
           "2": 36,
           "3": 12
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Tetragonal Zirconia",
@@ -139009,7 +139041,8 @@
           "1": 112,
           "2": 272
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Cubic Zirconia",
@@ -144975,7 +145008,8 @@
           "4": 164,
           "8": 62
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Brucite",
@@ -148652,7 +148686,8 @@
           "3": 148,
           "4": 16
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Calcite",
@@ -153472,7 +153507,8 @@
           "5": 78,
           "6": 18
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Dolomite",
@@ -155641,7 +155677,8 @@
           "6": 17,
           "7": 5
         }
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Cordierite",
@@ -158591,27 +158628,8 @@
           "3": 48,
           "4": 16
         }
-      }
-    },
-    {
-      "name": "β-Cristobalite",
-      "formula": "SiO₂",
-      "system": "Cubic Fd-3m",
-      "info": [
-        "High-temperature SiO₂ polymorph",
-        "a≈7.1 Angstrom (above 1470°C)",
-        "β→α inversion on cooling causes severe thermal shock",
-        "Used in low-expansion refractories when stabilized"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
+      },
+      "isStub": false
     },
     {
       "name": "Stabilized Zirconia",
@@ -158631,7 +158649,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Silicon Carbide",
@@ -158651,7 +158670,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Silicon Nitride",
@@ -158671,7 +158691,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Zirconium Diboride",
@@ -158691,7 +158712,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Hafnium Diboride",
@@ -158711,7 +158733,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Zirconium Carbide",
@@ -158731,7 +158754,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Hafnium Carbide",
@@ -158751,7 +158775,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Tantalum Carbide",
@@ -158771,7 +158796,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
@@ -158791,7 +158817,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
@@ -158811,7 +158838,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Ceria-Stabilized Zirconia",
@@ -158831,7 +158859,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Hafnium Oxide",
@@ -158851,7 +158880,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Lanthanum Zirconate",
@@ -158871,7 +158901,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Ytterbium Silicate",
@@ -158891,7 +158922,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Ytterbium Disilicate",
@@ -158911,7 +158943,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "SiC-SiC Ceramic Matrix Composite",
@@ -158931,7 +158964,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Aluminum Nitride",
@@ -158951,7 +158985,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Boron Nitride (Hexagonal)",
@@ -158971,7 +159006,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Sialon",
@@ -158991,7 +159027,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Reaction-Bonded Silicon Carbide",
@@ -159011,7 +159048,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Sintered Silicon Carbide",
@@ -159031,7 +159069,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "isStub": true
     },
     {
       "name": "Sintered Silicon Nitride",
@@ -159051,207 +159090,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
-    },
-    {
-      "name": "β-Cristobalite",
-      "formula": "SiO₂",
-      "system": "Cubic Fd-3m",
-      "info": [
-        "High-temperature SiO₂ polymorph",
-        "a≈7.1 Angstrom (above 1470°C)",
-        "β→α inversion on cooling causes severe thermal shock",
-        "Used in low-expansion refractories when stabilized"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
-      "formula": "ZrO₂-3Y₂O₃",
-      "system": "Tetragonal P4₂/nmc",
-      "info": [
-        "Industry-standard thermal barrier coating (TBC)",
-        "Service temperature ~1200°C in jet engines",
-        "Tetragonal → monoclinic transformation risk on cooling",
-        "Excellent insulation (low thermal conductivity ~2 W/m·K) for gas turbine blades"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
-      "formula": "ZrO₂-8Y₂O₃",
-      "system": "Cubic Fm-3m",
-      "info": [
-        "Cubic-stabilized thermal barrier coating",
-        "Service temperature up to 1300°C with minimal phase transition",
-        "Superior cyclic thermal performance vs 3YSZ",
-        "Higher yttria content eliminates damaging tetragonal transformation"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "SiC-SiC Ceramic Matrix Composite",
-      "formula": "SiC (fiber-reinforced)",
-      "system": "Composite (hexagonal fiber + matrix)",
-      "info": [
-        "Game-changing composite for aerospace propulsion",
-        "Service temperature up to 1300°C in next-gen engines",
-        "Low density combined with high strength and fracture toughness",
-        "Combines SiC fibers with SiC matrix; fiber coatings enable crack bridging"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Sialon",
-      "formula": "Si₆₋ₓAlₓOₓN₈₋ₓ",
-      "system": "Hexagonal or orthorhombic (composition-dependent)",
-      "info": [
-        "Silicon-aluminum oxynitride ceramic alloy",
-        "Service temperature up to 1400°C",
-        "High strength and creep resistance at temperature",
-        "Used in structural aerospace and high-speed machining applications"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "β-Cristobalite",
-      "formula": "SiO₂",
-      "system": "Cubic Fd-3m",
-      "info": [
-        "High-temperature SiO₂ polymorph",
-        "a≈7.1 Angstrom (above 1470°C)",
-        "β→α inversion on cooling causes severe thermal shock",
-        "Used in low-expansion refractories when stabilized"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
-      "formula": "ZrO₂-3Y₂O₃",
-      "system": "Tetragonal P4₂/nmc",
-      "info": [
-        "Industry-standard thermal barrier coating (TBC)",
-        "Service temperature ~1200°C in jet engines",
-        "Tetragonal → monoclinic transformation risk on cooling",
-        "Excellent insulation (low thermal conductivity ~2 W/m·K) for gas turbine blades"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
-      "formula": "ZrO₂-8Y₂O₃",
-      "system": "Cubic Fm-3m",
-      "info": [
-        "Cubic-stabilized thermal barrier coating",
-        "Service temperature up to 1300°C with minimal phase transition",
-        "Superior cyclic thermal performance vs 3YSZ",
-        "Higher yttria content eliminates damaging tetragonal transformation"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "SiC-SiC Ceramic Matrix Composite",
-      "formula": "SiC (fiber-reinforced)",
-      "system": "Composite (hexagonal fiber + matrix)",
-      "info": [
-        "Game-changing composite for aerospace propulsion",
-        "Service temperature up to 1300°C in next-gen engines",
-        "Low density combined with high strength and fracture toughness",
-        "Combines SiC fibers with SiC matrix; fiber coatings enable crack bridging"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
-    },
-    {
-      "name": "Sialon",
-      "formula": "Si₆₋ₓAlₓOₓN₈₋ₓ",
-      "system": "Hexagonal or orthorhombic (composition-dependent)",
-      "info": [
-        "Silicon-aluminum oxynitride ceramic alloy",
-        "Service temperature up to 1400°C",
-        "High strength and creep resistance at temperature",
-        "Used in structural aerospace and high-speed machining applications"
-      ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      }
+      },
+      "isStub": true
     }
   ],
   "elements": {
@@ -159557,5 +159397,6 @@
       "phase": "Cristobalite",
       "desc": "Excess silica crystallizes as cristobalite"
     }
-  ]
+  ],
+  "renderableCount": 38
 }

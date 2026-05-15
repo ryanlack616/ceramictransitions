@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CeramicTransitions: Firing Journey & Crystal Structure Graphs</title>
+  <!-- yFiles local build (full SDK) -->
+  <script type="module">
+    import * as yfiles from './yfiles/yFiles-for-HTML-Complete-3.0.0.5-Evaluation/demos-js/view/grapheditor/GraphEditorDemo.js';
+    window.yfiles = yfiles;
+  </script>
+  <style>
+    html, body { background: #1E1B4B; color: #F59E0B; font-family: 'IBM Plex Mono', monospace; margin: 0; height: 100%; }
+    #graph { width: 100vw; height: 60vh; background: #131316; }
+    #controls { margin: 1em; }
+    .section { margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>Firing Journey Network</h2>
+    <div id="firing-graph" style="width:100%;height:300px;"></div>
+    <div id="firing-controls" style="margin-top:1em;"></div>
+  </div>
+  <div class="section">
+    <h2>Crystal Structure Network</h2>
+    <div id="crystal-graph" style="width:100%;height:300px;"></div>
+    <div id="crystal-controls" style="margin-top:1em;"></div>
+  </div>
+  <script>
+    // --- Firing Journey Example ---
+    const firingPhases = [
+      { id: 'start', label: 'Room Temp', temp: 25 },
+      { id: 'bisque', label: 'Bisque', temp: 950 },
+      { id: 'quartz', label: 'Quartz Inversion', temp: 573 },
+      { id: 'vitrification', label: 'Vitrification', temp: 1230 },
+      { id: 'mature', label: 'Mature', temp: 1280 }
+    ];
+    const firingEdges = [
+      ['start', 'bisque'],
+      ['bisque', 'quartz'],
+      ['quartz', 'vitrification'],
+      ['vitrification', 'mature']
+    ];
+    // --- Crystal Structure Example (Simple Cubic) ---
+    const atoms = [
+      { id: 'A', label: 'Na+' },
+      { id: 'B', label: 'Cl-' },
+      { id: 'C', label: 'Na+' },
+      { id: 'D', label: 'Cl-' }
+    ];
+    const bonds = [
+      ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A'], ['A', 'C'], ['B', 'D']
+    ];
+    // --- yFiles Graph Rendering Helper ---
+    async function renderGraph(containerId, nodes, edges, layoutType) {
+      // yFiles trial required for full use; this is a placeholder for demo
+      if (!window.yfiles) {
+        document.getElementById(containerId).innerHTML = '<b>yFiles not loaded. Trial required.</b>';
+        return;
+      }
+      const { GraphComponent, GraphBuilder, HierarchicLayout, OrganicLayout } = window.yfiles;
+      const gc = new GraphComponent(containerId);
+      const builder = new GraphBuilder(gc.graph);
+      builder.createNodesSource(nodes, 'id');
+      builder.createEdgesSource(edges, source => source[0], target => target[1]);
+      builder.buildGraph();
+      gc.graph.nodes.forEach(node => {
+        gc.graph.setNodeLabel(node, nodes.find(n => n.id === node.tag.id).label);
+      });
+      if (layoutType === 'hierarchic') {
+        await gc.morphLayout(new HierarchicLayout(), '1s');
+      } else {
+        await gc.morphLayout(new OrganicLayout(), '1s');
+      }
+      gc.fitGraphBounds();
+    }
+    // Render Firing Journey
+    renderGraph('firing-graph', firingPhases, firingEdges, 'hierarchic');
+    // Render Crystal Structure
+    renderGraph('crystal-graph', atoms, bonds, 'organic');
+  </script>
+</body>
+</html>

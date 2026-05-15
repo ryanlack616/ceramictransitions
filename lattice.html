@@ -208,7 +208,36 @@ async function loadData() {
   fill.style.width = '30%';
   const resp = await fetch(DATA_URL);
   data = await resp.json();
-  document.getElementById('structure-count-sub').textContent = `${data.structures.length} structures repeating in space`;
+
+  // ── Dedupe + flag stubs (mirrors index.html normalization) ─────────────
+  if (Array.isArray(data.structures)) {
+    const seen = new Map();
+    for (const s of data.structures) {
+      const key = `${(s.name||'').trim()}|${(s.formula||'').trim()}`;
+      const prev = seen.get(key);
+      const aCount = (s.atoms && s.atoms.length) || 0;
+      const pCount = prev ? ((prev.atoms && prev.atoms.length) || 0) : -1;
+      if (!prev || aCount > pCount) seen.set(key, s);
+    }
+    data.structures = Array.from(seen.values());
+    data.structures.forEach(s => {
+      const cv = s.cellVectors;
+      const hasCell = Array.isArray(cv) && cv.length >= 3 && Array.isArray(cv[0]) && cv[0].length >= 3;
+      const hasAtoms = Array.isArray(s.atoms) && s.atoms.length > 0;
+      s.isStub = !(hasCell && hasAtoms);
+      if (!Array.isArray(s.atoms)) s.atoms = [];
+      if (!Array.isArray(s.bonds)) s.bonds = [];
+      if (!Array.isArray(s.supercell) || s.supercell.length !== 3) s.supercell = [1,1,1];
+    });
+    // Renderable structures are what this gallery can actually tile.
+    data.renderableStructures = data.structures.filter(s => !s.isStub);
+  }
+  const total = data.structures.length;
+  const renderable = data.renderableStructures.length;
+  document.getElementById('structure-count-sub').textContent =
+    renderable === total
+      ? `${total} structures repeating in space`
+      : `${renderable} of ${total} structures repeating in space · ${total - renderable} pending 3D models`;
   fill.style.width = '80%';
 
   for (const [sym, info] of Object.entries(data.elements)) {
@@ -228,7 +257,11 @@ async function loadData() {
 function setupUI() {
   // Strip buttons
   const strip = document.getElementById('strip');
-  data.structures.forEach((s, i) => {
+  // Only renderable structures get strip buttons — stubs would crash the tile pipeline.
+  const renderList = data.renderableStructures || data.structures;
+  // Remap currentIdx to the renderable subset.
+  data._renderIndexMap = renderList.map(s => data.structures.indexOf(s));
+  renderList.forEach((s, i) => {
     const btn = document.createElement('button');
     btn.className = 'strip-btn' + (i === 0 ? ' active' : '');
     btn.innerHTML = `<span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
@@ -268,8 +301,14 @@ function selectStructure(idx) {
   updateInfo(idx);
 }
 
+function _currentStructure(idx) {
+  // Lattice gallery only iterates renderable structures.
+  const list = data.renderableStructures || data.structures;
+  return list[idx];
+}
+
 function updateInfo(idx) {
-  const s = data.structures[idx];
+  const s = _currentStructure(idx);
   document.getElementById('info-name').textContent    = s.name;
   document.getElementById('info-formula').textContent  = s.formula;
   document.getElementById('info-system').textContent   = s.system || '';
@@ -311,7 +350,7 @@ function clearCrystal() {
 
 function buildCrystal(idx) {
   clearCrystal();
-  const s = data.structures[idx];
+  const s = _currentStructure(idx);
   const cv = s.cellVectors;
   const sc = s.supercell;
   const va = new THREE.Vector3(...cv[0]);
