@@ -399,7 +399,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 - JSON deduped: 71 → 60 unique, every structure carries explicit `isStub: bool`, top-level `renderableCount: 38`
 - New `dedupe_crystal_vr.py` + `validate_crystal_vr.py` (CI-ready, exits non-zero on failure)
 
-### 2.5.1 Procedural prototype renderer ★ HIGHEST LEVERAGE
+### 2.5.1 Procedural prototype renderer ★ HIGHEST LEVERAGE — ✅ DELIVERED May 15, 2026 (commit `edf89b5`)
 **Goal:** Eliminate the 22 visible "metadata pending" placeholders without waiting for Taichi.
 
 **Rationale:** Every stub already has `prototype` + lattice parameters. ~150 lines of JS converts that into a renderable supercell. This is web-delivery scaffolding (a visual approximation), not original science — when Taichi ships per-material atomic coordinates they override the procedural output.
@@ -430,6 +430,8 @@ Each material in `high_temp_ceramics_starter.json` includes:
 **Files touched:** `index.html` (+~200 lines), `lattice.html` (mirror generator or share via small module), `validate_crystal_vr.py` (+~20 lines)
 
 **Estimated effort:** One focused session.
+
+**Delivery note (May 15, 2026):** Shipped as commit `edf89b5`. Final coverage: **38 native + 17 procedural = 55 of 60 renderable in viewer**. 5 stubs remain metadata-only (Si₃N₄ ×2, Yb₂SiO₅, Yb₂Si₂O₇, Sialon) — those need true prototypes (β-Si₃N₄ P6₃, X2 rare-earth silicate) or hand-coded structures and were left for a follow-up. Stub `prototype` fields turned out to be absent in the data, so promotion uses a formula → prototype lookup table keyed off `s.formula` with Unicode-subscript normalization. Procedural structures show a cyan info-panel badge distinct from the amber stub badge. Validator extended to report `native + procedural = renderable / metadata-only stubs`.
 
 ### 2.5.2 URL state + permalinks
 **Goal:** Every viewer state shareable via URL.
