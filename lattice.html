@@ -63,8 +63,28 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   .strip-btn{padding:8px 10px;}
   .strip-name{font-size:10px;}
   #info{right:10px;left:10px;min-width:auto;}
-  #controls{left:10px;}
+  #controls{left:10px;right:10px;}
+  #header h1{font-size:13px;}
+  #header .sub{display:none;}
+  #legend{display:none;}
 }
+
+/* ── Filter bar ──────────────────────────────────────────────── */
+#filter-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:54px;z-index:21;display:flex;gap:6px;align-items:center;background:rgba(10,10,14,.92);border:1px solid var(--border);border-radius:18px;padding:5px 10px;backdrop-filter:blur(8px);}
+#filter-input{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:11px;width:180px;}
+#filter-input::placeholder{color:var(--text-dim);}
+#filter-count{font-size:9px;font-family:var(--mono);color:var(--text-dim);min-width:36px;text-align:right;}
+#filter-clear{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;}
+#filter-clear:hover{color:var(--accent);}
+.strip-btn.filtered-out{display:none !important;}
+
+/* ── Fatal error overlay ─────────────────────────────────────── */
+#fatal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(6,6,8,.96);z-index:300;padding:24px;text-align:center;}
+#fatal.show{display:flex;}
+#fatal h3{color:#e88c70;font-size:15px;}
+#fatal p{color:var(--text-dim);font-family:var(--mono);font-size:11px;max-width:480px;line-height:1.5;}
+#fatal button{margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;}
+#fatal button:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
@@ -74,12 +94,28 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   <div id="loading-bar"><div id="loading-fill"></div></div>
 </div>
 
+<div id="fatal" role="alert" aria-live="assertive">
+  <h3>Could not load lattice data</h3>
+  <p id="fatal-msg">The structure dataset failed to load. Check your connection and try again.</p>
+  <button onclick="location.reload()">Retry</button>
+</div>
+
+<div id="filter-bar">
+  <input id="filter-input" type="search" placeholder="Filter by name or formula…" autocomplete="off" spellcheck="false" aria-label="Filter structures">
+  <button id="filter-clear" title="Clear" aria-label="Clear filter">×</button>
+  <span id="filter-count">—</span>
+</div>
+
 <div id="header">
   <div style="display:flex;align-items:baseline;gap:4px">
     <h1>Ceramic Crystal <span>Lattices</span></h1>
     <span class="sub" id="structure-count-sub">Loading structures…</span>
   </div>
-  <a href="index.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">← Crystal Viewer</a>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <a href="index.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">← Crystal Viewer</a>
+    <a href="transitions-graph.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Firing Graph</a>
+    <a href="https://ceramic-micros.howell.help/" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7" title="Companion: diffusion kinetics in ceramics">↗ ceramic-micros</a>
+  </div>
 </div>
 
 <div id="controls">
@@ -380,11 +416,34 @@ function promoteStubsWithPrototypes(structures, elementsMap) {
 }
 
 /* ── Data ──────────────────────────────────────────────────── */
+function showFatal(msg) {
+  const f = document.getElementById('fatal');
+  const m = document.getElementById('fatal-msg');
+  if (m && msg) m.textContent = msg;
+  if (f) f.classList.add('show');
+  const ld = document.getElementById('loading');
+  if (ld) ld.style.display = 'none';
+}
 async function loadData() {
   const fill = document.getElementById('loading-fill');
   fill.style.width = '30%';
-  const resp = await fetch(DATA_URL);
-  data = await resp.json();
+  let resp;
+  try {
+    resp = await fetch(DATA_URL, { cache: 'default' });
+  } catch (e) {
+    showFatal('Network error: ' + (e && e.message ? e.message : 'request failed') + ' · ' + DATA_URL);
+    throw e;
+  }
+  if (!resp.ok) {
+    showFatal('HTTP ' + resp.status + ' loading ' + DATA_URL);
+    throw new Error('fetch failed: ' + resp.status);
+  }
+  try {
+    data = await resp.json();
+  } catch (e) {
+    showFatal('Dataset is not valid JSON: ' + (e && e.message ? e.message : 'parse failed'));
+    throw e;
+  }
 
   // ── Dedupe + flag stubs (mirrors index.html normalization) ─────────────
   if (Array.isArray(data.structures)) {
@@ -452,10 +511,34 @@ function setupUI() {
   renderList.forEach((s, i) => {
     const btn = document.createElement('button');
     btn.className = 'strip-btn' + (i === 0 ? ' active' : '');
+    btn.dataset.name = (s.name||'').toLowerCase();
+    btn.dataset.formula = (s.formula||'').toLowerCase();
+    btn.dataset.system = (s.system||'').toLowerCase();
     btn.innerHTML = `<span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
     btn.onclick = () => selectStructure(i);
     strip.appendChild(btn);
   });
+
+  // Filter / search
+  const fInput = document.getElementById('filter-input');
+  const fCount = document.getElementById('filter-count');
+  const fClear = document.getElementById('filter-clear');
+  const updateFilterCount = () => {
+    const all = strip.querySelectorAll('.strip-btn');
+    const shown = strip.querySelectorAll('.strip-btn:not(.filtered-out)').length;
+    fCount.textContent = shown + ' / ' + all.length;
+  };
+  const applyFilter = () => {
+    const q = fInput.value.trim().toLowerCase();
+    strip.querySelectorAll('.strip-btn').forEach(b => {
+      const hit = !q || b.dataset.name.includes(q) || b.dataset.formula.includes(q) || b.dataset.system.includes(q);
+      b.classList.toggle('filtered-out', !hit);
+    });
+    updateFilterCount();
+  };
+  fInput.addEventListener('input', applyFilter);
+  fClear.addEventListener('click', () => { fInput.value = ''; applyFilter(); fInput.focus(); });
+  updateFilterCount();
 
   // Checkboxes
   document.getElementById('chk-bonds').onchange = e => { showBonds = e.target.checked; if (bondMesh) bondMesh.visible = showBonds; };

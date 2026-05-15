@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 2 Complete | Updated: May 10, 2026  
+**Status:** Phase 2.5.1 Complete | Updated: May 15, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -8,17 +8,22 @@
 
 **Completed:**
 - ✅ **howell-help Phase E:** 28 aerospace/extreme-temp materials catalog with full metadata, schema validation, and governance rules
-- ✅ **ceramictransitions Phase 2:** 61-material library (38 baseline + 23 aerospace) deployed to GitHub Pages
+- ✅ **ceramictransitions Phase 2:** 60-material library (38 native + 17 procedural + 5 metadata-only stubs) deployed to ceramictransitions.com via pixie-sh FTP (not GitHub Pages — see deploy notes)
+- ✅ **ceramictransitions Phase 2.5.1:** procedural prototype renderer (rocksalt / fluorite / zincblende / AlB₂ / wurtzite / hBN). 17 aerospace stubs now render with valid 3D atoms+bonds at runtime; renderable count 38 → 55. Promoted live May 15, 2026 (commits edf89b5 → 9b3b0dc).
 - ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials now live in both systems
+- ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html, transitions-graph.html
 
 **Deliverables:**
 1. **howell-help:** `data/high_temp_ceramics_starter.json` (source of truth for aerospace specs)
 2. **howell-help:** `data/high_temp_ceramics_index.json` (auto-generated lookup table)
-3. **ceramictransitions:** `data/crystal_vr.json` (61 structures with 3D viewer metadata)
+3. **ceramictransitions:** `data/crystal_vr.json` (60 structures with 3D viewer metadata, `renderableCount: 55`)
 4. **ceramictransitions:** `BUILD.md` (6-phase development roadmap)
-5. **Both projects:** Updated memory, integration docs, validation scripts
+5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (215-check smoke test)
+6. **ceramictransitions:** `transitions-graph.html` (zero-dependency SVG + canvas; yFiles removed)
 
-**Roadmap constraint (effective now):** All remaining implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1-2 web delivery track.
+**Deploy mechanism:** Static FTP to pixie-sh (Porkbun). Run `python _deploy.py` after committing. The `.github/workflows/pages.yml` workflow is dormant/legacy — Pages is disabled on the repo.
+
+**Roadmap constraint (effective now):** All remaining heavy implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1–2.5.1 web delivery track; small UX polish (filter, mobile, error states, cross-links) is in scope here.
 
 ---
 
@@ -28,7 +33,7 @@
 **Scope:** Establish baseline ceramictransitions project with 38 pedagogical crystal structures  
 **Status:** Live at https://ceramictransitions.com  
 **Materials:** Periclase, Corundum, Mullite, Spinel, silicates, oxides, refractories  
-**Tech:** Three.js 3D viewer, GitHub Pages, VR-ready dual-track narratives  
+**Tech:** Three.js 3D viewer, pixie-sh static FTP, VR-ready dual-track narratives  
 
 ### Phase 2: Aerospace Materials Integration (COMPLETE · May 10, 2026)
 **Scope:** Expand both projects with 28 aerospace/extreme-temp ceramics  
@@ -41,11 +46,20 @@
 - Full metadata: thermal expansion, service temp, phase transitions, uncertainty notes
 
 **ceramictransitions side:**
-- Integrated 23 new structures into `crystal_vr.json` (5 already in baseline)
-- Total inventory: 61 materials (38 baseline + 23 aerospace)
+- Integrated 22 new structures into `crystal_vr.json` (after dedupe vs. baseline)
+- Total inventory: 60 materials (38 native + 17 procedurally-promoted + 5 metadata-only stubs)
 - Metadata per material: formula, crystal system, thermal properties, aerospace context
-- Stubs ready for Phase 3 3D model generation
-- Deployed to GitHub Pages (commit `a04f06a`)
+- Phase 2.5.1 (May 15) generates 3D atoms+bonds at runtime for 17 of the 22 aerospace stubs
+- Deployed via FTP (`_deploy.py`)
+
+### Phase 2.5.1: Procedural Prototype Renderer (COMPLETE · May 15, 2026)
+**Scope:** Eliminate "metadata-only" UI placeholders for prototype-mapped materials  
+**Delivered:**
+- 6 crystal prototypes implemented: rocksalt, fluorite, zincblende, AlB₂, wurtzite, hBN
+- Prototype lookup table maps 17 aerospace formulas to (prototype, lattice params, cation/anion)
+- `ensureElementsCoverage` + `ensureBondColorsCoverage` prevent crashes on missing color metadata
+- Node smoke test (`test_prototype_generators.js`) — 215 checks all passing
+- Renderable count: 38 → 55 (5 stubs remain, pending Phase 3 explicit modeling)
 
 **Cross-project handoff:**
 - howell-help materials confirmed used by ceramictransitions
@@ -54,9 +68,9 @@
 
 ---
 
-## Material Inventory: 61 Total (Organized by Function)
+## Material Inventory: 60 Total (Organized by Function)
 
-### Traditional Refractories (38 baseline + 4 aerospace updates)
+### Traditional Refractories (38 native + 4 aerospace updates)
 | Material | Formula | Service Temp | Thermal Shock | Notes |
 |----------|---------|--------------|---------------|-------|
 | Periclase | MgO | 2000°C | High | Pure magnesia reference |
