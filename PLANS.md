@@ -433,6 +433,10 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Delivery note (May 15, 2026):** Shipped as commit `edf89b5`. Final coverage: **38 native + 17 procedural = 55 of 60 renderable in viewer**. 5 stubs remain metadata-only (Si₃N₄ ×2, Yb₂SiO₅, Yb₂Si₂O₇, Sialon) — those need true prototypes (β-Si₃N₄ P6₃, X2 rare-earth silicate) or hand-coded structures and were left for a follow-up. Stub `prototype` fields turned out to be absent in the data, so promotion uses a formula → prototype lookup table keyed off `s.formula` with Unicode-subscript normalization. Procedural structures show a cyan info-panel badge distinct from the amber stub badge. Validator extended to report `native + procedural = renderable / metadata-only stubs`.
 
+**Hardening pass (same day):** Added bond color fallback (`FALLBACK_BOND_COLORS` + `ensureBondColorsCoverage`) so procedural bonds get sensible colors instead of grey — covers `C-Hf, C-Ta, C-Zr, C-Si, Hf-O, O-Zr, B-Hf, B-Zr, Al-N, B-N, B-B`. Added `test_prototype_generators.js` Node smoke test that extracts the procedural module from `index.html` via regex + `vm`, then asserts per-prototype invariants (atom count > 0, bond count > 0, finite coords, valid bond indices, homoatomic policy, max-CN within expected range per prototype, bond color coverage). 215 checks across all 17 table entries — runnable without a browser: `node test_prototype_generators.js`.
+
+**Deployment note:** `ceramictransitions.com` is hosted on **pixie-sh** (Porkbun FTP, `Server: openresty`, `X-Service: pixie-sh`), NOT GitHub Pages — confirmed via response headers May 15. Git pushes to `master` do not deploy the site. To get a new build live, FTP-upload `index.html`, `lattice.html`, and `data/` to the pixie-sh account for `ceramictransitions.com`. The howell.help repo (`C:\rje\dev\howell-help`) has a reference `_deploy.py` pattern (FTP password via env var). Until a `_deploy.py` is added here, manual FTP is required. Live site was on a May 10 build at time of this work.
+
 ### 2.5.2 URL state + permalinks
 **Goal:** Every viewer state shareable via URL.
 

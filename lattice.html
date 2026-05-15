@@ -350,6 +350,19 @@ function ensureElementsCoverage(elementsMap) {
     if (!elementsMap[sym]) elementsMap[sym] = meta;
   }
 }
+// Bond colors keyed by alphabetically-sorted pair (matches generator output).
+const FALLBACK_BOND_COLORS = {
+  'C-Hf':[0.62,0.70,0.78], 'C-Ta':[0.55,0.58,0.62], 'C-Zr':[0.60,0.72,0.80], 'C-Si':[0.70,0.70,0.55],
+  'Hf-O':[0.85,0.55,0.45], 'O-Zr':[0.85,0.60,0.45],
+  'B-Hf':[0.85,0.65,0.55], 'B-Zr':[0.90,0.70,0.55],
+  'Al-N':[0.55,0.65,0.95], 'B-N':[0.75,0.78,0.95], 'B-B':[1.00,0.71,0.71],
+};
+function ensureBondColorsCoverage(bondColorsMap) {
+  if (!bondColorsMap || typeof bondColorsMap !== 'object') return;
+  for (const [pair, c] of Object.entries(FALLBACK_BOND_COLORS)) {
+    if (!bondColorsMap[pair]) bondColorsMap[pair] = c;
+  }
+}
 function promoteStubsWithPrototypes(structures, elementsMap) {
   let promoted = 0;
   for (const s of structures) {
@@ -399,6 +412,7 @@ async function loadData() {
 
   // ── Phase 2.5.1: procedural promotion of stubs ──────────────────────────
   ensureElementsCoverage(data.elements);
+  if (data.bondColors && typeof data.bondColors === 'object') ensureBondColorsCoverage(data.bondColors);
   const _promotedCount = promoteStubsWithPrototypes(data.structures, data.elements);
   if (_promotedCount > 0) {
     console.log('[procedural] promoted ' + _promotedCount + ' stub(s) using prototype catalog');
