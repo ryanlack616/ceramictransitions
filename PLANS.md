@@ -380,7 +380,244 @@ Each material in `high_temp_ceramics_starter.json` includes:
 ✅ Validation scripts passing (load + validate)  
 ✅ Cross-project handoff documented  
 
-**Next milestone:** Phase 3 kickoff (3D model generation, ~2 weeks)
+**Next milestone:** Phase 2.5 web-delivery hardening (in flight, see below) → Phase 3 kickoff in Taichi repo.
+
+---
+
+## Phase 2.5: Web Delivery Hardening (PLANNED · May 15, 2026)
+
+**Status:** Bug-fix pass shipped May 15 (commit `64f3fb4`). Remaining items below are the gap analysis for the Phase 1–2 web track. Phase 3+ scientific structure generation remains Taichi-only per repo split.
+
+**Scope guardrail:** Everything in Phase 2.5 is *web-delivery scaffolding* — UI, UX, render fallbacks, build hygiene. Original atomic structures (full ab-initio coordinates, simulation-derived bonds) stay in `ceramictransitions-taichi`. When Taichi produces canonical structures, they replace any procedural fallback shipped here.
+
+### Completed May 15, 2026 (commit `64f3fb4` · `8e46dd2`)
+- Crash guard in `buildCellWireframe` / `buildCompareCellWireframe` for empty/malformed `cellVectors`
+- Load-time dedupe in `index.html` + `lattice.html` (key on name+formula, keep richer entry)
+- `isStub` flag + amber "Metadata only · 3D model pending (Phase 3)" info-panel branch
+- `lattice.html` count derived: "{renderable} of {total} structures · {missing} pending 3D models"
+- Source-side fix: `add_aerospace_materials.py` made idempotent on (name, formula)
+- JSON deduped: 71 → 60 unique, every structure carries explicit `isStub: bool`, top-level `renderableCount: 38`
+- New `dedupe_crystal_vr.py` + `validate_crystal_vr.py` (CI-ready, exits non-zero on failure)
+
+### 2.5.1 Procedural prototype renderer ★ HIGHEST LEVERAGE
+**Goal:** Eliminate the 22 visible "metadata pending" placeholders without waiting for Taichi.
+
+**Rationale:** Every stub already has `prototype` + lattice parameters. ~150 lines of JS converts that into a renderable supercell. This is web-delivery scaffolding (a visual approximation), not original science — when Taichi ships per-material atomic coordinates they override the procedural output.
+
+**Scope:**
+- New function `generateAtomsFromPrototype(s)` in `index.html`, called from `loadData` when `s.isStub && s.prototype`
+- Supported prototypes (covers all 22 stubs):
+  - `rocksalt` (Fm-3m, 2 atoms/cell): ZrC, HfC, TaC, TiC, and any future MX carbides/nitrides
+  - `fluorite` (Fm-3m, 3 atoms/cell): HfO₂-cubic, YSZ-3, YSZ-8, CSZ, La₂Zr₂O₇ (pyrochlore is a fluorite superstructure — first pass renders as disordered fluorite, flagged in info panel)
+  - `wurtzite` (P6₃mc, 4 atoms/cell): AlN
+  - `AlB2-type` / hP3 (P6/mmm, 3 atoms/cell): ZrB₂, HfB₂
+  - `h-BN` / hP4 (P6₃/mmc, 4 atoms/cell): BN
+  - `monoclinic-baddeleyite` (deferred — too complex for procedural; remains stub or hand-coded later)
+- Reuse existing `supercell` tiling logic — generator emits unit-cell atoms, existing pipeline tiles
+- Bond detection: reuse current `distance < cutoff` heuristic; per-prototype `bondCutoff` override allowed
+- Atomic radii / colors: already in `data.elements` map — no new data needed
+- Mark procedurally-generated structures with `s.proceduralFallback = true`; info panel adds a subtle "Procedural approximation · Phase 3 will replace with simulation-derived structure" line (preserves intellectual honesty)
+- Unit-cell prototypes hard-coded in JS literal at top of `index.html` — no data file changes needed
+
+**Acceptance:**
+- All 60 structures renderable (38 real + 22 procedural)
+- `lattice.html` count reads "60 structures repeating in space" (no more "pending" suffix)
+- Procedural marker visible in info panel
+- Validation script extended: `validate_crystal_vr.py` no longer reports stubs as "renderable: 38" — instead "renderable: 60 (38 native + 22 procedural)"
+
+**Out of scope:** Pyrochlore cation ordering, monoclinic baddeleyite, real bond-order analysis. Those wait for Taichi.
+
+**Files touched:** `index.html` (+~200 lines), `lattice.html` (mirror generator or share via small module), `validate_crystal_vr.py` (+~20 lines)
+
+**Estimated effort:** One focused session.
+
+### 2.5.2 URL state + permalinks
+**Goal:** Every viewer state shareable via URL.
+
+**Schema:**
+- `#s=<structureName>` — select structure (slug-cased name or formula)
+- `?compare=<a>,<b>` — open comparison mode with these two
+- `?t=<celsius>` — initial firing-phase / temperature slider position
+- `?cam=<azimuth>,<elevation>,<zoom>` — restore camera pose (optional, low priority)
+
+**Implementation:**
+- `parseURLState()` runs after `loadData`, drives initial UI
+- `history.replaceState` on every UI change (debounced 300ms) keeps URL in sync
+- No router framework — plain `URLSearchParams` + hashchange listener
+- Backward compat: bare URL still lands on default first structure
+
+**Acceptance:**
+- Copy URL while viewing ZrO₂ → paste in new tab → lands on ZrO₂
+- Compare URL with two slugs → opens compare mode pre-populated
+- Bad slug → falls back to first structure, no crash
+
+**Files:** `index.html`, `lattice.html` (consistent slug scheme across both)
+
+### 2.5.3 Filter + search
+**Goal:** Make 60 structures findable in <5 seconds.
+
+**Filters (multi-select, AND'd):**
+- Phase family: oxide / carbide / nitride / boride / silicate / composite (derived from `phase_family` if present, else inferred from formula)
+- Application: TBC / UHTC / CMC / EBC / kiln / structural (from `application_context` array)
+- Crystal system: cubic / tetragonal / hexagonal / monoclinic / trigonal (from `crystalSystem`)
+- Service temp: dual-slider 0–3500 °C (from `service_temp_max_c`)
+- Render quality: native 3D / procedural / stub (from `isStub` + `proceduralFallback`)
+
+**Search:** Plain substring match across `name`, `formula`, `notes`. No fuzzy lib — 60 entries don't need it.
+
+**UI:** Collapsible filter rail on left of `lattice.html` (gallery is where search matters most). Main `index.html` gets a top search box only (faster context switch).
+
+**Acceptance:** Type "carbide" → list narrows to ZrC/HfC/TaC/SiC/SiC-SiC. Select "service temp >2500" → narrows further. Clear filters with one button.
+
+**Files:** `lattice.html` (+~150 lines), `index.html` (+search box ~30 lines)
+
+### 2.5.4 Phase-transition visualizer
+**Goal:** Make the site name literal — show *transitions*, not just snapshots.
+
+**Mechanism:** When a material has known polymorphs (e.g. ZrO₂ monoclinic ↔ tetragonal ↔ cubic), and we have data entries for each, a T-slider above the canvas lerps:
+- Lattice parameters (a, b, c, α, β, γ) linearly between phase boundaries
+- Atom positions (need correspondence map between phases — start with simple 1-to-1 nearest-atom match)
+- Cell wireframe redraws each frame
+
+**Scope (first pass):**
+- ZrO₂ family (monoclinic 0–1170 °C, tetragonal 1170–2370, cubic >2370)
+- SiO₂ family (α-quartz / β-quartz / β-cristobalite — already have β-cristobalite)
+- HfO₂ family if structures exist
+- Drop-down on info panel: "View transitions" → reveals T-slider
+
+**Data requirement:** A new `transitions` key on parent material listing child structures with T-ranges:
+```json
+"transitions": [
+  { "structure": "ZrO2-monoclinic", "tempRange": [0, 1170] },
+  { "structure": "ZrO2-tetragonal", "tempRange": [1170, 2370] },
+  { "structure": "ZrO2-cubic", "tempRange": [2370, 2715] }
+]
+```
+
+**Acceptance:** Sliding T crosses 1170 °C → atoms visibly rearrange to tetragonal positions; info panel updates "Current phase: tetragonal".
+
+**Out of scope:** Reconstructive transformations (atoms break bonds and re-form) — those just snap at the boundary with a fade transition, not lerp. Flag as limitation.
+
+**Files:** `index.html` (+~250 lines), `data/crystal_vr.json` (+`transitions` arrays on ~6 parent materials)
+
+### 2.5.5 Enriched metadata display
+**Goal:** Surface fields the data already has but the UI ignores.
+
+**Currently hidden:** `service_temp_max_c`, `thermal_expansion_1e6_per_c`, `thermal_shock_risk`, `application_context`, `phase_transition_notes`, `uncertainty_notes`, `source_quality`.
+
+**UI addition:** Below the formula in info panel, a 2-column key-value table (collapsible "Details" disclosure). Source quality badges (handbook / aerospace-spec / estimated) styled distinctly.
+
+**Data gap:** Some baseline (non-aerospace) materials lack these fields — add a `dataCompleteness` boolean per material and gray-out missing rows rather than omit silently.
+
+**Acceptance:** Selecting Periclase shows Service temp 2000 °C, CTE 13.5 ×10⁻⁶/°C, Source: handbook. Selecting a missing-data structure shows the same table with "—" placeholders.
+
+**Files:** `index.html` (+~80 lines), `data/crystal_vr.json` (backfill missing fields on baseline materials — separate PR, can pull from howell-help starter where available)
+
+### 2.5.6 Mobile + touch reflow
+**Goal:** Site works on a phone.
+
+**Audit needed:** OrbitControls already touch-capable. The chrome (info panel, controls, compare split) likely overflows. Specific checks:
+- Single-column layout below 768px
+- Compare mode: stacked vertical canvases instead of side-by-side on portrait
+- Tap targets ≥44px (current select dropdowns may be smaller)
+- Pinch-zoom on canvas without zooming page (touch-action: none on canvas)
+- Filter rail collapses to bottom sheet on mobile
+
+**Acceptance:** Open on iPhone Safari, rotate ZrO₂ with one finger, pinch to zoom, swap to compare mode, both halves visible.
+
+**Files:** mostly CSS in `index.html` + `lattice.html`. Use browser tools to test live.
+
+### 2.5.7 Accessibility floor
+**Goal:** WCAG AA basics so the site isn't keyboard- and screen-reader-hostile.
+
+**Checklist:**
+- All interactive controls reachable via Tab; visible focus ring
+- Structure picker: keyboard arrow-key navigation
+- `aria-label` on canvas describing current structure ("3D viewer: Zirconium Diboride, hexagonal, 96 atoms")
+- `aria-live="polite"` region announces structure changes
+- Color contrast audit on amber/grey badges (info panel) — verify 4.5:1
+- Reduced-motion respect: skip transition animations when `prefers-reduced-motion: reduce`
+- Skip-link "Skip to viewer" at top of page
+
+**Acceptance:** Navigate entire site with keyboard only. Run axe-core scan, zero serious issues.
+
+**Files:** `index.html`, `lattice.html`. No new dependencies.
+
+### 2.5.8 Loading + error states
+**Goal:** No silent failure surfaces, no empty-canvas-while-loading ambiguity.
+
+**Additions:**
+- Skeleton card layout while `crystal_vr.json` fetches (current state: blank dark page)
+- Explicit "Loading 60 structures…" with spinner
+- Fetch failure → retry button + descriptive error ("Could not load structures. Check connection, or [retry].")
+- WebGL unavailable → fallback message ("Your browser does not support WebGL. Try Chrome, Firefox, or Safari latest.")
+- Per-structure render failure (e.g. atom count zero unexpectedly) → caught, info panel shows "Render error — please report" with link
+
+**Acceptance:** Throttle network to "Slow 3G" in devtools — loading state visible >1s. Block fetch with devtools network panel — error message + retry works.
+
+**Files:** `index.html`, `lattice.html` (+~60 lines each)
+
+### 2.5.9 Phase-4 dead checkboxes — implement or remove
+**Goal:** Eliminate the credibility leak from non-functional UI.
+
+**Current state:** "Oxidation overlay" and "Melt progression" checkboxes exist in `index.html` and toggle nothing visible.
+
+**Decision required from owner:**
+- **Option A (preferred):** Minimum-viable implementations now in web repo:
+  - Oxidation overlay: tint surface atoms a desaturated brown/orange when T > material's oxidation threshold (`oxidation_temp_c` field, add to data)
+  - Melt progression: above material's `service_temp_max_c`, randomize atom positions with growing amplitude as T approaches `T_melt`; fade out cell wireframe; render as "atoms losing crystalline order"
+  - Honest framing: info panel says "Schematic — not simulation-derived"
+- **Option B:** Remove the checkboxes; full implementation lives in Taichi repo
+
+**Recommendation:** Option A. Both are <100 lines of JS and add narrative value. Schematic framing keeps them honest.
+
+**Acceptance:** Checking "Melt progression" + setting T=2500°C on Periclase (T_melt=2852) → atoms visibly start jittering, cell wireframe fades to 40% opacity.
+
+**Files:** `index.html` (+~150 lines if Option A, –20 lines if Option B), `data/crystal_vr.json` (+`oxidation_temp_c` if Option A)
+
+### 2.5.10 Build hygiene + CI
+**Goal:** Bad data can't ship to production.
+
+**Additions:**
+1. Extend `.github/workflows/pages.yml` (or new `validate.yml` running on PR):
+   ```yaml
+   - name: Validate crystal_vr.json
+     run: python validate_crystal_vr.py
+   - name: Lint HTML
+     run: npx html-validate index.html lattice.html
+   - name: JS syntax check
+     run: node --check (extracted script blocks)
+   ```
+2. `data/crystal_vr.schema.json` — JSON Schema for the data contract. `validate_crystal_vr.py` switches to schema-based validation (jsonschema lib).
+3. Pre-commit hook (`.git/hooks/pre-commit` — opt-in, document in BUILD.md): runs `validate_crystal_vr.py`, blocks commits with broken data.
+4. GH Pages deploy includes a build-stamp comment in `index.html` (`<!-- build: {commit-sha} {timestamp} -->`) — makes stale-CDN diagnosis trivial.
+5. Cache-Control headers via `_headers` file if Pages supports it — set `Cache-Control: public, max-age=300, must-revalidate` on `data/*.json` to bound the CDN staleness we hit on May 15.
+
+**Acceptance:**
+- Open a PR with a deliberately-broken JSON → CI fails before merge
+- After deploy, `view-source` shows build stamp matching the commit
+- `curl -I .../data/crystal_vr.json` returns explicit Cache-Control header
+
+**Files:** `.github/workflows/pages.yml`, new `data/crystal_vr.schema.json`, new `_headers`, `BUILD.md` (document hook setup), `validate_crystal_vr.py` (schema mode)
+
+---
+
+### Phase 2.5 Sequencing
+
+| Order | Item | Rationale |
+|-------|------|-----------|
+| 1 | 2.5.1 Procedural renderer | Highest user-visible impact; eliminates "22 pending" caveat |
+| 2 | 2.5.10 Build hygiene | Lock the gate before the team ships more data |
+| 3 | 2.5.8 Loading + error states | Cheap, high signal-to-effort |
+| 4 | 2.5.7 Accessibility floor | Bundled with #3; same files |
+| 5 | 2.5.5 Metadata display | Unlocks data we already have |
+| 6 | 2.5.2 Permalinks | Unblocks sharing, citations, embedding |
+| 7 | 2.5.3 Filter + search | Becomes essential once procedural lifts count to 60 visible |
+| 8 | 2.5.6 Mobile reflow | Quality-of-life; not blocking desktop demo flow |
+| 9 | 2.5.9 Phase-4 checkboxes | Decision needed first; can ship anytime after |
+| 10 | 2.5.4 Phase-transition visualizer | Biggest payoff but largest scope; last because it benefits from all prior polish |
+
+**Total estimated scope:** 3–5 focused sessions. None require Taichi-side work or block Phase 3.
 
 ---
 
