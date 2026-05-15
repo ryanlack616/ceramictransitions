@@ -18,6 +18,23 @@ HERE = Path(__file__).parent
 DATA = HERE / "data" / "crystal_vr.json"
 REQUIRED = {"name", "formula", "system", "atoms", "bonds", "cellVectors", "supercell"}
 
+# Phase 2.5.1: stub formulas the viewer can synthesize procedurally at load
+# time from canonical structure prototypes (kept in sync with PROTOTYPE_TABLE
+# in index.html / lattice.html).
+PROCEDURAL_FORMULAS = {
+    "ZrC", "HfC", "TaC",
+    "HfO2", "ZrO2", "ZrO2-3Y2O3", "ZrO2-8Y2O3", "ZrO2-CeO2", "La2Zr2O7",
+    "ZrB2", "HfB2",
+    "AlN", "BN",
+    "SiC", "SiC (fiber-reinforced)", "SiC (reaction-bonded)", "SiC (sintered)",
+}
+
+_SUBSCRIPT_MAP = str.maketrans("\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089", "0123456789")
+
+
+def _normalize_formula(f: str) -> str:
+    return (f or "").translate(_SUBSCRIPT_MAP)
+
 
 def main() -> int:
     root = json.loads(DATA.read_text(encoding="utf-8"))
@@ -65,8 +82,14 @@ def main() -> int:
         return 1
 
     renderable = sum(1 for s in structs if not s.get("isStub"))
-    print(f"OK: {len(structs)} structures · {renderable} renderable · "
-          f"{len(structs) - renderable} stubs")
+    stubs = [s for s in structs if s.get("isStub")]
+    procedural = sum(1 for s in stubs if _normalize_formula((s.get("formula") or "").strip()) in PROCEDURAL_FORMULAS)
+    remaining = len(stubs) - procedural
+    print(
+        f"OK: {len(structs)} structures \u00b7 "
+        f"{renderable} native + {procedural} procedural = {renderable + procedural} renderable in viewer \u00b7 "
+        f"{remaining} metadata-only stubs"
+    )
     return 0
 
 

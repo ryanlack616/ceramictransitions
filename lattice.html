@@ -202,6 +202,170 @@ async function init() {
   animate();
 }
 
+/* ── Procedural Prototype Renderer (Phase 2.5.1 · May 15 2026) ──────────
+   Mirror of index.html generator. See index.html for full prototype catalog
+   docs. Promotes metadata-only stubs (rocksalt/fluorite/zincblende/AlB2/
+   wurtzite/hBN) into renderable structures so the lattice gallery can tile
+   them. Taichi-derived structures will override these procedural
+   approximations when available. */
+const FALLBACK_ELEMENT_META = {
+  Hf: { color: [0.55, 0.65, 0.78], radius: 1.55, mass: 178.49, name: 'Hafnium' },
+  Ta: { color: [0.46, 0.50, 0.55], radius: 1.45, mass: 180.95, name: 'Tantalum' },
+  Y:  { color: [0.55, 0.85, 0.55], radius: 1.80, mass: 88.91,  name: 'Yttrium' },
+  La: { color: [0.45, 0.85, 0.95], radius: 1.95, mass: 138.91, name: 'Lanthanum' },
+  Yb: { color: [0.30, 0.85, 0.70], radius: 1.75, mass: 173.05, name: 'Ytterbium' },
+  Ce: { color: [1.00, 0.85, 0.30], radius: 1.85, mass: 140.12, name: 'Cerium' },
+  B:  { color: [1.00, 0.71, 0.71], radius: 0.85, mass: 10.81,  name: 'Boron' },
+  N:  { color: [0.19, 0.31, 0.97], radius: 0.65, mass: 14.01,  name: 'Nitrogen' },
+};
+const PROTOTYPE_DEFS = {
+  rocksalt: {
+    basis: [
+      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
+      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
+      {role:'A',fx:0.5,fy:0,fz:0},{role:'A',fx:0,fy:0.5,fz:0},
+      {role:'A',fx:0,fy:0,fz:0.5},{role:'A',fx:0.5,fy:0.5,fz:0.5},
+    ],
+    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
+    supercell: [3,3,3], bondCutoff: ({a}) => 0.55*a, homoatomicBonds: false,
+  },
+  fluorite: {
+    basis: [
+      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
+      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
+      {role:'A',fx:0.25,fy:0.25,fz:0.25},{role:'A',fx:0.25,fy:0.25,fz:0.75},
+      {role:'A',fx:0.25,fy:0.75,fz:0.25},{role:'A',fx:0.25,fy:0.75,fz:0.75},
+      {role:'A',fx:0.75,fy:0.25,fz:0.25},{role:'A',fx:0.75,fy:0.25,fz:0.75},
+      {role:'A',fx:0.75,fy:0.75,fz:0.25},{role:'A',fx:0.75,fy:0.75,fz:0.75},
+    ],
+    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
+    supercell: [3,3,3], bondCutoff: ({a}) => 0.48*a, homoatomicBonds: false,
+  },
+  zincblende: {
+    basis: [
+      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
+      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
+      {role:'A',fx:0.25,fy:0.25,fz:0.25},{role:'A',fx:0.25,fy:0.75,fz:0.75},
+      {role:'A',fx:0.75,fy:0.25,fz:0.75},{role:'A',fx:0.75,fy:0.75,fz:0.25},
+    ],
+    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
+    supercell: [3,3,3], bondCutoff: ({a}) => 0.50*a, homoatomicBonds: false,
+  },
+  AlB2: {
+    basis: [
+      {role:'C',fx:0,fy:0,fz:0},
+      {role:'A',fx:1/3,fy:2/3,fz:0.5},{role:'A',fx:2/3,fy:1/3,fz:0.5},
+    ],
+    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
+    supercell: [4,4,3], bondCutoff: ({a,c}) => 0.85*a, homoatomicBonds: true,
+  },
+  wurtzite: {
+    basis: [
+      {role:'C',fx:1/3,fy:2/3,fz:0},{role:'C',fx:2/3,fy:1/3,fz:0.5},
+      {role:'A',fx:1/3,fy:2/3,fz:0.382},{role:'A',fx:2/3,fy:1/3,fz:0.882},
+    ],
+    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
+    supercell: [3,3,2], bondCutoff: ({a,c}) => Math.max(a*0.70, c*0.45), homoatomicBonds: false,
+  },
+  hBN: {
+    basis: [
+      {role:'C',fx:1/3,fy:2/3,fz:0.25},{role:'A',fx:2/3,fy:1/3,fz:0.25},
+      {role:'C',fx:2/3,fy:1/3,fz:0.75},{role:'A',fx:1/3,fy:2/3,fz:0.75},
+    ],
+    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
+    supercell: [4,4,1], bondCutoff: ({a,c}) => 0.65*a, homoatomicBonds: false,
+  },
+};
+const PROTOTYPE_TABLE = {
+  'ZrC':{proto:'rocksalt',params:{a:4.693},cation:'Zr',anion:'C'},
+  'HfC':{proto:'rocksalt',params:{a:4.638},cation:'Hf',anion:'C'},
+  'TaC':{proto:'rocksalt',params:{a:4.456},cation:'Ta',anion:'C'},
+  'HfO2':{proto:'fluorite',params:{a:5.080},cation:'Hf',anion:'O'},
+  'ZrO2':{proto:'fluorite',params:{a:5.070},cation:'Zr',anion:'O'},
+  'ZrO2-3Y2O3':{proto:'fluorite',params:{a:5.139},cation:'Zr',anion:'O'},
+  'ZrO2-8Y2O3':{proto:'fluorite',params:{a:5.140},cation:'Zr',anion:'O'},
+  'ZrO2-CeO2':{proto:'fluorite',params:{a:5.145},cation:'Zr',anion:'O'},
+  'La2Zr2O7':{proto:'fluorite',params:{a:5.400},cation:'Zr',anion:'O'},
+  'ZrB2':{proto:'AlB2',params:{a:3.169,c:3.530},cation:'Zr',anion:'B'},
+  'HfB2':{proto:'AlB2',params:{a:3.142,c:3.476},cation:'Hf',anion:'B'},
+  'AlN':{proto:'wurtzite',params:{a:3.112,c:4.982},cation:'Al',anion:'N'},
+  'BN':{proto:'hBN',params:{a:2.504,c:6.661},cation:'B',anion:'N'},
+  'SiC':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
+  'SiC (fiber-reinforced)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
+  'SiC (reaction-bonded)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
+  'SiC (sintered)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
+};
+function _normalizeFormula(f) {
+  if (!f) return f;
+  return f.replace(/[₀-₉]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x2080 + 0x30));
+}
+function _radiusFor(el, elementsMap) {
+  return (elementsMap[el] && elementsMap[el].radius) || 0.8;
+}
+function generateAtomsFromPrototype(s, elementsMap) {
+  const entry = PROTOTYPE_TABLE[_normalizeFormula(s.formula)];
+  if (!entry) return null;
+  const def = PROTOTYPE_DEFS[entry.proto];
+  if (!def) return null;
+  const { params, cation, anion } = entry;
+  const lat = def.lattice(params);
+  const [Nx, Ny, Nz] = def.supercell;
+  const cutoff = def.bondCutoff(params);
+  const cutoff2 = cutoff * cutoff;
+  const atoms = [];
+  for (let i = 0; i < Nx; i++) for (let j = 0; j < Ny; j++) for (let k = 0; k < Nz; k++) {
+    for (const b of def.basis) {
+      const u = b.fx + i, v = b.fy + j, w = b.fz + k;
+      const x = u*lat[0][0] + v*lat[1][0] + w*lat[2][0];
+      const y = u*lat[0][1] + v*lat[1][1] + w*lat[2][1];
+      const z = u*lat[0][2] + v*lat[1][2] + w*lat[2][2];
+      const el = (b.role === 'C') ? cation : anion;
+      atoms.push({ e: el, x, y, z, r: _radiusFor(el, elementsMap), cn: 0 });
+    }
+  }
+  let cx=0,cy=0,cz=0;
+  for (const a of atoms) { cx+=a.x; cy+=a.y; cz+=a.z; }
+  cx/=atoms.length; cy/=atoms.length; cz/=atoms.length;
+  for (const a of atoms) { a.x-=cx; a.y-=cy; a.z-=cz; }
+  const bonds = [], bondTypes = [];
+  const cn = new Array(atoms.length).fill(0);
+  const allowHomo = !!def.homoatomicBonds;
+  for (let i = 0; i < atoms.length; i++) {
+    for (let j = i+1; j < atoms.length; j++) {
+      if (!allowHomo && atoms[i].e === atoms[j].e) continue;
+      const dx=atoms[i].x-atoms[j].x, dy=atoms[i].y-atoms[j].y, dz=atoms[i].z-atoms[j].z;
+      const d2 = dx*dx+dy*dy+dz*dz;
+      if (d2 < cutoff2 && d2 > 1e-6) {
+        bonds.push([i,j]);
+        bondTypes.push([atoms[i].e, atoms[j].e].sort().join('-'));
+        cn[i]++; cn[j]++;
+      }
+    }
+  }
+  for (let i = 0; i < atoms.length; i++) atoms[i].cn = cn[i];
+  return { atoms, bonds, bondTypes, cellVectors: lat, supercell: def.supercell.slice(), prototype: entry.proto };
+}
+function ensureElementsCoverage(elementsMap) {
+  for (const [sym, meta] of Object.entries(FALLBACK_ELEMENT_META)) {
+    if (!elementsMap[sym]) elementsMap[sym] = meta;
+  }
+}
+function promoteStubsWithPrototypes(structures, elementsMap) {
+  let promoted = 0;
+  for (const s of structures) {
+    if (!s.isStub) continue;
+    const gen = generateAtomsFromPrototype(s, elementsMap);
+    if (!gen) continue;
+    s.atoms = gen.atoms; s.bonds = gen.bonds; s.bondTypes = gen.bondTypes;
+    s.cellVectors = gen.cellVectors; s.supercell = gen.supercell;
+    s.prototype = gen.prototype; s.proceduralFallback = true; s.isStub = false;
+    if (!Array.isArray(s.info)) s.info = [];
+    s.info.unshift('Procedural approximation · ' + gen.prototype + ' prototype · Phase 3 (Taichi) will replace with simulation-derived coordinates');
+    promoted++;
+  }
+  return promoted;
+}
+
 /* ── Data ──────────────────────────────────────────────────── */
 async function loadData() {
   const fill = document.getElementById('loading-fill');
@@ -232,6 +396,16 @@ async function loadData() {
     // Renderable structures are what this gallery can actually tile.
     data.renderableStructures = data.structures.filter(s => !s.isStub);
   }
+
+  // ── Phase 2.5.1: procedural promotion of stubs ──────────────────────────
+  ensureElementsCoverage(data.elements);
+  const _promotedCount = promoteStubsWithPrototypes(data.structures, data.elements);
+  if (_promotedCount > 0) {
+    console.log('[procedural] promoted ' + _promotedCount + ' stub(s) using prototype catalog');
+    data.renderableStructures = data.structures.filter(s => !s.isStub);
+  }
+  data.renderableCount = data.renderableStructures.length;
+
   const total = data.structures.length;
   const renderable = data.renderableStructures.length;
   document.getElementById('structure-count-sub').textContent =
