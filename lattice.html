@@ -118,31 +118,31 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   </div>
 </div>
 
-<div id="controls">
-  <label><input type="checkbox" id="chk-bonds" checked> Bonds</label>
-  <label><input type="checkbox" id="chk-cell" checked> Unit cells</label>
-  <label><input type="checkbox" id="chk-rotate"> Auto-rotate</label>
+<div id="controls" role="region" aria-label="Display controls">
+  <label><input type="checkbox" id="chk-bonds" checked aria-label="Toggle bonds"> Bonds</label>
+  <label><input type="checkbox" id="chk-cell" checked aria-label="Toggle unit cells"> Unit cells</label>
+  <label><input type="checkbox" id="chk-rotate" aria-label="Toggle auto-rotate"> Auto-rotate</label>
   <div class="slider-row">
     <span>Atom</span>
-    <input type="range" id="sl-atom" min="0.2" max="1.8" step="0.05" value="0.55">
+    <input type="range" id="sl-atom" min="0.2" max="1.8" step="0.05" value="0.55" aria-label="Atom size scale">
     <span class="val" id="sl-atom-val">0.55</span>
   </div>
   <div class="slider-row">
     <span>Repeat</span>
-    <input type="range" id="sl-repeat" min="1" max="12" step="1" value="3">
+    <input type="range" id="sl-repeat" min="1" max="12" step="1" value="3" aria-label="Lattice repeat count">
     <span class="val" id="sl-repeat-val">3×</span>
   </div>
 </div>
 
-<div id="info">
+<div id="info" role="region" aria-label="Structure information" aria-live="polite">
   <div class="system" id="info-system"></div>
   <div class="name" id="info-name">α-Quartz</div>
   <div class="formula" id="info-formula">SiO₂</div>
   <div class="stat" id="info-stat"></div>
 </div>
 
-<div id="legend"></div>
-<div id="strip"></div>
+<div id="legend" role="region" aria-label="Element legend"></div>
+<div id="strip" role="tablist" aria-label="Crystal structures"></div>
 
 <script type="importmap">
 {
@@ -595,12 +595,24 @@ function updateInfo(idx) {
   const sc = s.supercell;
   const cellAtoms = Math.round(s.atoms.length / (sc[0] * sc[1] * sc[2]));
 
-  document.getElementById('info-stat').innerHTML =
-    `<b>${cellAtoms}</b> atoms per unit cell<br>` +
-    `<b>${elems.size}</b> elements: ${[...elems].join(', ')}<br>` +
-    `Cell: <b>${va}</b> × <b>${vb}</b> × <b>${vc}</b> Å<br>` +
-    `Tiled: <b>${repeatCount}×${repeatCount}×${repeatCount}</b> cells<br>` +
-    `Total atoms: <b>${(cellAtoms * repeatCount**3).toLocaleString()}</b>`;
+  let html = '';
+  if (s.proceduralFallback) {
+    html += `<div style="margin:0 0 6px;padding:5px 7px;border-radius:3px;background:#1a2a35;color:#8acfd9;font-size:10px;line-height:1.45;border-left:3px solid #3a9cb4">`
+          + `Procedural approximation · lattice + bond topology from canonical crystallography. Phase 3 will replace with simulation-derived coordinates.`
+          + `</div>`;
+  }
+  html += `<b>${cellAtoms}</b> atoms per unit cell<br>`
+        + `<b>${elems.size}</b> elements: ${[...elems].join(', ')}<br>`
+        + `Cell: <b>${va}</b> × <b>${vb}</b> × <b>${vc}</b> Å<br>`
+        + `Tiled: <b>${repeatCount}×${repeatCount}×${repeatCount}</b> cells<br>`
+        + `Total atoms: <b>${(cellAtoms * repeatCount**3).toLocaleString()}</b>`;
+  if (Array.isArray(s.info) && s.info.length) {
+    const esc = t => { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+    html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-dim);line-height:1.5">`;
+    s.info.forEach(line => { html += esc(line) + '<br>'; });
+    html += `</div>`;
+  }
+  document.getElementById('info-stat').innerHTML = html;
 }
 
 /* ── Build Crystal (Tiled) ─────────────────────────────────── */
