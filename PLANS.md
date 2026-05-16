@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 2.5.1 Complete | Updated: May 15, 2026  
+**Status:** Phase 2.5 COMPLETE | Updated: May 16, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -398,7 +398,9 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 ---
 
-## Phase 2.5: Web Delivery Hardening (PLANNED · May 15, 2026)
+## Phase 2.5: Web Delivery Hardening (COMPLETE · May 16, 2026)
+
+**All 10 items shipped.** See commits `da94e57` (2.5.1/3/5/6/7/8 + cross-links) and `bb6ff9d` (2.5.4/9/10). 2.5.2 permalinks already covered by Phase 5 `encodeShareState`/`applyShareState` (richer than spec — covers structure idx, all toggles, firing T, slice, compare, dual-track, melt, oxidation).
 
 **Status:** Bug-fix pass shipped May 15 (commit `64f3fb4`). Remaining items below are the gap analysis for the Phase 1–2 web track. Phase 3+ scientific structure generation remains Taichi-only per repo split.
 
@@ -451,7 +453,7 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Deployment note:** `ceramictransitions.com` is hosted on **pixie-sh** (Porkbun FTP, `Server: openresty`, `X-Service: pixie-sh`), NOT GitHub Pages — confirmed via response headers May 15. Git pushes to `master` do not deploy the site. To get a new build live, FTP-upload `index.html`, `lattice.html`, and `data/` to the pixie-sh account for `ceramictransitions.com`. The howell.help repo (`C:\rje\dev\howell-help`) has a reference `_deploy.py` pattern (FTP password via env var). Until a `_deploy.py` is added here, manual FTP is required. Live site was on a May 10 build at time of this work.
 
-### 2.5.2 URL state + permalinks
+### 2.5.2 URL state + permalinks (SHIPPED — already done as Phase 5)
 **Goal:** Every viewer state shareable via URL.
 
 **Schema:**
@@ -491,7 +493,15 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Files:** `lattice.html` (+~150 lines), `index.html` (+search box ~30 lines)
 
-### 2.5.4 Phase-transition visualizer
+### 2.5.4 Phase-transition visualizer (SHIPPED · May 16, 2026)
+
+**Impl note:** Snap-switching via `switchStructure()` with existing dissolve fade, not atom-position lerp. Honest for reconstructive transitions (ZrO₂ tetra→cubic, SiO₂ β-quartz→cristobalite). Lives in `#transitions-panel` inside info panel; only visible when current structure has `transitions[]` array or is referenced by another structure's transitions chain.
+
+**Wired chains:**
+- ZrO₂: Baddeleyite (20–1170°C) → Tetragonal Zirconia (1170–2370°C) → Cubic Zirconia (2370–2715°C)
+- SiO₂: α-Quartz (20–573°C) → Tridymite (573–1470°C) → β-Cristobalite (1470–1713°C)
+
+Labeled "Schematic — not simulation-derived."
 **Goal:** Make the site name literal — show *transitions*, not just snapshots.
 
 **Mechanism:** When a material has known polymorphs (e.g. ZrO₂ monoclinic ↔ tetragonal ↔ cubic), and we have data entries for each, a T-slider above the canvas lerps:
@@ -577,7 +587,9 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Files:** `index.html`, `lattice.html` (+~60 lines each)
 
-### 2.5.9 Phase-4 dead checkboxes — implement or remove
+### 2.5.9 Phase-4 dead checkboxes — implement or remove (SHIPPED Option A · May 16, 2026)
+
+Melt progression was already implemented (Phase 4 features #27). Added oxidation overlay (`chk-oxidation`): when firing T ≥ material's `oxidation_temp_c`, tints atoms toward burnt-orange (#cc7733), linear ramp over 300°C, max 60% blend. 13 non-oxides annotated: SiC family, Si₃N₄ family, ZrB₂, HfB₂, AlN, BN, ZrC, HfC, TaC. Info subtext shows onset T and active/inactive status. Persists in share link as `ox=1`.
 **Goal:** Eliminate the credibility leak from non-functional UI.
 
 **Current state:** "Oxidation overlay" and "Melt progression" checkboxes exist in `index.html` and toggle nothing visible.
@@ -595,7 +607,14 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 **Files:** `index.html` (+~150 lines if Option A, –20 lines if Option B), `data/crystal_vr.json` (+`oxidation_temp_c` if Option A)
 
-### 2.5.10 Build hygiene + CI
+### 2.5.10 Build hygiene + CI (SHIPPED · May 16, 2026)
+
+- `data/crystal_vr.schema.json` — JSON Schema Draft 2020-12. Loose enough to accept real data (`version: number|string`, `supercell: array|null` for stubs).
+- `validate_crystal_vr.py` — runs schema check when `jsonschema` installed; falls back to invariant-only check otherwise.
+- `.github/workflows/validate.yml` — runs validator + schema check + `node test_prototype_generators.js` on PR + push to master.
+- `_deploy.py` — injects `<!-- build: {short-sha} {iso8601-utc} -->` after `<head>` on every HTML upload.
+- `_headers` — Cache-Control hints (data/*.json: 5min, *.html: 10min, *.js/*.css: 24h). Honored by Cloudflare/pixie-sh as origin headers.
+
 **Goal:** Bad data can't ship to production.
 
 **Additions:**
