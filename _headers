@@ -1,0 +1,15 @@
+# Cache-Control hints for static assets.
+# Honored by Cloudflare / pixie-sh when serving as origin headers.
+# Short data TTL keeps CDN staleness bounded for crystal_vr.json updates.
+
+/data/*.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/*.html
+  Cache-Control: public, max-age=600, must-revalidate
+
+/*.js
+  Cache-Control: public, max-age=86400
+
+/*.css
+  Cache-Control: public, max-age=86400

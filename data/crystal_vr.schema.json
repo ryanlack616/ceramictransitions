@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceramictransitions.com/data/crystal_vr.schema.json",
+  "title": "crystal_vr.json data contract",
+  "description": "Schema for ceramictransitions 3D viewer data. Validated by validate_crystal_vr.py before deploy.",
+  "type": "object",
+  "required": ["version", "structureCount", "structures"],
+  "properties": {
+    "version": { "type": ["string", "number"] },
+    "structureCount": { "type": "integer", "minimum": 0 },
+    "renderableCount": { "type": "integer", "minimum": 0 },
+    "structures": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/structure" }
+    },
+    "elements": { "type": "object", "additionalProperties": true },
+    "bondColors": { "type": "object", "additionalProperties": true },
+    "firingPhases": { "type": "array" }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "structure": {
+      "type": "object",
+      "required": ["name", "formula", "system", "atoms", "bonds", "cellVectors", "supercell"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "formula": { "type": "string", "minLength": 1 },
+        "system": { "type": "string" },
+        "info": { "type": "array", "items": { "type": "string" } },
+        "supercell": {
+          "type": ["array", "null"],
+          "items": { "type": "integer", "minimum": 0 }
+        },
+        "cellVectors": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": { "type": "number" }
+          }
+        },
+        "atoms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "x", "y", "z"],
+            "properties": {
+              "e": { "type": "string", "minLength": 1 },
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "z": { "type": "number" },
+              "r": { "type": "number" },
+              "cn": { "type": "number" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "bonds": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "bondTypes": { "type": "array" },
+        "stats": { "type": "object", "additionalProperties": true },
+        "isStub": { "type": "boolean" },
+        "proceduralFallback": { "type": "boolean" },
+        "service_temp_max_c": { "type": ["number", "null"] },
+        "thermal_expansion_1e6_per_c": { "type": ["number", "null"] },
+        "thermal_shock_risk": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
+        "application_context": { "type": "array", "items": { "type": "string" } },
+        "phase_transition_notes": { "type": ["string", "null"] },
+        "uncertainty_notes": { "type": ["string", "null"] },
+        "source_quality": { "type": ["string", "null"] },
+        "oxidation_temp_c": { "type": ["number", "null"] },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["structure", "tempRange"],
+            "properties": {
+              "structure": { "type": "string" },
+              "tempRange": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": { "type": "number" }
+              },
+              "transformType": { "type": "string", "enum": ["displacive", "reconstructive"] },
+              "phaseName": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

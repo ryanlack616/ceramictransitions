@@ -30,11 +30,45 @@ What gets skipped (never):
 from __future__ import annotations
 import argparse
 import ftplib
+import io
 import os
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+
+
+def _build_stamp() -> str:
+    """Return a short build-stamp HTML comment with git sha + UTC timestamp."""
+    sha = 'nogit'
+    try:
+        sha = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT,
+            stderr=subprocess.DEVNULL, text=True,
+        ).strip() or 'nogit'
+    except Exception:
+        pass
+    ts = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    return f'<!-- build: {sha} {ts} -->'
+
+
+def _html_with_stamp(local: Path) -> tuple[bytes, int]:
+    """Read an HTML file and inject a build stamp comment after <head>.
+    Returns (bytes_to_upload, byte_length). If injection fails, returns the raw bytes.
+    """
+    raw = local.read_bytes()
+    try:
+        stamp = _build_stamp().encode('utf-8')
+        idx = raw.lower().find(b'<head>')
+        if idx == -1:
+            return raw, len(raw)
+        cut = idx + len(b'<head>')
+        out = raw[:cut] + b'\n' + stamp + b'\n' + raw[cut:]
+        return out, len(out)
+    except Exception:
+        return raw, len(raw)
 
 # Directories we never touch.
 SKIP_DIRS = {
@@ -172,9 +206,14 @@ def main() -> int:
                     skipped_same_size += 1
                     continue
 
-            with open(local, 'rb') as fh:
-                ftp.storbinary(f'STOR {rel}', fh)
-            print(f'    + {rel}  ({local_size} bytes)')
+            if local.suffix.lower() == '.html':
+                payload, payload_size = _html_with_stamp(local)
+                ftp.storbinary(f'STOR {rel}', io.BytesIO(payload))
+                print(f'    + {rel}  ({payload_size} bytes, stamped)')
+            else:
+                with open(local, 'rb') as fh:
+                    ftp.storbinary(f'STOR {rel}', fh)
+                print(f'    + {rel}  ({local_size} bytes)')
             uploaded += 1
     finally:
         try:

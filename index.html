@@ -230,6 +230,8 @@ label.opt input{accent-color:var(--accent);}
         <span class="val" id="sl-melt-val">0%</span>
       </div>
     </div>
+    <label class="opt" title="Tints surface atoms when firing T exceeds the material's oxidation onset (schematic)."><input type="checkbox" id="chk-oxidation"> Oxidation overlay</label>
+    <div id="oxidation-info" style="display:none;font-size:11px;color:#bbb;margin:2px 0 4px 16px"></div>
     <h3>Polish</h3>
     <button class="btn-mode" id="btn-tour">▶ Guided Tour</button>
     <h3>Version History</h3>
@@ -274,6 +276,20 @@ label.opt input{accent-color:var(--accent);}
     <div id="info-formula"></div>
     <div id="info-system"></div>
     <div id="info-details"></div>
+    <div id="transitions-panel" style="display:none;margin-top:8px;padding:6px 8px;border-radius:4px;background:#1a2230;border-left:3px solid #58a6ff">
+      <div style="font-size:10px;font-weight:600;color:#58a6ff;letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px">Phase Transitions</div>
+      <button id="btn-transitions" class="btn-mode" style="width:100%;margin:0 0 6px">View transitions ▾</button>
+      <div id="transitions-body" style="display:none">
+        <div style="font-size:10px;color:#999;margin-bottom:4px">Schematic — not simulation-derived. Snaps between polymorphs at transition T.</div>
+        <div id="transitions-list" style="font-size:11px;line-height:1.5;margin-bottom:6px"></div>
+        <div class="slider-row" style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px">T</span>
+          <input type="range" id="sl-trans-t" min="20" max="3000" step="10" value="20" style="flex:1">
+          <span class="val" id="sl-trans-t-val" style="font-size:10px">20°C</span>
+        </div>
+        <div id="trans-current" style="font-size:11px;color:#8acfd9;margin-top:4px"></div>
+      </div>
+    </div>
     <div id="atom-info">
       <h3>Selected Atom</h3>
       <div class="atom-detail" id="atom-detail"></div>
@@ -500,6 +516,48 @@ function applyColorMode() {
     mesh.material.needsUpdate = true;
   });
   buildLegend();
+  applyOxidationOverlay();
+}
+
+// ── Phase 2.5.9: Oxidation overlay (schematic, not simulation-derived) ──
+let oxidationMode = false;
+const OXIDE_TINT = new THREE.Color(0xcc7733); // burnt orange
+
+function getOxidationTempC() {
+  if (!data || currentIdx == null) return null;
+  const s = data.structures[currentIdx];
+  return (s && typeof s.oxidation_temp_c === 'number') ? s.oxidation_temp_c : null;
+}
+
+function applyOxidationOverlay() {
+  if (!oxidationMode || atomMeshes.length === 0) return;
+  const Tox = getOxidationTempC();
+  if (Tox == null) return;
+  const T = firingMode ? currentTemp : 20;
+  // Linear ramp: 0 at Tox, 0.6 saturated 300°C above
+  const f = Math.max(0, Math.min(0.6, (T - Tox) / 300));
+  if (f <= 0) return;
+  atomMeshes.forEach(mesh => {
+    mesh.material.color.lerp(OXIDE_TINT, f);
+    mesh.material.emissive.copy(mesh.material.color).multiplyScalar(0.10);
+    mesh.material.needsUpdate = true;
+  });
+}
+
+function updateOxidationInfo() {
+  const el = document.getElementById('oxidation-info');
+  if (!el) return;
+  if (!oxidationMode) { el.style.display = 'none'; el.textContent = ''; return; }
+  const Tox = getOxidationTempC();
+  if (Tox == null) {
+    el.style.display = 'block';
+    el.textContent = 'No oxidation data for this material (likely already an oxide).';
+    return;
+  }
+  el.style.display = 'block';
+  const T = firingMode ? currentTemp : 20;
+  const active = T >= Tox;
+  el.textContent = `Oxidation onset ${Tox}°C · current ${T}°C · ${active ? 'ACTIVE — schematic tint' : 'inactive'}`;
 }
 
 // ── Init ────────────────────────────────────────────────────
@@ -1104,6 +1162,21 @@ function buildStructureList() {
     applyMeltProgression();
   });
 
+  // ── Phase 2.5.9: Oxidation overlay ──
+  document.getElementById('chk-oxidation').addEventListener('change', e => {
+    oxidationMode = e.target.checked;
+    applyColorMode();          // resets base colors then re-applies tint
+    updateOxidationInfo();
+    updateInfoPanel();
+  });
+
+  // ── Phase 2.5.4: Phase-transition visualizer ──
+  document.getElementById('btn-transitions').addEventListener('click', () => {
+    transitionsExpanded = !transitionsExpanded;
+    updateTransitionsPanel();
+  });
+  document.getElementById('sl-trans-t').addEventListener('input', onTransitionSliderInput);
+
   // ── Phase 5: Tour + Screenshot ──
   document.getElementById('btn-tour').addEventListener('click', startTour);
   document.getElementById('tour-prev').addEventListener('click', tourPrev);
@@ -1147,6 +1220,60 @@ function updateInfoPanel() {
   }
   document.getElementById('info-details').innerHTML = html;
   document.getElementById('atom-info').style.display = 'none';
+  updateTransitionsPanel();
+}
+
+// ── Phase 2.5.4: Phase-transition visualizer ──────────────────
+let transitionsExpanded = false;
+function updateTransitionsPanel() {
+  const panel = document.getElementById('transitions-panel');
+  const s = data.structures[currentIdx];
+  // Look for transitions on this structure OR on any parent that references it
+  let trans = (s && Array.isArray(s.transitions)) ? s.transitions : null;
+  if (!trans) {
+    // Search for another structure that defines a transitions chain containing this one
+    for (const other of data.structures) {
+      if (Array.isArray(other.transitions) && other.transitions.some(t => t.structure === s.name)) {
+        trans = other.transitions; break;
+      }
+    }
+  }
+  if (!trans || trans.length < 2) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const body = document.getElementById('transitions-body');
+  body.style.display = transitionsExpanded ? 'block' : 'none';
+  document.getElementById('btn-transitions').textContent = transitionsExpanded ? 'Hide transitions ▴' : 'View transitions ▾';
+  // List
+  const list = trans.map(t => {
+    const active = t.structure === s.name;
+    return `<div style="${active?'color:#fff;font-weight:600':'color:#999'}">${escapeHtml(t.phaseName||t.structure)} <span style="color:#666">[${t.tempRange[0]}–${t.tempRange[1]}°C]</span></div>`;
+  }).join('');
+  document.getElementById('transitions-list').innerHTML = list;
+  // Set slider range to span the chain
+  const sl = document.getElementById('sl-trans-t');
+  sl.min = trans[0].tempRange[0];
+  sl.max = trans[trans.length - 1].tempRange[1];
+  // Current value: prefer firingMode temp, else low end of current polymorph
+  const curT = firingMode ? currentTemp : (trans.find(t => t.structure === s.name)?.tempRange[0] ?? sl.min);
+  sl.value = curT;
+  document.getElementById('sl-trans-t-val').textContent = curT + '°C';
+  const cur = trans.find(t => curT >= t.tempRange[0] && curT < t.tempRange[1]) || trans[trans.length - 1];
+  document.getElementById('trans-current').textContent = `At ${curT}°C → ${cur.phaseName || cur.structure} (${cur.transformType || 'transition'})`;
+  panel._transitions = trans;
+}
+
+function onTransitionSliderInput() {
+  const trans = document.getElementById('transitions-panel')._transitions;
+  if (!trans) return;
+  const T = parseInt(document.getElementById('sl-trans-t').value);
+  document.getElementById('sl-trans-t-val').textContent = T + '°C';
+  const match = trans.find(t => T >= t.tempRange[0] && T < t.tempRange[1]) || trans[trans.length - 1];
+  document.getElementById('trans-current').textContent = `At ${T}°C → ${match.phaseName || match.structure} (${match.transformType || 'transition'})`;
+  const s = data.structures[currentIdx];
+  if (match.structure !== s.name) {
+    const idx = data.structures.findIndex(x => x.name === match.structure);
+    if (idx >= 0 && !dissolving) switchStructure(idx);
+  }
 }
 
 function escapeHtml(text) {
@@ -1472,6 +1599,7 @@ function getStructureIdxByName(name) {
 function setTemperature(temp) {
   currentTemp = Math.max(20, Math.min(1500, temp));
   document.getElementById('temp-slider').value = currentTemp;
+  if (oxidationMode) { applyColorMode(); updateOxidationInfo(); }
 
   // Temp readout with color gradient (blue→orange→red)
   const t01 = (currentTemp - 20) / 1480;
@@ -2577,6 +2705,7 @@ function encodeShareState() {
   if (dualTrackMode) p.set('dt', '1');
   if (showBridges) p.set('br', '1');
   if (meltMode) { p.set('mt', '1'); p.set('mp', meltProgress.toFixed(2)); }
+  if (oxidationMode) p.set('ox', '1');
   return p.toString();
 }
 
@@ -2628,6 +2757,11 @@ function applyShareState() {
     meltMode = true; document.getElementById('chk-melt').checked = true; document.getElementById('melt-controls').style.display = 'block';
     initMeltProgression();
     if (p.has('mp')) { meltProgress = parseFloat(p.get('mp')); document.getElementById('sl-melt').value = meltProgress; document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%'; applyMeltProgression(); }
+  }
+  if (p.get('ox') === '1') {
+    oxidationMode = true;
+    document.getElementById('chk-oxidation').checked = true;
+    applyColorMode(); updateOxidationInfo();
   }
 }
 
@@ -2747,6 +2881,7 @@ function switchStructure(idx) {
     // Rebuild Phase 4 features
     if (showBridges) buildBridgeVisualization();
     if (meltMode) initMeltProgression();
+    if (oxidationMode) { applyColorMode(); updateOxidationInfo(); }
     // Fade in
     setGroupOpacity(1.0, DISSOLVE_MS / 2).then(() => {
       dissolving = false;

@@ -1,0 +1,47 @@
+name: validate
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'index.html'
+      - 'lattice.html'
+      - 'transitions-graph.html'
+      - 'validate_crystal_vr.py'
+      - 'test_prototype_generators.js'
+  push:
+    branches: [master]
+    paths:
+      - 'data/**'
+      - 'index.html'
+      - 'lattice.html'
+      - 'transitions-graph.html'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install jsonschema
+        run: pip install jsonschema
+      - name: Validate data invariants
+        run: python validate_crystal_vr.py
+      - name: Validate against JSON Schema
+        run: |
+          python -c "
+          import json, sys
+          from jsonschema import Draft202012Validator
+          schema = json.load(open('data/crystal_vr.schema.json'))
+          data   = json.load(open('data/crystal_vr.json'))
+          errs = list(Draft202012Validator(schema).iter_errors(data))
+          if errs:
+              for e in errs[:20]:
+                  print('SCHEMA FAIL:', list(e.absolute_path), e.message)
+              sys.exit(1)
+          print('SCHEMA OK')
+          "
+      - name: Prototype generator smoke test
+        run: node test_prototype_generators.js

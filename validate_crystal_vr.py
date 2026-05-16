@@ -75,6 +75,17 @@ def main() -> int:
                 f"(cellVectors len={len(cv)}, atoms len={len(atoms)})"
             )
 
+    # Optional JSON Schema validation (skipped silently if jsonschema not installed)
+    schema_path = HERE / "data" / "crystal_vr.schema.json"
+    if schema_path.exists():
+        try:
+            from jsonschema import Draft202012Validator  # type: ignore
+            schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            for err in list(Draft202012Validator(schema).iter_errors(root))[:50]:
+                errors.append(f"[schema] {list(err.absolute_path)}: {err.message}")
+        except ImportError:
+            print("note: jsonschema not installed, skipping schema check (pip install jsonschema)")
+
     if errors:
         print(f"FAIL: {len(errors)} issues")
         for e in errors:
