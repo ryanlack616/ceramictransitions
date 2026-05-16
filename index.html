@@ -742,6 +742,37 @@ const PROTOTYPE_DEFS = {
     bondCutoff: ({a, c}) => 0.65 * a,
     homoatomicBonds: false,
   },
+  si3n4: {
+    // β-Si3N4 — hexagonal P6₃ (also reported P6₃/m). 14 atoms / unit cell:
+    // 6 Si on 6h, 2 N on 2c, 6 N on 6h. Source: ICDD 41-360 / Hardie & Jack 1957.
+    // Si at (0.174, 0.766, 1/4); N(1) at (1/3, 2/3, 1/4); N(2) at (0.330, 0.030, 1/4).
+    // Equivalent positions expanded explicitly below.
+    basis: [
+      // Si — 6h orbit of (0.174, 0.766, 1/4)
+      {role:'C', fx:0.174, fy:0.766, fz:0.25},
+      {role:'C', fx:0.234, fy:0.408, fz:0.25},
+      {role:'C', fx:0.592, fy:0.826, fz:0.25},
+      {role:'C', fx:0.826, fy:0.234, fz:0.75},
+      {role:'C', fx:0.766, fy:0.592, fz:0.75},
+      {role:'C', fx:0.408, fy:0.174, fz:0.75},
+      // N(1) — 2c at (1/3, 2/3, 1/4) and 6₃-screw image
+      {role:'A', fx:1/3,   fy:2/3,   fz:0.25},
+      {role:'A', fx:2/3,   fy:1/3,   fz:0.75},
+      // N(2) — 6h orbit of (0.330, 0.030, 1/4)
+      {role:'A', fx:0.330, fy:0.030, fz:0.25},
+      {role:'A', fx:0.970, fy:0.300, fz:0.25},
+      {role:'A', fx:0.700, fy:0.670, fz:0.25},
+      {role:'A', fx:0.670, fy:0.970, fz:0.75},
+      {role:'A', fx:0.030, fy:0.700, fz:0.75},
+      {role:'A', fx:0.300, fy:0.330, fz:0.75},
+    ],
+    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
+    supercell: [2,2,3],
+    // Si-N ≈ 1.74 Å; with a≈7.6 Å this is ~0.23·a. Use 0.30·a to catch all
+    // tetrahedral first neighbors without picking up second-shell pairs.
+    bondCutoff: ({a, c}) => 0.30 * a,
+    homoatomicBonds: false,
+  },
 };
 
 // Formula → prototype + lattice constants (Å). Sources: standard crystallography refs.
@@ -763,12 +794,22 @@ const PROTOTYPE_TABLE = {
   'SiC (fiber-reinforced)':{ proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
   'SiC (reaction-bonded)': { proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
   'SiC (sintered)':        { proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
+  // β-Si3N4 — silicon nitride family
+  'Si3N4':     { proto:'si3n4', params:{a:7.602, c:2.907}, cation:'Si', anion:'N' },
+  // β-Sialon (Si6-xAlxOxN8-x) — isostructural with β-Si3N4; we approximate as
+  // pure β-Si3N4 with proceduralFallback note (Si→Al, N→O substitution disorder unmodeled).
+  'Si6-xAlxOxN8-x': { proto:'si3n4', params:{a:7.659, c:2.929}, cation:'Si', anion:'N' },
 };
 
 // Unicode subscript → ASCII digit (₂₃₄₅₆₇₈ etc).
+// Also normalizes subscript x (\u2093) and subscript minus (\u208B) so Sialon's
+// Si₆₋ₓAlₓOₓN₈₋ₓ formula maps to the 'Si6-xAlxOxN8-x' table key.
 function _normalizeFormula(f) {
   if (!f) return f;
-  return f.replace(/[\u2080-\u2089]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x2080 + 0x30));
+  return f
+    .replace(/[\u2080-\u2089]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x2080 + 0x30))
+    .replace(/\u2093/g, 'x')
+    .replace(/\u208B/g, '-');
 }
 
 function _radiusFor(el, elementsMap) {
@@ -858,6 +899,7 @@ const FALLBACK_BOND_COLORS = {
   'Al-N':  [0.55, 0.65, 0.95],
   'B-N':   [0.75, 0.78, 0.95],
   'B-B':   [1.00, 0.71, 0.71],
+  'N-Si':  [0.45, 0.60, 0.92],
 };
 
 function ensureBondColorsCoverage(bondColorsMap) {

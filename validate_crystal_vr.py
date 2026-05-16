@@ -27,9 +27,14 @@ PROCEDURAL_FORMULAS = {
     "ZrB2", "HfB2",
     "AlN", "BN",
     "SiC", "SiC (fiber-reinforced)", "SiC (reaction-bonded)", "SiC (sintered)",
+    # Phase 3.1 (May 16, 2026) — β-Si3N4 family
+    "Si3N4", "Si6-xAlxOxN8-x",
 }
 
-_SUBSCRIPT_MAP = str.maketrans("\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089", "0123456789")
+_SUBSCRIPT_MAP = str.maketrans(
+    "\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089\u2093\u208B",
+    "0123456789x-",
+)
 
 
 def _normalize_formula(f: str) -> str:

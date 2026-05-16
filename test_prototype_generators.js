@@ -92,6 +92,7 @@ const EXPECTED_CN = {
   wurtzite:   { C: { min: 2, max: 4 }, A: { min: 2, max: 4 } },
   AlB2:       { C: { min: 6, max: 12 }, A: { min: 3, max: 9 } },
   hBN:        { C: { min: 2, max: 3 }, A: { min: 2, max: 3 } },
+  si3n4:      { C: { min: 2, max: 4 }, A: { min: 2, max: 4 } },
 };
 
 let failures = 0;

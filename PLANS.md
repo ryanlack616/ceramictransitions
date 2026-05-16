@@ -217,18 +217,36 @@ Each material in `high_temp_ceramics_starter.json` includes:
 
 ---
 
-## Phase 3: 3D Model Generation (PLANNED)
+## Phase 3: 3D Model Generation (Phase 3.1 COMPLETE · May 16, 2026)
 
 **Goal:** Generate full atomic coordinate sets for aerospace materials currently as stubs  
 **Timeline:** 2–4 weeks (pending Materials Project API access)  
 **Scope:** Priority 10 materials (ZrB₂, HfB₂, YSZ variants, HfO₂, La₂Zr₂O₇, SiC, AlN, SiAlON)
 
-### Approach
-1. Query **Materials Project** (mp-web-api) for crystal structures of diborides/carbides/rare-earth silicates
-2. Parse & convert via **pymatgen** → Taichi simulation/render schema in `ceramictransitions-taichi` (atoms, bonds, supercell)
-3. Generate pseudo-structures for composites/coatings (layered TBC models)
-4. Validate with `_inspect.py` (extend to check non-empty atoms)
-5. Deploy update to GitHub Pages
+### Phase 3.1 — β-Si₃N₄ family + Yb-silicate metadata (SHIPPED May 16, 2026)
+
+Stub-to-renderable progress: **17 → 20 procedural · 2 metadata-only stubs remain.**
+
+- Added `si3n4` prototype to `PROTOTYPE_DEFS` in both `index.html` and `lattice.html`:
+  - β-Si₃N₄ space group P6₃ (a=7.602 Å, c=2.907 Å), 14-atom basis (6 Si at 6h, 2 N at 2c, 6 N at 6h)
+  - Wyckoff orbits expanded explicitly; supercell [2,2,3] → 168 atoms / 240 bonds
+  - Bond cutoff 0.30·a captures all Si–N tetrahedral first neighbours
+- Extended `PROTOTYPE_TABLE` with two entries mapped to `si3n4`:
+  - `Si3N4` — covers "Silicon Nitride" + "Sintered Silicon Nitride" stubs
+  - `Si6-xAlxOxN8-x` — covers "Sialon" stub (β-Si₃N₄ isostructural, a=7.659, c=2.929; substitutional disorder unmodeled)
+- Extended `_normalizeFormula` to handle subscript x (ₓ → x) and subscript minus (₋ → -) so Sialon's Unicode formula maps to the table key.
+- Added `N-Si` to `FALLBACK_BOND_COLORS` and matching `si3n4` entry to `EXPECTED_CN` in the smoke harness.
+- Enriched `Ytterbium Silicate` (X2-Yb₂SiO₅, monoclinic B2/b) and `Ytterbium Disilicate` (β-Yb₂Si₂O₇, monoclinic C2/m) stubs with literature lattice parameters and EBC service notes; full atom coordinates deferred to Phase 3.2.
+- Validator now recognises `Si3N4` and `Si6-xAlxOxN8-x` as procedural formulas.
+- Smoke test: **240/240 passes** (up from 215/215).
+- Validator: `60 structures · 38 native + 20 procedural = 58 renderable · 2 metadata-only stubs`.
+
+### Phase 3.2 — Remaining work (PLANNED)
+
+1. Query **Materials Project** (mp-web-api) for X2-Yb₂SiO₅ and β-Yb₂Si₂O₇ crystal structures
+2. Parse via **pymatgen** → bake atom coordinates directly into `data/crystal_vr.json` (replaces metadata-only stubs)
+3. Eventually move the procedural-fallback path into the Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only
+4. Generate pseudo-structures for layered TBC composite models (Phase 4 territory)
 
 ### Data Sources
 - **Primary:** Materials Project (api.materialsproject.org) — comprehensive structural database
