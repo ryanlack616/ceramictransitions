@@ -25,6 +25,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 #strip{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;gap:0;background:rgba(6,6,8,.9);backdrop-filter:blur(12px);border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .strip-btn{flex:0 0 auto;padding:10px 16px;background:none;border:none;cursor:pointer;text-align:center;border-top:2px solid transparent;transition:all .2s;}
 .strip-btn:hover{background:rgba(196,130,110,.06);}
+.strip-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;background:rgba(196,130,110,.08);}
 .strip-btn.active{border-top-color:var(--accent);background:rgba(196,130,110,.1);}
 .strip-name{font-size:11px;font-family:var(--mono);color:var(--text);display:block;white-space:nowrap;}
 .strip-formula{font-size:9px;color:var(--text-dim);font-family:var(--mono);display:block;margin-top:1px;}
@@ -511,6 +512,9 @@ function setupUI() {
   renderList.forEach((s, i) => {
     const btn = document.createElement('button');
     btn.className = 'strip-btn' + (i === 0 ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    btn.setAttribute('aria-label', `${s.name} (${s.formula})`);
     btn.dataset.name = (s.name||'').toLowerCase();
     btn.dataset.formula = (s.formula||'').toLowerCase();
     btn.dataset.system = (s.system||'').toLowerCase();
@@ -567,10 +571,54 @@ function setupUI() {
 
 function selectStructure(idx) {
   currentIdx = idx;
-  document.querySelectorAll('.strip-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  const btns = document.querySelectorAll('.strip-btn');
+  btns.forEach((b, i) => {
+    const on = (i === idx);
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  // Scroll active button into view (smooth, horizontal only)
+  const active = btns[idx];
+  if (active && typeof active.scrollIntoView === 'function') {
+    active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
   buildCrystal(idx);
   updateInfo(idx);
 }
+
+// Keyboard navigation: ←/→ cycle to prev/next visible (non-filtered) structure,
+// Home/End jump to first/last visible, Esc clears the filter input.
+document.addEventListener('keydown', (e) => {
+  if (!data || !data.renderableStructures) return;
+  const tag = (e.target && e.target.tagName) || '';
+  const isText = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (e.key === 'Escape' && isText && e.target.id === 'filter-input') {
+    e.target.value = '';
+    e.target.dispatchEvent(new Event('input'));
+    return;
+  }
+  if (isText) return; // don't hijack typing in the filter field
+  const total = data.renderableStructures.length;
+  if (total === 0) return;
+  const btns = Array.from(document.querySelectorAll('.strip-btn'));
+  const visible = btns.map((b, i) => ({ b, i })).filter(o => !o.b.classList.contains('filtered-out'));
+  if (visible.length === 0) return;
+  const visIdx = visible.findIndex(o => o.i === currentIdx);
+  let next = null;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    next = visible[(visIdx + 1 + visible.length) % visible.length].i;
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    next = visible[(visIdx - 1 + visible.length) % visible.length].i;
+  } else if (e.key === 'Home') {
+    next = visible[0].i;
+  } else if (e.key === 'End') {
+    next = visible[visible.length - 1].i;
+  } else {
+    return;
+  }
+  e.preventDefault();
+  selectStructure(next);
+});
 
 function _currentStructure(idx) {
   // Lattice gallery only iterates renderable structures.
