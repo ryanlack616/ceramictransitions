@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Ceramic Crystal Lattices — Repeating Structures in Space</title>
+<title>High-Temperature Ceramic Lattices — UHTC · TBC · EBC · CMC</title>
+<meta name="description" content="Lattice gallery for high-temperature ceramics: UHTCs, thermal/environmental barrier coatings, MAX phases, refractory oxides, RE-silicates. Filter by material class and service temperature.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 :root {
@@ -103,13 +104,34 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 
 <div id="filter-bar">
   <input id="filter-input" type="search" placeholder="Filter by name or formula…" autocomplete="off" spellcheck="false" aria-label="Filter structures">
+  <select id="filter-class" style="background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:var(--mono);font-size:10px;padding:2px 4px;" aria-label="Material class">
+    <option value="">All classes</option>
+    <option value="UHTC">UHTC</option>
+    <option value="TBC">TBC</option>
+    <option value="EBC">EBC</option>
+    <option value="CMC">CMC</option>
+    <option value="max_phase">MAX</option>
+    <option value="refractory_oxide">Refractory</option>
+    <option value="silicate">Silicate</option>
+    <option value="carbide">Carbide</option>
+    <option value="nitride">Nitride</option>
+    <option value="disilicide">Disilicide</option>
+    <option value="polymorph_silica">SiO₂</option>
+    <option value="high_entropy">HEC</option>
+    <option value="mineral">Mineral</option>
+    <option value="precursor">Precursor</option>
+    <option value="carbonate">Carbonate</option>
+    <option value="hydroxide">Hydroxide</option>
+  </select>
+  <input id="filter-temp" type="range" min="0" max="3500" step="100" value="0" style="width:90px;" aria-label="Minimum service temperature">
+  <span id="filter-temp-val" style="font-size:9px;font-family:var(--mono);color:var(--text-dim);min-width:48px;">T≥0°C</span>
   <button id="filter-clear" title="Clear" aria-label="Clear filter">×</button>
   <span id="filter-count">—</span>
 </div>
 
 <div id="header">
   <div style="display:flex;align-items:baseline;gap:4px">
-    <h1>Ceramic Crystal <span>Lattices</span></h1>
+    <h1>High-Temperature Ceramic <span>Lattices</span></h1>
     <span class="sub" id="structure-count-sub">Loading structures…</span>
   </div>
   <div style="display:flex;gap:14px;align-items:center;">
@@ -538,6 +560,8 @@ function setupUI() {
     btn.dataset.name = (s.name||'').toLowerCase();
     btn.dataset.formula = (s.formula||'').toLowerCase();
     btn.dataset.system = (s.system||'').toLowerCase();
+    btn.dataset.matclass = (s.material_class||'').toLowerCase();
+    btn.dataset.servicetemp = (typeof s.service_temp_c === 'number') ? String(s.service_temp_c) : '';
     btn.innerHTML = `<span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
     btn.onclick = () => selectStructure(i);
     strip.appendChild(btn);
@@ -554,14 +578,29 @@ function setupUI() {
   };
   const applyFilter = () => {
     const q = fInput.value.trim().toLowerCase();
+    const cls = (document.getElementById('filter-class')?.value || '').toLowerCase();
+    const minT = parseInt(document.getElementById('filter-temp')?.value || '0', 10);
+    const tLabel = document.getElementById('filter-temp-val');
+    if (tLabel) tLabel.textContent = 'T≥' + minT + '°C';
     strip.querySelectorAll('.strip-btn').forEach(b => {
-      const hit = !q || b.dataset.name.includes(q) || b.dataset.formula.includes(q) || b.dataset.system.includes(q);
-      b.classList.toggle('filtered-out', !hit);
+      const textHit = !q || b.dataset.name.includes(q) || b.dataset.formula.includes(q) || b.dataset.system.includes(q);
+      const classHit = !cls || b.dataset.matclass === cls;
+      const st = b.dataset.servicetemp ? parseInt(b.dataset.servicetemp, 10) : 9999;
+      const tempHit = st >= minT;
+      b.classList.toggle('filtered-out', !(textHit && classHit && tempHit));
     });
     updateFilterCount();
   };
   fInput.addEventListener('input', applyFilter);
-  fClear.addEventListener('click', () => { fInput.value = ''; applyFilter(); fInput.focus(); });
+  document.getElementById('filter-class')?.addEventListener('change', applyFilter);
+  document.getElementById('filter-temp')?.addEventListener('input', applyFilter);
+  fClear.addEventListener('click', () => {
+    fInput.value = '';
+    const cs = document.getElementById('filter-class'); if (cs) cs.value = '';
+    const ts = document.getElementById('filter-temp'); if (ts) ts.value = '0';
+    applyFilter();
+    fInput.focus();
+  });
   updateFilterCount();
 
   // Checkboxes

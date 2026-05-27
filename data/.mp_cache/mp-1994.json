@@ -1,0 +1,121 @@
+{
+  "nsites": 3,
+  "formula_pretty": "HfB2",
+  "symmetry": {
+    "crystal_system": "Hexagonal",
+    "symbol": "P6/mmm",
+    "hall": null,
+    "number": 191,
+    "point_group": "6/mmm",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-1994",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          3.13267877,
+          -0.0,
+          0.0
+        ],
+        [
+          -1.56633989,
+          2.71297983,
+          -0.0
+        ],
+        [
+          0.0,
+          0.0,
+          3.47921399
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 3.13267877,
+      "b": 3.132679397734795,
+      "c": 3.47921399,
+      "alpha": 90.0,
+      "beta": 90.0,
+      "gamma": 120.0000040365546,
+      "volume": 29.569472006817637
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Hf",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.0,
+          0.0,
+          -0.0
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "Hf",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "B",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.333333,
+          0.666667,
+          0.5
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "B",
+        "xyz": [
+          -1.903006220171357e-06,
+          1.80865412432661,
+          1.739606995
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "B",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.666667,
+          0.333333,
+          0.5
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "B",
+        "xyz": [
+          1.5663407830062201,
+          0.90432570567339,
+          1.739606995
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}

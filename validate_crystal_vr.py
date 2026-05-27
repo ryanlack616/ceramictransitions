@@ -17,6 +17,12 @@ from pathlib import Path
 HERE = Path(__file__).parent
 DATA = HERE / "data" / "crystal_vr.json"
 REQUIRED = {"name", "formula", "system", "atoms", "bonds", "cellVectors", "supercell"}
+REQUIRED_SYSTEM = {"name", "formula", "system", "layers", "material_class", "service_temp_c"}
+
+# Phase 3.3 (May 27 2026): HT-focus rule — every non-precursor/carbonate/hydroxide/mineral
+# entry must carry material_class and service_temp_c so the filter UI can reason about it.
+HT_CLASSIFICATION_REQUIRED = True
+NON_HT_CLASSES = {"precursor", "carbonate", "hydroxide", "mineral"}
 
 # Phase 2.5.1: stub formulas the viewer can synthesize procedurally at load
 # time from canonical structure prototypes (kept in sync with PROTOTYPE_TABLE
@@ -57,6 +63,16 @@ def main() -> int:
 
     # Per-structure checks
     for i, s in enumerate(structs):
+        entry_type = s.get("entry_type", "crystal")
+        if entry_type == "system":
+            missing = REQUIRED_SYSTEM - set(s.keys())
+            if missing:
+                errors.append(f"[{i}] {s.get('name', '?')}: system entry missing keys {missing}")
+            layers = s.get("layers") or []
+            if not isinstance(layers, list) or not layers:
+                errors.append(f"[{i}] {s.get('name', '?')}: system entry has empty layers[]")
+            continue
+
         missing = REQUIRED - set(s.keys())
         if missing:
             errors.append(f"[{i}] {s.get('name', '?')}: missing keys {missing}")
@@ -79,6 +95,18 @@ def main() -> int:
                 f"[{i}] {s.get('name', '?')}: malformed/empty data but isStub not set "
                 f"(cellVectors len={len(cv)}, atoms len={len(atoms)})"
             )
+
+        # Phase 3.3 HT-classification rule.
+        if HT_CLASSIFICATION_REQUIRED:
+            mc = s.get("material_class")
+            st = s.get("service_temp_c")
+            if mc is None:
+                errors.append(f"[{i}] {s.get('name', '?')}: missing material_class (Phase 3.3 P0 rule)")
+            elif mc not in NON_HT_CLASSES and st is None:
+                errors.append(
+                    f"[{i}] {s.get('name', '?')}: missing service_temp_c "
+                    f"(material_class={mc!r} is HT-relevant)"
+                )
 
     # Optional JSON Schema validation (skipped silently if jsonschema not installed)
     schema_path = HERE / "data" / "crystal_vr.schema.json"

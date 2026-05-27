@@ -1,0 +1,99 @@
+{
+  "nsites": 2,
+  "formula_pretty": "TiN",
+  "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m",
+    "hall": null,
+    "number": 225,
+    "point_group": "m-3m",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-492",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          2.59722322,
+          0.0,
+          1.49950824
+        ],
+        [
+          0.86574108,
+          2.44868455,
+          1.49950824
+        ],
+        [
+          1e-08,
+          1e-08,
+          2.999014449999999
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 2.999015407818883,
+      "b": 2.99901460563902,
+      "c": 2.999014449999999,
+      "alpha": 59.999979081614256,
+      "beta": 59.999987982580606,
+      "gamma": 59.99998314017752,
+      "volume": 19.073073170918455
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Ti",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.0,
+          0.0,
+          -0.0
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "Ti",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "N",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "N",
+        "xyz": [
+          1.7314821550000001,
+          1.2243422800000001,
+          2.999015464999999
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}

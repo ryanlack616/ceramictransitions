@@ -1,0 +1,143 @@
+{
+  "nsites": 4,
+  "formula_pretty": "AlN",
+  "symmetry": {
+    "crystal_system": "Hexagonal",
+    "symbol": "P6_3mc",
+    "hall": null,
+    "number": 186,
+    "point_group": "6mm",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-661",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          3.128588,
+          0.0,
+          0.0
+        ],
+        [
+          -1.564293999999999,
+          2.709437,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.016955
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 3.128588,
+      "b": 3.128588271953501,
+      "c": 5.016955,
+      "alpha": 90.0,
+      "beta": 90.0,
+      "gamma": 119.99999712453396,
+      "volume": 42.52728307818043
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Al",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.666667,
+          0.333333,
+          0.499287
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "Al",
+        "xyz": [
+          1.564295564294,
+          0.903144763520999,
+          2.504900411085
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "Al",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.333333,
+          0.666667,
+          0.999286999999999
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "Al",
+        "xyz": [
+          -1.564293999275155e-06,
+          1.806292236479,
+          5.013377911084995
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "N",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.666667,
+          0.333333,
+          0.880713
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "N",
+        "xyz": [
+          1.564295564294,
+          0.903144763520999,
+          4.418497488915
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "N",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.333333,
+          0.666667,
+          0.380712999999999
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "N",
+        "xyz": [
+          -1.564293999275155e-06,
+          1.806292236479,
+          1.910019988914995
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}

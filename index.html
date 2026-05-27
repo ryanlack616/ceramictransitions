@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crystal Structures — VR</title>
+<title>High-Temperature Ceramics — Structure + Transitions Explorer</title>
+<meta name="description" content="Interactive 3D viewer for high-temperature ceramics: UHTCs, thermal barrier coatings (TBC), environmental barrier coatings (EBC), ceramic matrix composites (CMC), refractory oxides, nitrides, carbides, borides. 60 structures with atomic coordinates, phase transitions, and service-temperature filtering.">
 <style>
 :root {
   --bg:#0a0a0c; --surface:#131316; --border:#2a2a35; --text:#c8c8d0;
@@ -169,11 +170,37 @@ label.opt input{accent-color:var(--accent);}
 
 <div id="hud">
   <div id="panel">
-    <h2>Crystal Structures</h2>
-    <div class="subtitle">Atomic-level ceramic viewer</div>
+    <h2>High-Temp Ceramics</h2>
+    <div class="subtitle">UHTC · TBC · EBC · CMC · refractories</div>
     <a href="lattice.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:4px 0 2px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Lattice Gallery</a>
     <a href="transitions-graph.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:2px 0;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Firing Journey Graph</a>
     <a href="https://ceramic-micros.howell.help/" style="display:block;font-size:10px;font-family:var(--mono);color:#7ecfdf;text-decoration:none;margin:2px 0 6px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7" title="Companion: diffusion kinetics in ceramics">↗ ceramic-micros (kinetics)</a>
+    <h3>Filter</h3>
+    <select id="filter-class" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;">
+      <option value="">All classes</option>
+      <option value="UHTC">UHTC (ultra-high-temp)</option>
+      <option value="TBC">TBC (thermal barrier)</option>
+      <option value="EBC">EBC (environmental barrier)</option>
+      <option value="CMC">CMC (composite)</option>
+      <option value="refractory_oxide">Refractory oxide</option>
+      <option value="silicate">Silicate</option>
+      <option value="carbide">Carbide</option>
+      <option value="nitride">Nitride</option>
+      <option value="boride">Boride</option>
+      <option value="polymorph_silica">SiO₂ polymorph</option>
+      <option value="mineral">Mineral</option>
+      <option value="precursor">Precursor (clay/feldspar/etc.)</option>
+      <option value="carbonate">Carbonate</option>
+      <option value="hydroxide">Hydroxide</option>
+      <option value="oxide">Other oxide</option>
+    </select>
+    <div class="slider-row">
+      <span style="font-size:9px;">T≥</span>
+      <input type="range" id="filter-temp" min="0" max="3500" step="100" value="0">
+      <span class="val" id="filter-temp-val">0°C</span>
+    </div>
+    <label class="opt" style="font-size:10px;"><input type="checkbox" id="filter-hide-precursors"> Hide precursors</label>
+    <div id="filter-count" style="font-size:9px;color:var(--text-dim);font-family:var(--mono);margin:2px 0 6px;">—</div>
     <h3>Structures</h3>
     <div id="struct-list" class="struct-list"></div>
     <h3>Display</h3>
@@ -1031,16 +1058,49 @@ async function loadData() {
 }
 
 // ── UI ──────────────────────────────────────────────────────
+function applyFilter() {
+  const cls = document.getElementById('filter-class')?.value || '';
+  const minT = parseInt(document.getElementById('filter-temp')?.value || '0', 10);
+  const hidePre = document.getElementById('filter-hide-precursors')?.checked;
+  const tempLabel = document.getElementById('filter-temp-val');
+  if (tempLabel) tempLabel.textContent = minT + '°C';
+  const btns = document.querySelectorAll('#struct-list .struct-btn');
+  let shown = 0;
+  btns.forEach((btn, i) => {
+    const s = data.structures[i];
+    const mc = s.material_class || '';
+    const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : 9999;
+    let ok = true;
+    if (cls && mc !== cls) ok = false;
+    if (st < minT) ok = false;
+    if (hidePre && (mc === 'precursor' || mc === 'carbonate' || mc === 'hydroxide')) ok = false;
+    btn.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  const cnt = document.getElementById('filter-count');
+  if (cnt) cnt.textContent = `${shown} / ${data.structures.length} shown`;
+}
+
 function buildStructureList() {
   const container = document.getElementById('struct-list');
   container.innerHTML = '';
   data.structures.forEach((s, i) => {
     const btn = document.createElement('button');
     btn.className = 'struct-btn' + (i === 0 ? ' active' : '');
-    btn.innerHTML = `${s.name} <span class="formula">${s.formula}</span>`;
+    const mc = s.material_class || '';
+    const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : null;
+    const badge = mc ? `<span class="formula" style="opacity:.7">[${mc}${st !== null ? ' · ' + st + '°C' : ''}]</span>` : '';
+    btn.innerHTML = `${s.name} <span class="formula">${s.formula}</span><br>${badge}`;
     btn.addEventListener('click', () => switchStructure(i));
     container.appendChild(btn);
   });
+  // Wire filter controls
+  ['filter-class', 'filter-temp', 'filter-hide-precursors'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', applyFilter);
+    if (el) el.addEventListener('change', applyFilter);
+  });
+  applyFilter();
 
   // Wire up controls
   document.getElementById('chk-bonds').addEventListener('change', e => {

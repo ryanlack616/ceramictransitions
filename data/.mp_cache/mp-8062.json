@@ -1,0 +1,99 @@
+{
+  "nsites": 2,
+  "formula_pretty": "SiC",
+  "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "F-43m",
+    "hall": null,
+    "number": 216,
+    "point_group": "-43m",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-8062",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          2.66626621,
+          0.0,
+          1.5393685000000001
+        ],
+        [
+          0.88875474,
+          2.51377858,
+          1.5393685000000001
+        ],
+        [
+          0.0,
+          0.0,
+          3.078738
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 3.07873852111218,
+      "b": 3.078737259970641,
+      "c": 3.078738,
+      "alpha": 60.000002793274895,
+      "beta": 60.000016343700956,
+      "gamma": 60.00000969010736,
+      "volume": 20.634942460365664
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Si",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.25,
+          0.25,
+          0.25
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "Si",
+        "xyz": [
+          0.8887552375000001,
+          0.6284446450000001,
+          1.53936875
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "C",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.0,
+          -0.0,
+          -0.0
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "C",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.00016855236842100001
+}

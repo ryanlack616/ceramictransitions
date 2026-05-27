@@ -262,10 +262,54 @@ Stub-to-renderable progress: **17 → 20 procedural · 2 metadata-only stubs rem
 
 **Note on MP coverage gap:** Materials Project does not contain a Yb₂SiO₅ entry (only Yb₂Si₂O₇ in the Yb-Si-O chemsys). The Lu→Yb substitution path is the canonical workaround for visualisation; literature lattice parameters (a=12.40, b=6.71, c=10.30 Å, β=102.4°) are preserved in `info[]` / `uncertainty_notes`. The MP primitive cell differs from the conventional setting; both are documented in the JSON entry.
 
-### Phase 3.3 — Carry-forward (PLANNED)
+### Phase 3.3 — High-Temp Focus Hardening (✅ COMPLETE · May 27, 2026)
 
-1. Migrate procedural-fallback path into the Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
-2. Generate pseudo-structures for layered TBC composite models (Phase 4 territory).
+**Goal:** Refocus the library, schema, and UI on **high-temperature ceramics** (the explicit project mission), eliminating mixed-purpose drift introduced by pedagogical mineral entries.
+
+**Gap analysis (audit performed May 27, 2026):**
+
+- **Library composition mixed:** 22 of 60 entries are NOT high-temp ceramics (clay minerals, hydroxides, carbonates that decompose <900°C, feldspars, feldspathoids). Useful as **precursors** but dilute the HT focus when unfiltered.
+- **No classification:** `category`/`tags`/`class` fields on **0/60** entries. No way to filter UHTC vs TBC vs EBC vs precursor.
+- **Temperature metadata sparse:** only 13/60 entries carry any temperature field (`oxidation_temp_c`), and HfB₂ states *"Service temperature up to 3200°C"* only in `info[]` prose — not machine-readable.
+- **Stubs are exactly the HT materials:** 15 of the most aerospace-relevant entries (ZrB₂, HfB₂, ZrC, HfC, TaC, SiC, Si₃N₄, AlN, BN, SiAlON, RBSC, SSiC, SSN, HfO₂, La₂Zr₂O₇, YSZ, CSZ, SiC/SiC CMC) are still `isStub:true` and rendered via procedural prototype fallback — not DFT-relaxed lattice.
+- **Missing HT materials:** MAX phases (Ti₃SiC₂, Ti₃AlC₂, Cr₂AlC), full RE silicate family (Y, Lu, Sc), Gd₂Zr₂O₇ (pyrochlore TBC), HfO₂-based TBCs, MoSi₂/WSi₂, B₄C, TiB₂, TiC/NbC/Cr₃C₂/WC, TiN/ZrN/HfN/TaN/c-BN, C/C, C/SiC, high-entropy carbides/borides.
+- **No system-level views:** EBC stack, TBC stack, CMC architecture not modeled.
+- **Frontend lacks HT framing:** `<title>` is generic; no filter UI; no service-temperature axis.
+- **Validator under-constrains:** checks renderability but not HT-relevant metadata.
+
+**P0 — schema + filter (high UX impact, low effort):**
+
+1. Add per-entry fields: `material_class` (oxide / non_oxide / UHTC / TBC / EBC / CMC / silicate / carbide / nitride / boride / disilicide / precursor / mineral), `service_temp_c` (max sustained operating temperature in air), `melting_point_c`, `application_tags[]` (e.g. `turbine-blade`, `hypersonic-leading-edge`, `brake-disc`, `engine-liner`, `cutting-tool`, `nuclear-fuel`, `precursor-to:Mullite`).
+2. Add temperature-range slider + class filter + application-tag filter to `index.html` and `lattice.html`.
+3. Retitle to **"High-Temperature Ceramics — Structure + Transitions Explorer"**.
+4. Demote (don't delete) clay minerals + carbonates + feldspars: tag `material_class="precursor"` and hide by default; surface via `precursor_for[]` back-links from mullite/cordierite/spinel.
+
+**P1 — close the HT stub gap (biggest credibility win):**
+
+5. Generalize `_ingest_mp_silicates.py` → `_ingest_mp.py` accepting a manifest of (target_name, mp_id, substitutions, supercell).
+6. Ingest MP structures for the 15 remaining HT stubs: ZrB₂ (mp-1788), HfB₂ (mp-2310), ZrC (mp-2795), HfC (mp-2496), TaC (mp-7088), SiC polymorphs (mp-7140 / mp-8062), Si₃N₄ (mp-988 α / mp-2503 β), AlN (mp-661), BN-hex (mp-984), HfO₂ (mp-352 monoclinic), La₂Zr₂O₇ (mp-5304 pyrochlore), Y-doped ZrO₂ via Y₂O₃-ZrO₂ solid-solution model.
+
+**P2 — content expansion (HT-only):**
+
+7. Add new HT entries: MAX phases (Ti₃SiC₂, Ti₃AlC₂, Cr₂AlC), full RE silicate family (Y₂Si₂O₇, Lu₂Si₂O₇, Y₂SiO₅, Lu₂SiO₅), Gd₂Zr₂O₇, MoSi₂, B₄C, TiB₂, TiC, NbC, Cr₃C₂, WC, TiN, ZrN, c-BN, graphite, and the (Hf,Zr,Ti,Ta,Nb)C high-entropy carbide.
+
+**P3 — system-level visualizations:**
+
+8. Introduce `system` entry type modeling layered TBC (NiCoCrAlY bond coat / TGO Al₂O₃ / YSZ topcoat), EBC (Si bond coat / mullite / Yb-disilicate / Yb-monosilicate), and SiC/SiC CMC architecture.
+9. Audit `transitions-graph.html` to include α↔β SiC, t↔m ZrO₂ (Bain path), α↔β Si₃N₄, m↔t↔c HfO₂, sialon solid-solution path.
+
+**P4 — pipeline hardening:**
+
+10. `validate_crystal_vr.py` rule: every non-`precursor` entry must carry `material_class` AND `service_temp_c`.
+11. Future carry-forward: migrate procedural-fallback path into the Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
+
+**Delivery log (May 27, 2026):**
+
+- **P0 ✅** — `_classify_ht.py` classified all 60 original entries (`material_class`, `service_temp_c`, `melting_point_c`, `application_tags`). Distribution: silicate=9, precursor=9, refractory_oxide=8, TBC=6, mineral=5, nitride=5, UHTC=5, polymorph_silica=3, carbide=3, carbonate=2, EBC=2, oxide=1, hydroxide=1, CMC=1. Title + meta updated on `index.html` + `lattice.html`. Class dropdown + temperature range slider + filter-count UI live in both pages.
+- **P1 ✅** — `_ingest_mp.py` (generalized MP ingest, PRESERVE_FIELDS keeps classification). Ingested 11 HT polymorphs with verified ground-state mp_ids: SiC=mp-8062, Si₃N₄=mp-988, ZrB₂=mp-1472 (AlB₂-type), HfB₂=mp-1994, ZrC=mp-2795, HfC=mp-21075, TaC=mp-1086, AlN=mp-661 (wurtzite), h-BN=mp-984, HfO₂=mp-352 (baddeleyite), La₂Zr₂O₇=mp-4974 (pyrochlore).
+- **P2 ✅** — `_add_new_ht.py` appended 20 new HT entries (60→80). Real ingests (15): Ti₃SiC₂, Ti₃AlC₂, B₄C, TiB₂, TiC, NbC, Cr₃C₂, WC, TiN, Y₂Si₂O₇, Y₂SiO₅, Lu₂Si₂O₇, Gd₂Zr₂O₇, MoSi₂, Graphite. Stubs (5): Cr₂AlC, c-BN, ZrN, Lu₂SiO₅, (Hf,Zr,Ti,Ta,Nb)C HEC. Added Nb-C/Cr-C/W-C/C-C bond cutoffs to `_ingest_mp.py`.
+- **P3 ✅** — `_add_systems.py` appended 3 layered system entries (80→83): TBC System (7YSZ/TGO/bond coat/superalloy, T=1200), EBC System (Yb₂Si₂O₇/Yb₂SiO₅/mullite/Si on SiC-CMC, T=1480), CMC Architecture (SiC fiber/BN interphase/SiC matrix, T=1315). New `entry_type="system"` shape with `layers[]` (role, material, thickness_um, purpose, xref).
+- **P4 ✅** — `validate_crystal_vr.py` extended with `REQUIRED_SYSTEM` for system entries + HT-classification rule (every non-`{precursor,carbonate,hydroxide,mineral}` entry must carry `material_class` + `service_temp_c`). Stub builder + system builder both emit empty atoms/bonds/cellVectors/supercell arrays so JSON schema passes. Final state: **83 structures · 66 native + 9 procedural = 75 renderable · 8 metadata-only stubs**, smoke `test_prototype_generators.js` **240/240 PASS**.
 
 ### Data Sources
 - **Primary:** Materials Project (api.materialsproject.org) — comprehensive structural database

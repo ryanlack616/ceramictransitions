@@ -1,0 +1,99 @@
+{
+  "nsites": 2,
+  "formula_pretty": "WC",
+  "symmetry": {
+    "crystal_system": "Hexagonal",
+    "symbol": "P-6m2",
+    "hall": null,
+    "number": 187,
+    "point_group": "-6m2",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-1894",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          2.91659415,
+          -0.0,
+          0.0
+        ],
+        [
+          -1.45829758,
+          2.52584499,
+          -0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          2.83943579
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 2.91659415,
+      "b": 2.916594717361662,
+      "c": 2.83943579,
+      "alpha": 90.0,
+      "beta": 90.0,
+      "gamma": 120.00000502036113,
+      "volume": 20.917739350715298
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "W",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          -0.0,
+          0.0,
+          -0.0
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "W",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "C",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.666667,
+          0.333333,
+          0.5
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "C",
+        "xyz": [
+          1.458298364963909,
+          0.84194748805167,
+          1.419717895
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}

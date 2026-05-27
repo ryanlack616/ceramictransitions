@@ -1,0 +1,99 @@
+{
+  "nsites": 2,
+  "formula_pretty": "HfC",
+  "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m",
+    "hall": null,
+    "number": 225,
+    "point_group": "m-3m",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-21075",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          2.8379037400000002,
+          0.0,
+          1.63846464
+        ],
+        [
+          0.94596791,
+          2.67560155,
+          1.63846464
+        ],
+        [
+          0.0,
+          0.0,
+          3.27692928
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 3.276929052334871,
+      "b": 3.276929251241549,
+      "c": 3.27692928,
+      "alpha": 59.99999970969105,
+      "beta": 59.99999770178061,
+      "gamma": 60.00000053404605,
+      "volume": 24.882050554279523
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Hf",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "properties": {
+          "magmom": 0.0
+        },
+        "label": "Hf",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "C",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "C",
+        "xyz": [
+          1.891935825,
+          1.337800775,
+          3.27692928
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}

@@ -1,0 +1,121 @@
+{
+  "nsites": 3,
+  "formula_pretty": "TiB2",
+  "symmetry": {
+    "crystal_system": "Hexagonal",
+    "symbol": "P6/mmm",
+    "hall": null,
+    "number": 191,
+    "point_group": "6/mmm",
+    "symprec": 0.1,
+    "angle_tolerance": 5.0,
+    "version": "2.5.0"
+  },
+  "material_id": "mp-1145",
+  "structure": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": 0,
+    "lattice": {
+      "matrix": [
+        [
+          3.02592696,
+          -0.0,
+          0.0
+        ],
+        [
+          -1.51296348,
+          2.62053043,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          3.22876771
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "a": 3.02592696,
+      "b": 3.025927663770185,
+      "c": 3.22876771,
+      "alpha": 90.0,
+      "beta": 90.0,
+      "gamma": 119.99999230631661,
+      "volume": 25.602622293713164
+    },
+    "properties": {},
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "Ti",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "Ti",
+        "xyz": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "B",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.333333,
+          0.666667,
+          0.5
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "B",
+        "xyz": [
+          -1.5129634800510397e-06,
+          1.74702116017681,
+          1.614383855
+        ]
+      },
+      {
+        "species": [
+          {
+            "element": "B",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.666667,
+          0.333333,
+          0.5
+        ],
+        "properties": {
+          "magmom": -0.0
+        },
+        "label": "B",
+        "xyz": [
+          1.51296499296348,
+          0.87350926982319,
+          1.614383855
+        ]
+      }
+    ]
+  },
+  "energy_above_hull": 0.0
+}
