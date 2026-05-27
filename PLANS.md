@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 2.5 COMPLETE | Updated: May 16, 2026  
+**Status:** Phase 3.1 COMPLETE | Updated: May 16, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -8,9 +8,10 @@
 
 **Completed:**
 - ✅ **howell-help Phase E:** 28 aerospace/extreme-temp materials catalog with full metadata, schema validation, and governance rules
-- ✅ **ceramictransitions Phase 2:** 60-material library (38 native + 17 procedural + 5 metadata-only stubs) deployed to ceramictransitions.com via pixie-sh FTP (not GitHub Pages — see deploy notes)
-- ✅ **ceramictransitions Phase 2.5.1:** procedural prototype renderer (rocksalt / fluorite / zincblende / AlB₂ / wurtzite / hBN). 17 aerospace stubs now render with valid 3D atoms+bonds at runtime; renderable count 38 → 55. Promoted live May 15, 2026 (commits edf89b5 → 9b3b0dc).
-- ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials now live in both systems
+- ✅ **ceramictransitions Phase 2:** 60-material library deployed to ceramictransitions.com via pixie-sh FTP
+- ✅ **ceramictransitions Phase 2.5.1:** procedural prototype renderer (rocksalt / fluorite / zincblende / AlB₂ / wurtzite / hBN). 17 aerospace stubs promoted to runtime-renderable; renderable count 38 → 55. Live May 15, 2026 (edf89b5 → 9b3b0dc).
+- ✅ **ceramictransitions Phase 3.1:** β-Si₃N₄ prototype (P6₃, 14-atom Wyckoff basis) covering Silicon Nitride + Sintered Silicon Nitride + Sialon. Yb-silicate stubs enriched with lattice + EBC service metadata. Renderable 55 → 58; smoke 215 → 240. Master `4debeca` pushed May 16, 2026.
+- ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials live in both systems
 - ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html, transitions-graph.html
 
 **Deliverables:**
@@ -18,10 +19,16 @@
 2. **howell-help:** `data/high_temp_ceramics_index.json` (auto-generated lookup table)
 3. **ceramictransitions:** `data/crystal_vr.json` (60 structures with 3D viewer metadata, `renderableCount: 55`)
 4. **ceramictransitions:** `BUILD.md` (6-phase development roadmap)
-5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (215-check smoke test)
+5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (240-check smoke test)
 6. **ceramictransitions:** `transitions-graph.html` (zero-dependency SVG + canvas; yFiles removed)
 
-**Deploy mechanism:** Static FTP to pixie-sh (Porkbun). Run `python _deploy.py` after committing. The `.github/workflows/pages.yml` workflow is dormant/legacy — Pages is disabled on the repo.
+**Deploy mechanism:** Static FTP to pixie-sh (Porkbun). Run `python _deploy.py --force` after committing. Requires `$env:CERAMICTRANSITIONS_FTP_PASS`. The `.github/workflows/pages.yml` workflow is dormant/legacy — Pages is disabled on the repo.
+
+## Open Operational Threads
+
+- ⏳ **Phase 3.1 FTP deploy pending** — master `4debeca` pushed origin May 16; pixie-sh deploy blocked on `CERAMICTRANSITIONS_FTP_PASS` not being set in shell env. Set the var and run `python _deploy.py --force` to ship live.
+- 📋 **Phase 3.2** — Materials Project ingest for Yb₂SiO₅ (X2 B2/b) and Yb₂Si₂O₇ (β C2/m); bake real atomic coords directly into `data/crystal_vr.json`. Then migrate procedural-fallback into Taichi repo (graceful degradation only on the web side).
+- 📋 **Phase 4** — layered TBC composite pseudo-structures + thermal-transformation animation pipeline (Taichi-only).
 
 **Roadmap constraint (effective now):** All remaining heavy implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1–2.5.1 web delivery track; small UX polish (filter, mobile, error states, cross-links) is in scope here.
 
