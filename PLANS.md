@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 3.1 COMPLETE | Updated: May 16, 2026  
+**Status:** Phase 3.2 COMPLETE | Updated: May 27, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -11,13 +11,14 @@
 - ✅ **ceramictransitions Phase 2:** 60-material library deployed to ceramictransitions.com via pixie-sh FTP
 - ✅ **ceramictransitions Phase 2.5.1:** procedural prototype renderer (rocksalt / fluorite / zincblende / AlB₂ / wurtzite / hBN). 17 aerospace stubs promoted to runtime-renderable; renderable count 38 → 55. Live May 15, 2026 (edf89b5 → 9b3b0dc).
 - ✅ **ceramictransitions Phase 3.1:** β-Si₃N₄ prototype (P6₃, 14-atom Wyckoff basis) covering Silicon Nitride + Sintered Silicon Nitride + Sialon. Yb-silicate stubs enriched with lattice + EBC service metadata. Renderable 55 → 58; smoke 215 → 240. Master `4debeca` pushed May 16, 2026.
+- ✅ **ceramictransitions Phase 3.2:** Materials Project ingest for Yb-silicate EBC structures. β-Yb₂Si₂O₇ from `mp-4300` (real Yb, C2/m, 2×2×2 → 88 atoms, 118 bonds, Yb-O 2.22 Å, Si-O 1.63 Å); X2-Yb₂SiO₅ from `mp-16969` (Lu₂SiO₅ C2/c with Lu→Yb substitution; ionic radii <1% apart, isostructural across late lanthanides). Renderable 58 → 60; **0 metadata-only stubs remaining**. Smoke 240/240. `_ingest_mp_silicates.py` shipped; MP responses cached in `data/.mp_cache/`. May 27, 2026.
 - ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials live in both systems
 - ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html, transitions-graph.html
 
 **Deliverables:**
 1. **howell-help:** `data/high_temp_ceramics_starter.json` (source of truth for aerospace specs)
 2. **howell-help:** `data/high_temp_ceramics_index.json` (auto-generated lookup table)
-3. **ceramictransitions:** `data/crystal_vr.json` (60 structures with 3D viewer metadata, `renderableCount: 55`)
+3. **ceramictransitions:** `data/crystal_vr.json` (60 structures with 3D viewer metadata, **60/60 renderable** — 40 native + 20 procedural)
 4. **ceramictransitions:** `BUILD.md` (6-phase development roadmap)
 5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (240-check smoke test)
 6. **ceramictransitions:** `transitions-graph.html` (zero-dependency SVG + canvas; yFiles removed)
@@ -26,8 +27,8 @@
 
 ## Open Operational Threads
 
-- ⏳ **Phase 3.1 FTP deploy pending** — master `4debeca` pushed origin May 16; pixie-sh deploy blocked on `CERAMICTRANSITIONS_FTP_PASS` not being set in shell env. Set the var and run `python _deploy.py --force` to ship live.
-- 📋 **Phase 3.2** — Materials Project ingest for Yb₂SiO₅ (X2 B2/b) and Yb₂Si₂O₇ (β C2/m); bake real atomic coords directly into `data/crystal_vr.json`. Then migrate procedural-fallback into Taichi repo (graceful degradation only on the web side).
+- ⏳ **FTP deploy pending (Phase 3.1 + 3.2)** — Phase 3.1 master `4debeca` pushed origin May 16; Phase 3.2 changes committed May 27. Both blocked on `CERAMICTRANSITIONS_FTP_PASS` not being set in shell env. Set the var and run `python _deploy.py --force` to ship live.
+- 📋 **Phase 3.3 (carry-forward)** — Migrate procedural-fallback path into Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
 - 📋 **Phase 4** — layered TBC composite pseudo-structures + thermal-transformation animation pipeline (Taichi-only).
 
 **Roadmap constraint (effective now):** All remaining heavy implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1–2.5.1 web delivery track; small UX polish (filter, mobile, error states, cross-links) is in scope here.
@@ -248,12 +249,23 @@ Stub-to-renderable progress: **17 → 20 procedural · 2 metadata-only stubs rem
 - Smoke test: **240/240 passes** (up from 215/215).
 - Validator: `60 structures · 38 native + 20 procedural = 58 renderable · 2 metadata-only stubs`.
 
-### Phase 3.2 — Remaining work (PLANNED)
+### Phase 3.2 — COMPLETE (May 27, 2026)
 
-1. Query **Materials Project** (mp-web-api) for X2-Yb₂SiO₅ and β-Yb₂Si₂O₇ crystal structures
-2. Parse via **pymatgen** → bake atom coordinates directly into `data/crystal_vr.json` (replaces metadata-only stubs)
-3. Eventually move the procedural-fallback path into the Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only
-4. Generate pseudo-structures for layered TBC composite models (Phase 4 territory)
+**Shipped:** `_ingest_mp_silicates.py` — stdlib-only Materials Project REST ingest (`api.materialsproject.org/materials/summary/`, `X-API-KEY` auth, Cloudflare-friendly UA, JSON cache at `data/.mp_cache/`).
+
+**Structures baked into `data/crystal_vr.json`:**
+
+1. **Ytterbium Disilicate (β-Yb₂Si₂O₇, C2/m)** ← MP `mp-4300` — real Yb compound, DFT-relaxed, ehull=0 stable. Primitive cell (11 sites) tiled 2×2×2 → **88 atoms, 118 bonds**. Mean Yb-O = 2.22 Å, Si-O = 1.63 Å.
+2. **Ytterbium Silicate (X2-Yb₂SiO₅, C2/c ≡ B2/b)** ← MP `mp-16969` (Lu₂SiO₅ X2, stable) with Lu→Yb element substitution. Lu³⁺ (0.861 Å) and Yb³⁺ (0.868 Å) differ <1% in 6-coord ionic radius; X2 RE-monosilicates are isostructural across the late lanthanides (Felsche 1973). Primitive cell (32 sites) used as-is → **32 atoms, 46 bonds**. Mean Yb-O = 2.27 Å, Si-O = 1.62 Å.
+
+**Result:** renderable count 58 → 60, **zero metadata-only stubs remain**. Smoke test: 240/240 PASS. Validator: `60 structures · 40 native + 20 procedural = 60 renderable in viewer`.
+
+**Note on MP coverage gap:** Materials Project does not contain a Yb₂SiO₅ entry (only Yb₂Si₂O₇ in the Yb-Si-O chemsys). The Lu→Yb substitution path is the canonical workaround for visualisation; literature lattice parameters (a=12.40, b=6.71, c=10.30 Å, β=102.4°) are preserved in `info[]` / `uncertainty_notes`. The MP primitive cell differs from the conventional setting; both are documented in the JSON entry.
+
+### Phase 3.3 — Carry-forward (PLANNED)
+
+1. Migrate procedural-fallback path into the Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
+2. Generate pseudo-structures for layered TBC composite models (Phase 4 territory).
 
 ### Data Sources
 - **Primary:** Materials Project (api.materialsproject.org) — comprehensive structural database
