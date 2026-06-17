@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>High-Temperature Ceramics — Structure + Transitions Explorer</title>
-<meta name="description" content="Interactive 3D viewer for high-temperature ceramics: UHTCs, thermal barrier coatings (TBC), environmental barrier coatings (EBC), ceramic matrix composites (CMC), refractory oxides, nitrides, carbides, borides. 60 structures with atomic coordinates, phase transitions, and service-temperature filtering.">
+<meta name="description" content="Interactive 3D viewer for high-temperature ceramics: UHTCs, thermal barrier coatings (TBC), environmental barrier coatings (EBC), ceramic matrix composites (CMC), refractory oxides, nitrides, carbides, borides. 83 structures with atomic coordinates, phase transitions, and service-temperature filtering.">
 <style>
 :root {
   --bg:#0a0a0c; --surface:#131316; --border:#2a2a35; --text:#c8c8d0;
@@ -41,6 +41,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 #panel .subtitle{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;}
 #panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:10px 0 5px;}
 #panel h3:first-of-type{margin-top:4px;}
+
+/* ── Tier (Pinch / Pro) ────────────────────────────────────── */
+body.mode-pinch [data-tier="pro"]{display:none !important;}
+.tier-toggle{display:flex;margin:2px 0 4px;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--surface);}
+.tier-toggle button{flex:1;background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:4px 0;cursor:pointer;transition:all .15s;letter-spacing:.4px;}
+.tier-toggle button:hover{color:var(--text);}
+.tier-toggle button.active{background:rgba(196,130,110,.16);color:var(--accent);font-weight:600;}
+.tier-toggle button+button{border-left:1px solid var(--border);}
+.tier-hint{font-size:8.5px;color:var(--text-dim);font-family:var(--mono);margin:0 0 8px;line-height:1.35;}
 
 .struct-list{display:flex;flex-direction:column;gap:2px;}
 .struct-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--mono);text-align:left;transition:all .15s;}
@@ -172,6 +181,11 @@ label.opt input{accent-color:var(--accent);}
   <div id="panel">
     <h2>High-Temp Ceramics</h2>
     <div class="subtitle">UHTC · TBC · EBC · CMC · refractories</div>
+    <div class="tier-toggle" role="group" aria-label="View mode">
+      <button id="tier-pinch" type="button" aria-pressed="true" title="Simple view — browse structures + basic display">Pinch</button>
+      <button id="tier-pro" type="button" aria-pressed="false" title="Pro view — all spatial + chemistry tools">Pro</button>
+    </div>
+    <div class="tier-hint" id="tier-hint">Simple view. Switch to Pro for spatial &amp; chemistry tools.</div>
     <a href="lattice.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:4px 0 2px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Lattice Gallery</a>
     <a href="transitions-graph.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:2px 0;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Firing Journey Graph</a>
     <a href="https://ceramic-micros.howell.help/" style="display:block;font-size:10px;font-family:var(--mono);color:#7ecfdf;text-decoration:none;margin:2px 0 6px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7" title="Companion: diffusion kinetics in ceramics">↗ ceramic-micros (kinetics)</a>
@@ -221,6 +235,7 @@ label.opt input{accent-color:var(--accent);}
     <h3>Firing</h3>
     <label class="opt"><input type="checkbox" id="chk-firing"> Firing mode</label>
     <label class="opt"><input type="checkbox" id="chk-vibration" checked> Thermal vibration</label>
+    <div data-tier="pro">
     <h3>Spatial</h3>
     <label class="opt"><input type="checkbox" id="chk-polyhedra"> Coordination polyhedra</label>
     <label class="opt"><input type="checkbox" id="chk-slice"> Slice plane</label>
@@ -236,7 +251,7 @@ label.opt input{accent-color:var(--accent);}
     <label class="opt"><input type="checkbox" id="chk-symmetry"> Symmetry axes</label>
     <label class="opt"><input type="checkbox" id="chk-layers"> Layer highlight</label>
     <label class="opt"><input type="checkbox" id="chk-scaleref"> Scale reference</label>
-    <h3>Phase 4: Chemistry</h3>
+    <h3>Chemistry</h3>
     <label class="opt"><input type="checkbox" id="chk-compare"> Side-by-side compare</label>
     <label class="opt"><input type="checkbox" id="chk-dual-track"> Dual-track firing</label>
     <div id="dual-tracks" style="display:none">
@@ -259,9 +274,15 @@ label.opt input{accent-color:var(--accent);}
     </div>
     <label class="opt" title="Tints surface atoms when firing T exceeds the material's oxidation onset (schematic)."><input type="checkbox" id="chk-oxidation"> Oxidation overlay</label>
     <div id="oxidation-info" style="display:none;font-size:11px;color:#bbb;margin:2px 0 4px 16px"></div>
+    </div><!-- /data-tier=pro (Spatial + Chemistry) -->
     <h3>Polish</h3>
     <button class="btn-mode" id="btn-tour">▶ Guided Tour</button>
-    <h3>Version History</h3>
+    <div data-tier="pro">
+    <h3>What's New</h3>
+    <div class="cl-entry">
+      <div class="cl-date">Jun 17, 2026</div>
+      <div class="cl-item">83 structures · Pinch / Pro view toggle</div>
+    </div>
     <div class="cl-entry">
       <div class="cl-date">May 8, 2026</div>
       <div class="cl-item">Eval run — all rubrics scored</div>
@@ -284,6 +305,7 @@ label.opt input{accent-color:var(--accent);}
       <div class="cl-item">v2: spinel, orthoclase, forsterite, hematite</div>
       <div class="cl-item">v1: 9 structures, Taichi GGUI, firing phases</div>
     </div>
+    </div><!-- /data-tier=pro (What's New) -->
   </div>
 
   <button id="btn-screenshot" title="Screenshot (PNG)">📷</button>
@@ -651,6 +673,9 @@ async function init() {
 
   // Restore state from URL hash (share link)
   applyShareState();
+
+  // View tier (Pinch / Pro) — after share-state so a Pro link can force Pro
+  initTier();
 
   // VR
   setupVR();
@@ -1301,8 +1326,8 @@ function updateInfoPanel() {
   let html = '';
   if (s.isStub) {
     html += `<div style="margin:0 0 8px;padding:6px 8px;border-radius:4px;background:#3a2a18;color:#ffc98a;font-size:10px;line-height:1.45;border-left:3px solid #c98a3a">`
-          + `Metadata only · 3D model pending (Phase 3).<br>`
-          + `Crystal data lives in <code>howell-help/data/high_temp_ceramics_starter.json</code>.`
+          + `Metadata-only entry — full 3D lattice coming soon.<br>`
+          + `Chemistry &amp; properties below are complete.`
           + `</div>`;
   } else {
     if (s.proceduralFallback) {
@@ -2808,6 +2833,7 @@ function encodeShareState() {
   if (showBridges) p.set('br', '1');
   if (meltMode) { p.set('mt', '1'); p.set('mp', meltProgress.toFixed(2)); }
   if (oxidationMode) p.set('ox', '1');
+  if (document.body.classList.contains('mode-pro')) p.set('mode', 'pro');
   return p.toString();
 }
 
@@ -2865,6 +2891,52 @@ function applyShareState() {
     document.getElementById('chk-oxidation').checked = true;
     applyColorMode(); updateOxidationInfo();
   }
+}
+
+// ── View tier: Pinch (simple) / Pro (all tools) ──────────────────
+// Pro-only feature toggles. Switching to Pinch unchecks any that are on and
+// fires their change handler so the feature tears down cleanly (no stranded
+// slice planes / compare splits with the control hidden).
+const PRO_TOGGLE_IDS = ['chk-polyhedra','chk-slice','chk-measure','chk-symmetry','chk-layers','chk-scaleref','chk-compare','chk-dual-track','chk-bridges','chk-melt','chk-oxidation'];
+// Share-link params that imply a Pro feature is active → force Pro so the
+// control is reachable when someone opens a shared Pro view.
+const PRO_SHARE_PARAMS = ['p','sl','sy','ly','sr','cmp','dt','br','mt','ox'];
+
+function setTier(tier) {
+  const pro = tier === 'pro';
+  document.body.classList.toggle('mode-pro', pro);
+  document.body.classList.toggle('mode-pinch', !pro);
+  const bPinch = document.getElementById('tier-pinch');
+  const bPro = document.getElementById('tier-pro');
+  if (bPinch) { bPinch.classList.toggle('active', !pro); bPinch.setAttribute('aria-pressed', String(!pro)); }
+  if (bPro) { bPro.classList.toggle('active', pro); bPro.setAttribute('aria-pressed', String(pro)); }
+  const hint = document.getElementById('tier-hint');
+  if (hint) hint.textContent = pro
+    ? 'All tools unlocked — spatial analysis & chemistry overlays.'
+    : 'Simple view. Switch to Pro for spatial & chemistry tools.';
+  if (!pro) {
+    // Return Pinch to the clean view: tear down any active Pro features.
+    PRO_TOGGLE_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.checked) { el.checked = false; el.dispatchEvent(new Event('change')); }
+    });
+  }
+  try { localStorage.setItem('ct_tier', tier); } catch (e) { /* private mode */ }
+}
+
+function initTier() {
+  let tier = 'pinch';
+  try { const saved = localStorage.getItem('ct_tier'); if (saved === 'pro' || saved === 'pinch') tier = saved; } catch (e) { /* ignore */ }
+  const hash = location.hash.slice(1);
+  if (hash) {
+    const p = new URLSearchParams(hash);
+    if (p.get('mode') === 'pro' || PRO_SHARE_PARAMS.some(k => p.has(k))) tier = 'pro';
+  }
+  setTier(tier);
+  const bPinch = document.getElementById('tier-pinch');
+  const bPro = document.getElementById('tier-pro');
+  if (bPinch) bPinch.addEventListener('click', () => setTier('pinch'));
+  if (bPro) bPro.addEventListener('click', () => setTier('pro'));
 }
 
 function copyShareLink() {
