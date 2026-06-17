@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "structureCount": 60,
+  "structureCount": 83,
   "structures": [
     {
       "name": "Periclase",
@@ -173901,5 +173901,5 @@
       "desc": "Excess silica crystallizes as cristobalite"
     }
   ],
-  "renderableCount": 55
+  "renderableCount": 66
 }

@@ -33,7 +33,7 @@ HERE = Path(__file__).parent
 DATA = HERE / "data" / "crystal_vr.json"
 CACHE = HERE / "data" / ".mp_cache"
 MP_BASE = "https://api.materialsproject.org/materials/summary/"
-UA = "ceramictransitions-mp-ingest/0.2 (rlackpotter@gmail.com)"
+UA = "ceramictransitions-mp-ingest/0.2 (+https://ceramictransitions.com)"
 
 # reuse helpers from _ingest_mp by import
 sys.path.insert(0, str(HERE))

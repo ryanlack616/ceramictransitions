@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 3.2 COMPLETE | Updated: May 27, 2026  
+**Status:** Phase 3.3 COMPLETE | Updated: June 17, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -23,11 +23,11 @@
 5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (240-check smoke test)
 6. **ceramictransitions:** `transitions-graph.html` (zero-dependency SVG + canvas; yFiles removed)
 
-**Deploy mechanism:** Static FTP to pixie-sh (Porkbun). Run `python _deploy.py --force` after committing. Requires `$env:CERAMICTRANSITIONS_FTP_PASS`. The `.github/workflows/pages.yml` workflow is dormant/legacy — Pages is disabled on the repo.
+**Deploy mechanism:** **GitHub Pages** is the live host — `ceramictransitions.com` (CNAME) is served from `master` and auto-deployed by `.github/workflows/pages.yml` on every push, after `.github/workflows/validate.yml` gates any `data/**`/HTML change (validator + JSON Schema + 240-check smoke). So **`git push origin master` deploys live** (verified 2026-06-17: `server: GitHub.com`). The FTP path (`python _deploy.py --tls --force`, requires `$CERAMICTRANSITIONS_FTP_PASS`) is a legacy/secondary Porkbun mirror, not the live host.
 
 ## Open Operational Threads
 
-- ⏳ **FTP deploy pending (Phase 3.1 + 3.2)** — Phase 3.1 master `4debeca` pushed origin May 16; Phase 3.2 changes committed May 27. Both blocked on `CERAMICTRANSITIONS_FTP_PASS` not being set in shell env. Set the var and run `python _deploy.py --force` to ship live.
+- ✅ **Live deploy = GitHub Pages (Phases 3.1–3.3 current)** — verified 2026-06-17: `ceramictransitions.com` is served by GitHub Pages (`server: GitHub.com`, `CNAME`), auto-deployed by `.github/workflows/pages.yml` on every push to `master` (gated by `validate.yml`). Live `data/crystal_vr.json` is byte-identical to the repo (83 structures). To ship: commit + `git push origin master`. The FTP `_deploy.py` path (Porkbun) is a legacy/secondary mirror — `CERAMICTRANSITIONS_FTP_PASS=… python _deploy.py --tls --force` (`--tls` required; plain PASV times out).
 - 📋 **Phase 3.3 (carry-forward)** — Migrate procedural-fallback path into Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
 - 📋 **Phase 4** — layered TBC composite pseudo-structures + thermal-transformation animation pipeline (Taichi-only).
 
@@ -757,3 +757,25 @@ Melt progression was already implemented (Phase 4 features #27). Added oxidation
 **Document version:** 1.0  
 **Last updated:** May 10, 2026  
 **Next review:** May 24, 2026 (Phase 3 progress checkpoint)
+
+## Opus 4.8 Expansion (2026-06-01)
+
+_Auto-appended by DEV_SWEEP_2026-06 ENVISION phase. Additive._
+
+> **RESOLUTION — 2026-06-17 (CH-260617-1).** Investigated and largely closed. The audit's headline "gap" was itself a stale receipt: the live `crystal_vr.json` array always held **83** structures (Phase 3.3 content present *and deployed* — live verified byte-identical to the repo). Only the top-level `structureCount` **header field** was stale at 60 — the append scripts grew the array but never updated the header, and nothing validated it. **Fixed:** header → 83, `renderableCount` → 66, plus a new `validate_crystal_vr.py` drift-guard that fails if the header ever diverges from the array again (make-drift-loud). The "MP ingest fails silently / `MP_API_KEY` unvalidated" claims did not reproduce — both `_ingest_mp.py` and `_ingest_mp_silicates.py` already `raise` on an empty `body.get("data")` and `return 2` on a missing key. The leaked personal-email User-Agent **was** real and is now scrubbed from all three ingest scripts (`_ingest_mp.py`, `_ingest_mp_silicates.py`, `_add_new_ht.py`).
+
+**Audit snapshot (2026-06-01, as originally written):** 0 P0, 3 P1 (the headline: Phase 3.3 marked COMPLETE in plan but live data still Phase 3.2 — 60 vs claimed 83 structures; MP ingest fails silently; `MP_API_KEY` unvalidated). Security-clean, live. *Preserved verbatim; see resolution above — the 60/83 figure was a stale header field, not missing data, and the ingest claims did not reproduce.*
+
+### Near-term (audit remediation) — ✅ DONE 2026-06-17
+
+- ✅ Plan-vs-reality gap resolved: the 83 structures were already produced, committed, and deployed; corrected the stale `structureCount`/`renderableCount` header and added the validator drift-guard so it cannot recur.
+- ✅ MP ingest hardening: data + key validation were already present; scrubbed the leaked personal-email User-Agent from all three ingest scripts.
+
+### Mid-term (capability) — still open
+
+- Make `validate_crystal_vr.py` schema-version aware so it doesn't fail against live data when Phase 3.3 fields are absent.
+- Wire `test_prototype_generators.js` (240 assertions) into a CI hook + add an end-to-end `crystal_vr.json` load test for the viewer.
+
+### Long-term (vision) — still open
+
+- Continuous Materials Project ingest pipeline with schema-drift detection; a CHANGELOG tying each data `version` to a deployed phase so plan drift becomes structurally impossible.

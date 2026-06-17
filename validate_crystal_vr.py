@@ -108,6 +108,26 @@ def main() -> int:
                     f"(material_class={mc!r} is HT-relevant)"
                 )
 
+    # Header count consistency (Phase 3.3 drift guard, added 2026-06-17).
+    # The top-level header counts must mirror the array exactly, matching how the
+    # frontend recomputes them at load time (index.html:
+    #   structureCount  = data.structures.length
+    #   renderableCount = data.structures.filter(s => !s.isStub).length
+    # ). Append scripts grew the array 60->83 but left the header at 60/55 — a
+    # silent drift that fooled a downstream audit into reporting a phantom gap.
+    hdr_sc = root.get("structureCount")
+    if hdr_sc != len(structs):
+        errors.append(
+            f"header structureCount={hdr_sc} != actual array length {len(structs)} "
+            f"(update the header when you grow structures[])"
+        )
+    hdr_rc = root.get("renderableCount")
+    actual_native = sum(1 for s in structs if not s.get("isStub"))
+    if hdr_rc != actual_native:
+        errors.append(
+            f"header renderableCount={hdr_rc} != actual non-stub count {actual_native}"
+        )
+
     # Optional JSON Schema validation (skipped silently if jsonschema not installed)
     schema_path = HERE / "data" / "crystal_vr.schema.json"
     if schema_path.exists():

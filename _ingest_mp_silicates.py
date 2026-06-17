@@ -37,7 +37,7 @@ DATA = HERE / "data" / "crystal_vr.json"
 CACHE = HERE / "data" / ".mp_cache"
 
 MP_BASE = "https://api.materialsproject.org/materials/summary/"
-USER_AGENT = "ceramictransitions-mp-ingest/0.1 (rlackpotter@gmail.com)"
+USER_AGENT = "ceramictransitions-mp-ingest/0.1 (+https://ceramictransitions.com)"
 
 # --- bond cutoffs (Å) for the silicate chemistry we care about ---
 BOND_CUTOFFS = {
