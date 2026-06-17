@@ -177,12 +177,13 @@ def main() -> int:
         return 2
 
     if args.tls:
-        ftp = ftplib.FTP_TLS(host, timeout=30)
+        ftp = ftplib.FTP_TLS(host, timeout=120)
         ftp.login(user=user, passwd=pw)
         ftp.prot_p()
     else:
-        ftp = ftplib.FTP(host, timeout=30)
+        ftp = ftplib.FTP(host, timeout=120)
         ftp.login(user=user, passwd=pw)
+    ftp.set_pasv(True)
 
     uploaded = 0
     skipped_same_size = 0
