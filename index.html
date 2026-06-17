@@ -51,6 +51,31 @@ body.mode-pinch [data-tier="pro"]{display:none !important;}
 .tier-toggle button+button{border-left:1px solid var(--border);}
 .tier-hint{font-size:8.5px;color:var(--text-dim);font-family:var(--mono);margin:0 0 8px;line-height:1.35;}
 
+/* ── Application-tag job chips (Tier A) ───────────────────── */
+.job-chips{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 6px;}
+.job-chip{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:10px;cursor:pointer;transition:all .12s;white-space:nowrap;line-height:1.1;}
+.job-chip:hover{border-color:var(--accent);color:var(--text);}
+.job-chip.active{background:rgba(196,130,110,.16);border-color:var(--accent);color:var(--accent);font-weight:600;}
+.job-chip .n{opacity:.6;margin-left:2px;}
+.job-chips-head{display:flex;align-items:center;justify-content:space-between;}
+.job-clear{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:9px;cursor:pointer;padding:0;text-decoration:underline;}
+.job-clear:hover{color:var(--accent);}
+.info-jobs{margin-top:8px;display:flex;flex-wrap:wrap;gap:3px;}
+.info-jobs .lbl{font-size:9px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px;width:100%;margin-bottom:1px;}
+
+/* ── Application-tag job chips (Tier A) ───────────────────────── */
+.job-chips{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 6px;}
+.job-chip{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:10px;cursor:pointer;transition:all .12s;white-space:nowrap;line-height:1.1;}
+.job-chip:hover{border-color:var(--accent);color:var(--text);}
+.job-chip.active{background:rgba(196,130,110,.16);border-color:var(--accent);color:var(--accent);font-weight:600;}
+.job-chip .n{opacity:.6;margin-left:2px;}
+.job-chips-head{display:flex;align-items:center;justify-content:space-between;}
+.job-clear{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:9px;cursor:pointer;padding:0;text-decoration:underline;}
+.job-clear:hover{color:var(--accent);}
+/* info-panel job chips (smaller, clickable) */
+.info-jobs{margin-top:8px;display:flex;flex-wrap:wrap;gap:3px;}
+.info-jobs .lbl{font-size:9px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px;width:100%;margin-bottom:1px;}
+
 .struct-list{display:flex;flex-direction:column;gap:2px;}
 .struct-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--mono);text-align:left;transition:all .15s;}
 .struct-btn:hover{border-color:var(--accent);color:var(--text);}
@@ -208,6 +233,11 @@ label.opt input{accent-color:var(--accent);}
       <option value="hydroxide">Hydroxide</option>
       <option value="oxide">Other oxide</option>
     </select>
+    <div class="job-chips-head">
+      <span style="font-size:9px;color:var(--text-dim);font-family:var(--mono);">Used for…</span>
+      <button class="job-clear" id="job-clear" style="display:none">× clear job</button>
+    </div>
+    <div class="job-chips" id="job-chips"></div>
     <div class="slider-row">
       <span style="font-size:9px;">T≥</span>
       <input type="range" id="filter-temp" min="0" max="3500" step="100" value="0">
@@ -398,6 +428,50 @@ let scene, camera, renderer, controls, clock;
 let crystalGroup;   // holds all crystal geometry — transform target
 let data = null;    // loaded JSON
 let currentIdx = 0;
+let activeTag = null;   // Tier A: active application-tag job filter (null = all)
+
+// ── Application-tag browse (Tier A) ─────────────────────────────
+// Curated "what is this material used FOR?" jobs. Maps the 133 raw
+// application_tags (many near-duplicates: tbc / TBC-topcoat / TBC-topcoat-
+// standard …) onto ~15 canonical jobs, each with >=2 member materials
+// (verified against the dataset). Generic 'high-temperature-ceramic' and the
+// structural transforms-to:/decomp-to:/polymorph-of: tags are deliberately
+// excluded — the latter are reserved for the Transitions work. Order =
+// display order. Each value is the set of raw tags (lowercased) that map in.
+const TAG_GROUPS = {
+  "Thermal barrier coating": ["tbc","tbc-topcoat","tbc-topcoat-standard","tbc-topcoat-legacy","tbc-topcoat-pyrochlore","tbc-topcoat-research","tbc-next-gen","next-gen-tbc","tbc-research","next-gen-thermal-protection","low-thermal-conductivity","lower-thermal-conductivity"],
+  "Environmental barrier coating": ["ebc","ebc-topcoat","ebc-intermediate","cmc-protection","sic-cmc-protection","steam-water-vapor-protection","steam-resistant"],
+  "Cutting & tooling": ["cutting-tool","tool-coating","cemented-carbide","machinable-ceramic"],
+  "Armor": ["armor","transparent-armor"],
+  "Abrasive & wear-resistant": ["abrasive","wear-resistant","wear-coating","superhard","hvof-thermal-spray"],
+  "Refractory & kiln furniture": ["refractory","refractory-brick","refractory-component","kiln-furniture","kiln-shelf","crucible","molten-metal-handling","foundry-mold"],
+  "Hypersonic leading edge": ["hypersonic-leading-edge","atmospheric-reentry"],
+  "Rocket nozzle": ["rocket-nozzle"],
+  "Gas-turbine hot section": ["turbine-blade","turbine-rotor","turbine-shroud","turbine-hot-section","engine-hot-section","combustor-liner"],
+  "MAX phase & damage-tolerant": ["max-phase","damage-tolerant"],
+  "Oxidation & CMAS resistant": ["oxidation-resistant","cmas-resistant"],
+  "Bearings & seals": ["bearing","bearing-ball","pump-seal","turbocharger-rotor"],
+  "Glaze precursor (feldspar/flux)": ["feldspar","flux","feldspathoid","refractory-precursor"],
+  "Pigment & ore": ["pigment","white-pigment","iron-ore","tin-ore"],
+  "Electronic & thermal management": ["thermal-management","conductive-ceramic","electronic-substrate","breakdown-insulator","high-k-dielectric","low-loss-microwave"],
+};
+// Reverse index raw-tag -> canonical job (built once).
+const RAW_TAG_TO_JOB = (() => {
+  const m = {};
+  for (const [job, raws] of Object.entries(TAG_GROUPS)) for (const r of raws) m[r] = job;
+  return m;
+})();
+// Canonical jobs a structure belongs to (resolved through TAG_GROUPS).
+function jobsForStructure(s) {
+  const jobs = new Set();
+  for (const t of (s.application_tags || [])) {
+    const j = RAW_TAG_TO_JOB[String(t).toLowerCase()];
+    if (j) jobs.add(j);
+  }
+  return jobs;
+}
+function matchesTag(s, job) { return !job || jobsForStructure(s).has(job); }
+
 let atomScale = 0.6;
 let worldScale = 1.0;
 let showBonds = true, showCell = true, showLabels = false;
@@ -1099,11 +1173,50 @@ function applyFilter() {
     if (cls && mc !== cls) ok = false;
     if (st < minT) ok = false;
     if (hidePre && (mc === 'precursor' || mc === 'carbonate' || mc === 'hydroxide')) ok = false;
+    if (activeTag && !matchesTag(s, activeTag)) ok = false;
     btn.style.display = ok ? '' : 'none';
     if (ok) shown++;
   });
   const cnt = document.getElementById('filter-count');
   if (cnt) cnt.textContent = `${shown} / ${data.structures.length} shown`;
+  // keep the job-clear control in sync
+  const jc = document.getElementById('job-clear');
+  if (jc) jc.style.display = activeTag ? '' : 'none';
+  document.querySelectorAll('#job-chips .job-chip').forEach(ch => {
+    ch.classList.toggle('active', ch.dataset.job === activeTag);
+  });
+}
+
+// Tier A: render the "Used for…" job chips. Counts reflect ONLY the job axis
+// (how many materials do this job at all) so the menu is stable while browsing.
+function buildJobChips() {
+  const wrap = document.getElementById('job-chips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const counts = {};
+  for (const job of Object.keys(TAG_GROUPS)) counts[job] = 0;
+  data.structures.forEach(s => { jobsForStructure(s).forEach(j => { counts[j]++; }); });
+  Object.keys(TAG_GROUPS).forEach(job => {
+    if (!counts[job]) return;
+    const chip = document.createElement('button');
+    chip.className = 'job-chip' + (job === activeTag ? ' active' : '');
+    chip.dataset.job = job;
+    chip.type = 'button';
+    chip.innerHTML = `${job}<span class="n">${counts[job]}</span>`;
+    chip.addEventListener('click', () => setActiveTag(job === activeTag ? null : job));
+    wrap.appendChild(chip);
+  });
+  const clr = document.getElementById('job-clear');
+  if (clr) clr.addEventListener('click', () => setActiveTag(null));
+}
+
+// Tier A: set the active job filter + refresh the list.
+function setActiveTag(job) {
+  activeTag = job;
+  applyFilter();
+  // scroll the struct list to the top so the narrowed set is visible
+  const sl = document.getElementById('struct-list');
+  if (sl) sl.scrollTop = 0;
 }
 
 function buildStructureList() {
@@ -1125,6 +1238,7 @@ function buildStructureList() {
     if (el) el.addEventListener('input', applyFilter);
     if (el) el.addEventListener('change', applyFilter);
   });
+  buildJobChips();
   applyFilter();
 
   // Wire up controls
@@ -1345,7 +1459,19 @@ function updateInfoPanel() {
     s.info.forEach(line => { html += `${escapeHtml(line)}<br>`; });
     html += `</div>`;
   }
-  document.getElementById('info-details').innerHTML = html;
+  // Tier A: clickable "used for" job chips — cross-navigate to peers doing the same job.
+  const jobs = [...jobsForStructure(s)];
+  if (jobs.length) {
+    html += `<div class="info-jobs"><span class="lbl">Used for</span>`;
+    jobs.forEach(j => { html += `<button class="job-chip" type="button" data-job="${escapeHtml(j)}">${escapeHtml(j)}</button>`; });
+    html += `</div>`;
+  }
+  const detailsEl = document.getElementById('info-details');
+  detailsEl.innerHTML = html;
+  // Wire info-panel job chips (event delegation each render).
+  detailsEl.querySelectorAll('.info-jobs .job-chip').forEach(ch => {
+    ch.addEventListener('click', () => setActiveTag(ch.dataset.job));
+  });
   document.getElementById('atom-info').style.display = 'none';
   updateTransitionsPanel();
 }
@@ -2834,6 +2960,7 @@ function encodeShareState() {
   if (meltMode) { p.set('mt', '1'); p.set('mp', meltProgress.toFixed(2)); }
   if (oxidationMode) p.set('ox', '1');
   if (document.body.classList.contains('mode-pro')) p.set('mode', 'pro');
+  if (activeTag) p.set('tag', activeTag);
   return p.toString();
 }
 
@@ -2890,6 +3017,11 @@ function applyShareState() {
     oxidationMode = true;
     document.getElementById('chk-oxidation').checked = true;
     applyColorMode(); updateOxidationInfo();
+  }
+  // Tier A: restore active job filter
+  if (p.has('tag') && TAG_GROUPS[p.get('tag')]) {
+    activeTag = p.get('tag');
+    applyFilter();
   }
 }
 
