@@ -35,6 +35,129 @@
 
 ---
 
+## INTERFACE & DISCOVERY ROADMAP (2026-06-17, CH-260617-1)
+
+**Why this exists.** The 3D *rendering* is mature (polyhedra, slice, measure, symmetry, firing, compare, AR/VR, share). What is thin is everything around *finding* and *trusting* the material. Data audit (`data/crystal_vr.json`, 83 structures) proves it: `application_tags` is 100% populated (133 distinct) and surfaced **nowhere**; `service_temp_c`/`melting_point_c` are 100% but only a min-T slider uses them; `mp_id` provenance (28/83 DFT-verified) is buried in `info[]` prose; and the project named *Transitions* has machine-readable transition data on only **2/83** entries. This roadmap closes the discovery + trust gap, then makes the namesake real.
+
+**Execution order (Ryan, 2026-06-17): A → B → C → think-deep checkpoint → D.** A/B/C are web-repo UI work (in scope here). D is partly data-authoring (in scope) + partly 3D animation (Taichi repo). All UI work is `index.html`-only unless noted; **data files stay untouched in A/B/C** so `validate.yml` (validator + JSON Schema + 240 smoke) stays green. Ship each tier as its own commit; `git push origin master` auto-deploys via Pages; verify live with a cache-busted curl before moving on.
+
+**Shared gotchas (apply to every tier):**
+
+- **Index coupling.** `applyFilter()` and the struct-button click handler both assume button position *i* maps to `data.structures[i]` (`btns.forEach((btn,i)=>data.structures[i])`, `switchStructure(i)`). Any feature that **reorders** the list (sort) MUST first migrate to `btn.dataset.idx` and read `data.structures[+btn.dataset.idx]` everywhere, or it will silently show the wrong crystal. This is the single highest-risk refactor in B — do it first and verify before adding sort.
+- **Pinch/Pro tiers (shipped).** New discovery controls (search, sort, tag browse) belong in **Pinch** (they are core, not advanced). Provenance badges (C) also Pinch. Keep the `data-tier="pro"` wrappers intact.
+- **Filtering is multiplicative.** `applyFilter()` already ANDs class + minT + hide-precursors. Search (B), tag (A) just add more AND clauses + update the `#filter-count` readout. One function stays the single source of truth for "what's visible."
+- **Verify in a real browser with a true reload**, not a hash change — `init()` only re-runs on full load (lesson from the Pinch/Pro false-receipt: hash-only nav showed stale state).
+
+---
+
+### TIER A — Application-tag browse ("find the material for my job")  ⏳ NEXT
+
+**Goal.** Turn 133 dead `application_tags` into the discovery spine: pick a job (rocket-nozzle, cutting-tool, kiln-furniture, turbine-blade, armor…) → the structure list narrows to materials used for it. This reframes the tool from "crystal viewer" to "computational materials selector" using data already at 100% coverage.
+
+**A.0 — Tag curation (do FIRST; the raw tags are messy).** The 119 non-generic tags include near-duplicates that must be normalized/grouped or the browse is noise. Build a `TAG_GROUPS` map in `index.html` (small, hand-curated, ~12–16 canonical jobs):
+
+- Merge variants → one canonical label, e.g. `{tbc, TBC-topcoat, TBC-topcoat-standard, TBC-topcoat-research, TBC-next-gen, next-gen-tbc} → "Thermal barrier coating"`; `{cte-match-sic, low-CTE-match-to-SiC} → "CTE-matched to SiC"`; `{cutting-tool, tool-coating, cemented-carbide} → "Cutting / tooling"`.
+- Drop the generic `high-temperature-ceramic` (66 — useless as a filter) and the structural `polymorph-of:` / `decomp-to:` / `transforms-to:` / `precursor-to:` tags (those are **reserved for Tier D**, not job-browse).
+- Curated canonical jobs to surface (each maps ≥2 materials): Thermal barrier coating, Environmental barrier coating, Cutting / tooling, Armor, Refractory / kiln furniture, Hypersonic leading edge, Rocket nozzle, Abrasive / wear-resistant, Crucible / molten-metal, Oxidation-resistant, CMAS-resistant, MAX phase, Damage-tolerant, Conductive ceramic.
+
+**A.1 — Data helper.** Add `function matchesTag(structure, canonicalJob)` that resolves a structure's raw `application_tags` through `TAG_GROUPS` (case-insensitive) and returns whether it belongs to the canonical job. Add `activeTag` to module state (default `null`).
+
+**A.2 — Browse UI.** In the `Filter` section of `#panel` (after the class `<select>`, before the temp slider), add a collapsible "Used for…" chip row: render one chip per canonical job that has ≥1 match, each showing its match count (e.g. `Rocket nozzle (3)`). Clicking a chip sets `activeTag`, toggles its `.active` class, and calls `applyFilter()`. Re-use the existing `.btn-mode`/chip styling; wrap in `data-tier` is **not** needed (Pinch-visible).
+
+**A.3 — Wire into `applyFilter()`.** Add one clause: `if (activeTag && !matchesTag(s, activeTag)) ok = false;`. The `#filter-count` readout already reflects it. Clearing the chip (click again / a "× clear job" control) sets `activeTag=null`.
+
+**A.4 — Clickable tags in the info panel.** In `updateInfoPanel()`, after the property rows, render the structure's resolved canonical jobs as small clickable chips. Clicking one sets `activeTag` + `applyFilter()` + scrolls the list — so a user reading about HfC can click "Hypersonic leading edge" and instantly see its peers.
+
+**A.5 (optional, nice).** Persist `activeTag` into the share link (`encodeShareState`/`applyShareState`, param `tag=`), mirroring how Pinch/Pro added `mode=pro`.
+
+**Acceptance:** clicking "Rocket nozzle" narrows the list to exactly the rocket-nozzle materials; count updates; clicking a tag in HfC's info panel cross-navigates; clear restores all 83; `node --check` clean; verified in a true-reload browser session.
+
+**Files:** `index.html` only. **Effort:** ~M. **Risk:** low (additive; no index reorder).
+
+---
+
+### TIER B — Discovery basics: search + sort + comparison table
+
+**B.1 — Name/formula search (the flagship is missing what the gallery already has).** `lattice.html` has `#filter-input` (a `type=search`); `index.html` does not — backwards. Add `<input type="search" id="filter-name">` to the `Filter` section. In `applyFilter()` add: `if (q && !(s.name+' '+s.formula).toLowerCase().includes(q)) ok=false;` (also match resolved tags so "nozzle" finds rocket-nozzle materials). Debounce on `input`.
+
+**B.2 — Sort (DO THE INDEX REFACTOR FIRST — see Shared gotchas).** Step 1: migrate every `data.structures[i]`-by-button-position read to `data.structures[+btn.dataset.idx]` and stamp `btn.dataset.idx = i` in `buildStructureList()`; verify the viewer still selects the right crystal after a no-op. Step 2: add `<select id="sort-by">` with: **Data order** (default), **Service temp ↓**, **Melting point ↓**, **Name A–Z**. On change, reorder the `#struct-list` DOM children by the chosen key (stable sort; missing values sort last), then re-run `applyFilter()`. Acceptance: sort by service-temp puts Graphite (3000°C) / HfC near the top; clicking any post-sort button still loads the correct structure.
+
+**B.3 — Comparison property table.** Compare mode currently renders two crystals side-by-side with **no numbers**. In `#compare-panel` (or the info panel when compare is active), add a 2-column table: Service temp, Melting point, Class, Crystal system, Atoms, Bonds, (density/CTE if present in `stats`/`info`). Pull current vs `compareIdx`. Highlight the higher service-temp/melting-point cell. Acceptance: comparing SiC vs HfC shows both columns with the HfC service-temp cell emphasized.
+
+**Files:** `index.html` only. **Effort:** B.1 S, B.2 M (refactor), B.3 M. **Risk:** B.2 medium (index coupling) — gate behind its own verify.
+
+---
+
+### TIER C — Provenance badges (the Ground= "verify everything" thesis, made visible)
+
+**Goal.** Make trust legible. Today a structure's epistemic status (DFT-verified vs prototype-approximation vs metadata-only) is buried in `info[]` prose. Surface it as a badge.
+
+**C.1 — Taxonomy (from verified runtime flags).** Order matters; evaluate AFTER the procedural-synthesis pass (`proceduralFallback` is set at runtime ~L976):
+
+- **Verified** (green) — `s.mp_id` present (28/83). DFT-relaxed, real Materials Project entry.
+- **Reference** (blue) — native coords (`!isStub`, no `mp_id`). From literature crystallography.
+- **Procedural** (amber) — `s.proceduralFallback === true`. Lattice + bond topology from a canonical prototype; not simulation-derived.
+- **Metadata-only** (grey) — `s.isStub === true` (8 remain). No lattice yet.
+
+**C.2 — Badge in the info panel.** Replace the current ad-hoc stub/procedural `<div>` banners in `updateInfoPanel()` with one consistent badge component (`renderProvenanceBadge(s)`). For **Verified**, link `mp_id` → `https://materialsproject.org/materials/{mp_id}` (new tab, rel=noopener). Keep the existing honest wording ("not simulation-derived") for Procedural.
+
+**C.3 — Badge dot in the struct list (subtle).** Add a 6px colored dot to each `.struct-btn` so provenance is scannable while browsing. Optional matching filter ("Verified only").
+
+**C.4 — Legend.** One-line key in the badge area or the Pro "What's New"/about area.
+
+**Acceptance:** SiC (mp-8062) shows a green **Verified** badge linking to Materials Project; a stub shows grey **Metadata-only**; Sialon shows amber **Procedural**; dots render in the list; `node --check` clean.
+
+**Files:** `index.html` only. **Effort:** ~M. **Risk:** low.
+
+---
+
+### ◆ THINK-DEEP CHECKPOINT (before D) — honest scope + epistemics
+
+Stop and decide three things with the data in front of us, **before** authoring transition data:
+
+1. **What does the data honestly support?** Only 2/83 carry a `transitions` field, but the structural `application_tags` (`transforms-to:β-Quartz@573C`, `transforms-to:Magnetite>1390C`, `decomp-to:CaO+CO2@825C`, `polymorph-of:SiO2`, plus the firing-phase quartz inversion already modeled) are a **latent transition dataset already in the file**. First task of D is to *harvest* these into the structured schema rather than inventing — provenance stays honest.
+2. **Where is the repo boundary?** Per the standing roadmap constraint, heavy 3D animation is **Taichi-only** (`ceramictransitions-taichi`). So D's web scope = (a) author/normalize per-material transition **data** + (b) make `transitions-graph.html` **data-driven**. The animated polymorph morph in the 3D viewer is a Taichi deliverable — name it, don't build it here.
+3. **Schema before content.** Lock a `transitions[]` schema (below) and a validator rule for it BEFORE bulk-authoring, so D can't drift the way the header counts did. Pair every claim with a citation field. This is the "pair prose with a verifiable artifact" principle applied to transition data.
+
+Output of the checkpoint: a short go/no-go + the locked schema, recorded in this file, before any D content lands.
+
+---
+
+### TIER D — Make *Transitions* real (the namesake)
+
+**Goal.** The weakest part of the project is its own title. Give the polymorphic high-temp ceramics real, cited phase-transition data and a data-driven graph.
+
+**D.1 — Schema (lock at the checkpoint).** Extend each applicable entry with:
+
+```json
+"transitions": [
+  { "from": "α-SiC (6H)", "to": "β-SiC (3C)", "temp_c": 2000, "type": "reconstructive|displacive|martensitic|decomposition",
+    "reversible": false, "volume_change_pct": 0.0, "note": "…", "source": "literature ref or mp_id" }
+]
+```
+
+**D.2 — Harvest existing hints (do first; honest + free).** Parse the structural `application_tags` (`transforms-to:…@T`, `decomp-to:…@T`, `polymorph-of:…`) + the firing-phase quartz inversion into the new schema. Script: `_harvest_transitions.py` (stdlib; idempotent; `--dry-run`), writing into `data/crystal_vr.json`. **This touches data → run the full `validate.yml` suite locally + extend `validate_crystal_vr.py` with a `transitions[]` shape rule.**
+
+**D.3 — Author the key polymorph set (cited).** The materials PLANS already names: **α↔β SiC**, **t↔m ZrO₂ (Bain/martensitic path, the toughening transformation)**, **m↔t↔c HfO₂**, **α↔β Si₃N₄**, **sialon solid-solution**, **α↔β quartz (573°C displacive)**, **cristobalite inversion (~220°C)**. ~6–8 materials, each with cited `temp_c`, `type`, `volume_change_pct` (the ZrO₂ ~4–5% dilation is the whole point of PSZ — get it right). Report-only review before committing canon.
+
+**D.4 — Data-driven transitions graph.** `transitions-graph.html` currently shows a hardcoded generic stoneware clay-firing curve and never loads `crystal_vr.json` — thematically disconnected from the 83 HT ceramics it links from. Make it load the data and offer two views: (1) **Process view** = keep the clay firing curve (it's pedagogically good); (2) **Material view** = pick a material → render its own transition chain from the new `transitions[]` on a temperature axis, with hover notes + volume-change + reversibility. Cross-link from each material's info panel ("View transitions →").
+
+**D.5 — Taichi handoff note (NOT built here).** The animated 3D polymorph morph (atoms migrating α→β at T) belongs in `ceramictransitions-taichi`. Record the schema + the target materials as the handoff spec so the Taichi work consumes the same `transitions[]` data.
+
+**Acceptance:** ≥8 materials carry cited `transitions[]`; validator enforces the shape; `transitions-graph.html` Material view renders ZrO₂'s t↔m transformation with its volume change from data; info-panel cross-link works.
+
+**Files:** `data/crystal_vr.json` (+ validator, + harvest script, + `transitions-graph.html`). **Effort:** L (real domain authoring). **Risk:** medium — data-touching; gate on schema + validator + citations.
+
+---
+
+### Deferred / parallel (not in the A–D line)
+
+- **Tier E — fill the 8 metadata-only stubs** (Cr₂AlC, c-BN, ZrN, Lu₂SiO₅, (Hf,Zr,Ti,Ta,Nb)C, …) via `_ingest_mp.py` (needs `MP_API_KEY`). Mechanical; every entry then renders a real lattice. Composes naturally with C (stubs become Verified).
+- **Tier F — service-temperature visual scale/ladder** as the organizing spine of a *high-temp* tool (every entry has the data; today it's just a slider).
+- **CI/process** — wire `validate.yml` to also run on PRs touching the harvest script; add a viewer data-load smoke test.
+
+---
+
 ## Phase Overview & Completion Status
 
 ### Phase 1: Core Ceramic Structures (COMPLETE · May 8, 2026)
