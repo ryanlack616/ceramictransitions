@@ -121,6 +121,39 @@ Stop and decide three things with the data in front of us, **before** authoring 
 
 Output of the checkpoint: a short go/no-go + the locked schema, recorded in this file, before any D content lands.
 
+#### ◆ CHECKPOINT DECISION (2026-06-17, CH-260617-1) — after A+B+C shipped live
+
+**Verdict: GO — but D.3 (authoring cited claims) is report-only for human review, not auto-commit to canon.**
+
+Three findings from inspecting the live data (`data/crystal_vr.json`), each of which would have bitten if D had started blind:
+
+1. **A `transitions[]` schema ALREADY EXISTS** on 2 entries (α-Quartz, Baddeleyite), shape `{structure, phaseName, tempRange:[lo,hi], transformType}`. My roadmap proposed a *different* shape (`{from,to,temp_c,type,…}`). Locking the proposed shape would have created two incompatible schemas in one file — exactly the drift this checkpoint exists to stop. **Decision: extend the existing shape, do not replace it.**
+2. **17 latent structural-transition tags** already encode transitions with temperatures: `transforms-to:β-Quartz@573C`, `decomp-to:CaO+CO2@825C`, `transforms-to:Magnetite>1390C`, `decomp-to:Metakaolin@450C`, `precursor-to:Mullite`, etc. These are honest, free seed data — D.2 harvests them; it does not invent them.
+3. **The "namesake gap" is real and narrow**: only 2/83 have structured transitions, but ~17 more are one parse away. The highest-value authored set (ZrO₂ t↔m, SiC α↔β, HfO₂ m↔t↔c, Si₃N₄) is ~6–8 materials of genuine domain authoring with citations.
+
+**LOCKED SCHEMA (reconciled — extends the existing 2-entry shape, all new fields optional so old entries stay valid):**
+
+```json
+"transitions": [
+  {
+    "structure": "α-Quartz",          // existing — the phase this row describes
+    "phaseName": "α-quartz (trigonal)",// existing
+    "tempRange": [20, 573],            // existing — [lo,hi] °C stability window
+    "transformType": "displacive",     // existing — displacive|reconstructive|martensitic|decomposition|polymorphic
+    "to": "β-Quartz",                  // NEW (optional) — product phase
+    "temp_c": 573,                     // NEW (optional) — transition temperature
+    "reversible": true,                // NEW (optional)
+    "volume_change_pct": 0.86,         // NEW (optional) — + = expansion on heating
+    "note": "…",                       // NEW (optional)
+    "source": "literature ref or mp_id"// NEW (optional) — pair every authored claim with a citation
+  }
+]
+```
+
+**Validator rule to add BEFORE content (D.2 step 1):** in `validate_crystal_vr.py`, if an entry has `transitions`, assert it's a non-empty list and every row has at least `structure` + (`tempRange` OR `temp_c`); `transformType` ∈ the enum if present; `volume_change_pct` numeric if present. This makes the schema enforceable so D content can't drift.
+
+**Build order for D (revised by this checkpoint):** (D.2) add the validator rule + `_harvest_transitions.py` (idempotent, `--dry-run`, parses the 17 tags into the locked shape) → run, eyeball, commit data. (D.3) author the ~8 cited polymorphs **report-only** → human reviews the proposed JSON before it enters canon (per the standing "apprentice proposes, human disposes" discipline for data claims). (D.4) make `transitions-graph.html` load `crystal_vr.json` and add a Material view. (D.5) record the Taichi handoff for the animated morph.
+
 ---
 
 ### TIER D — Make *Transitions* real (the namesake)
