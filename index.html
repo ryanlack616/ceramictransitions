@@ -51,18 +51,6 @@ body.mode-pinch [data-tier="pro"]{display:none !important;}
 .tier-toggle button+button{border-left:1px solid var(--border);}
 .tier-hint{font-size:8.5px;color:var(--text-dim);font-family:var(--mono);margin:0 0 8px;line-height:1.35;}
 
-/* ── Application-tag job chips (Tier A) ───────────────────── */
-.job-chips{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 6px;}
-.job-chip{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:10px;cursor:pointer;transition:all .12s;white-space:nowrap;line-height:1.1;}
-.job-chip:hover{border-color:var(--accent);color:var(--text);}
-.job-chip.active{background:rgba(196,130,110,.16);border-color:var(--accent);color:var(--accent);font-weight:600;}
-.job-chip .n{opacity:.6;margin-left:2px;}
-.job-chips-head{display:flex;align-items:center;justify-content:space-between;}
-.job-clear{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:9px;cursor:pointer;padding:0;text-decoration:underline;}
-.job-clear:hover{color:var(--accent);}
-.info-jobs{margin-top:8px;display:flex;flex-wrap:wrap;gap:3px;}
-.info-jobs .lbl{font-size:9px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px;width:100%;margin-bottom:1px;}
-
 /* ── Application-tag job chips (Tier A) ───────────────────────── */
 .job-chips{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 6px;}
 .job-chip{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:10px;cursor:pointer;transition:all .12s;white-space:nowrap;line-height:1.1;}
@@ -215,6 +203,7 @@ label.opt input{accent-color:var(--accent);}
     <a href="transitions-graph.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:2px 0;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Firing Journey Graph</a>
     <a href="https://ceramic-micros.howell.help/" style="display:block;font-size:10px;font-family:var(--mono);color:#7ecfdf;text-decoration:none;margin:2px 0 6px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7" title="Companion: diffusion kinetics in ceramics">↗ ceramic-micros (kinetics)</a>
     <h3>Filter</h3>
+    <input type="search" id="filter-name" placeholder="Search name, formula, or use…" autocomplete="off" spellcheck="false" aria-label="Search structures" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;">
     <select id="filter-class" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;">
       <option value="">All classes</option>
       <option value="UHTC">UHTC (ultra-high-temp)</option>
@@ -245,6 +234,15 @@ label.opt input{accent-color:var(--accent);}
     </div>
     <label class="opt" style="font-size:10px;"><input type="checkbox" id="filter-hide-precursors"> Hide precursors</label>
     <div id="filter-count" style="font-size:9px;color:var(--text-dim);font-family:var(--mono);margin:2px 0 6px;">—</div>
+    <div class="slider-row" style="margin-bottom:4px;">
+      <span style="font-size:9px;">Sort</span>
+      <select id="sort-by" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 5px;font-family:var(--mono);font-size:10px;" aria-label="Sort structures">
+        <option value="data">Default order</option>
+        <option value="temp">Service temp ↓</option>
+        <option value="melt">Melting point ↓</option>
+        <option value="name">Name A–Z</option>
+      </select>
+    </div>
     <h3>Structures</h3>
     <div id="struct-list" class="struct-list"></div>
     <h3>Display</h3>
@@ -347,6 +345,7 @@ label.opt input{accent-color:var(--accent);}
   <div id="compare-panel">
     <h3>Compare Structure</h3>
     <div id="compare-list" class="struct-list"></div>
+    <div id="compare-table" style="margin-top:8px;"></div>
   </div>
 
   <div id="info-panel">
@@ -1161,12 +1160,13 @@ function applyFilter() {
   const cls = document.getElementById('filter-class')?.value || '';
   const minT = parseInt(document.getElementById('filter-temp')?.value || '0', 10);
   const hidePre = document.getElementById('filter-hide-precursors')?.checked;
+  const q = (document.getElementById('filter-name')?.value || '').trim().toLowerCase();
   const tempLabel = document.getElementById('filter-temp-val');
   if (tempLabel) tempLabel.textContent = minT + '°C';
   const btns = document.querySelectorAll('#struct-list .struct-btn');
   let shown = 0;
-  btns.forEach((btn, i) => {
-    const s = data.structures[i];
+  btns.forEach((btn) => {
+    const s = data.structures[+btn.dataset.idx];
     const mc = s.material_class || '';
     const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : 9999;
     let ok = true;
@@ -1174,6 +1174,10 @@ function applyFilter() {
     if (st < minT) ok = false;
     if (hidePre && (mc === 'precursor' || mc === 'carbonate' || mc === 'hydroxide')) ok = false;
     if (activeTag && !matchesTag(s, activeTag)) ok = false;
+    if (q) {
+      const hay = (s.name + ' ' + s.formula + ' ' + [...jobsForStructure(s)].join(' ')).toLowerCase();
+      if (!hay.includes(q)) ok = false;
+    }
     btn.style.display = ok ? '' : 'none';
     if (ok) shown++;
   });
@@ -1219,12 +1223,34 @@ function setActiveTag(job) {
   if (sl) sl.scrollTop = 0;
 }
 
+// Tier B: reorder the struct-list DOM by the chosen key. Buttons carry their
+// data index in dataset.idx, so reordering the DOM never desyncs the filter,
+// the active highlight, or click selection (all read dataset.idx, not position).
+function applySort() {
+  const mode = document.getElementById('sort-by')?.value || 'data';
+  const container = document.getElementById('struct-list');
+  if (!container) return;
+  const btns = [...container.querySelectorAll('.struct-btn')];
+  const key = (btn) => {
+    const s = data.structures[+btn.dataset.idx];
+    if (mode === 'temp') return -(typeof s.service_temp_c === 'number' ? s.service_temp_c : -Infinity);
+    if (mode === 'melt') return -(typeof s.melting_point_c === 'number' ? s.melting_point_c : -Infinity);
+    if (mode === 'name') return s.name.toLowerCase();
+    return +btn.dataset.idx; // data order
+  };
+  btns
+    .map((btn, i) => ({ btn, i, k: key(btn) }))
+    .sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i)) // stable
+    .forEach(({ btn }) => container.appendChild(btn));
+}
+
 function buildStructureList() {
   const container = document.getElementById('struct-list');
   container.innerHTML = '';
   data.structures.forEach((s, i) => {
     const btn = document.createElement('button');
     btn.className = 'struct-btn' + (i === 0 ? ' active' : '');
+    btn.dataset.idx = i;   // data index (survives DOM reordering by sort)
     const mc = s.material_class || '';
     const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : null;
     const badge = mc ? `<span class="formula" style="opacity:.7">[${mc}${st !== null ? ' · ' + st + '°C' : ''}]</span>` : '';
@@ -1238,6 +1264,14 @@ function buildStructureList() {
     if (el) el.addEventListener('input', applyFilter);
     if (el) el.addEventListener('change', applyFilter);
   });
+  // Tier B: search (debounced) + sort
+  const nameEl = document.getElementById('filter-name');
+  if (nameEl) {
+    let t = null;
+    nameEl.addEventListener('input', () => { clearTimeout(t); t = setTimeout(applyFilter, 120); });
+  }
+  const sortEl = document.getElementById('sort-by');
+  if (sortEl) sortEl.addEventListener('change', () => { applySort(); applyFilter(); });
   buildJobChips();
   applyFilter();
 
@@ -1474,6 +1508,7 @@ function updateInfoPanel() {
   });
   document.getElementById('atom-info').style.display = 'none';
   updateTransitionsPanel();
+  updateCompareTable();   // Tier B.3: keep the compare table's "current" column in sync
 }
 
 // ── Phase 2.5.4: Phase-transition visualizer ──────────────────
@@ -1617,8 +1652,8 @@ function buildCrystal(idx) {
   atomMasses = s.atoms.map(a => data.elements[a.e]?.mass || 28.0);
 
   // Button active state
-  document.querySelectorAll('.struct-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', i === idx);
+  document.querySelectorAll('#struct-list .struct-btn').forEach((btn) => {
+    btn.classList.toggle('active', +btn.dataset.idx === idx);
   });
 }
 
@@ -2473,6 +2508,7 @@ function switchCompare(idx) {
 
   // Build compare crystal
   clearCompare();
+  compareIdx = idx;   // clearCompare() resets compareIdx to -1; re-assert so updateCompareTable() (and any later reader) sees the real compare index
   compareGroup = new THREE.Group();
   compareGroup.position.x = COMPARE_OFFSET / 2;
   compareGroup.scale.copy(crystalGroup.scale);
@@ -2481,6 +2517,40 @@ function switchCompare(idx) {
   buildCompareAtoms(data.structures[idx]);
   buildCompareBonds(data.structures[idx]);
   buildCompareCellWireframe(data.structures[idx]);
+  updateCompareTable();
+}
+
+// Tier B.3: side-by-side property table for compare mode (current vs compare).
+// Numeric rows highlight the higher value so the trade-off is scannable.
+function updateCompareTable() {
+  const el = document.getElementById('compare-table');
+  if (!el) return;
+  if (!compareMode || compareIdx < 0) { el.innerHTML = ''; return; }
+  const a = data.structures[currentIdx];   // main (left)
+  const b = data.structures[compareIdx];    // compare (right)
+  const num = v => (typeof v === 'number') ? v : null;
+  const C = '#c4826e', CB = '#6ea5c4'; // main accent vs compare blue
+  // rows: [label, valA, valB, higherIsBetter? (for emphasis), unit]
+  const rows = [
+    ['Service °C', num(a.service_temp_c), num(b.service_temp_c), '°C'],
+    ['Melting °C', num(a.melting_point_c), num(b.melting_point_c), '°C'],
+    ['Class', a.material_class || '—', b.material_class || '—', ''],
+    ['Atoms', a.isStub ? '—' : a.atoms.length, b.isStub ? '—' : b.atoms.length, ''],
+    ['Bonds', a.isStub ? '—' : a.bonds.length, b.isStub ? '—' : b.bonds.length, ''],
+  ];
+  let html = `<div style="font-size:8.5px;font-family:var(--mono);color:var(--text-dim);display:grid;grid-template-columns:auto 1fr 1fr;gap:1px 6px;align-items:baseline;">`;
+  html += `<span></span><span style="color:${C};font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(a.name)}</span><span style="color:${CB};font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(b.name)}</span>`;
+  rows.forEach(([label, va, vb, unit]) => {
+    const naA = (va === null), naB = (vb === null);
+    let eA = '', eB = '';
+    if (!naA && !naB && typeof va === 'number' && typeof vb === 'number' && va !== vb) {
+      if (va > vb) eA = 'font-weight:700;color:var(--text);'; else eB = 'font-weight:700;color:var(--text);';
+    }
+    const fmt = (v, na) => na ? '—' : (typeof v === 'number' ? v + unit : escapeHtml(String(v)));
+    html += `<span>${label}</span><span style="${eA}">${fmt(va, naA)}</span><span style="${eB}">${fmt(vb, naB)}</span>`;
+  });
+  html += `</div>`;
+  el.innerHTML = html;
 }
 
 function buildCompareAtoms(s) {
