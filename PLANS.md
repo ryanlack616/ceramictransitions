@@ -13,7 +13,7 @@
 - ✅ **ceramictransitions Phase 3.1:** β-Si₃N₄ prototype (P6₃, 14-atom Wyckoff basis) covering Silicon Nitride + Sintered Silicon Nitride + Sialon. Yb-silicate stubs enriched with lattice + EBC service metadata. Renderable 55 → 58; smoke 215 → 240. Master `4debeca` pushed May 16, 2026.
 - ✅ **ceramictransitions Phase 3.2:** Materials Project ingest for Yb-silicate EBC structures. β-Yb₂Si₂O₇ from `mp-4300` (real Yb, C2/m, 2×2×2 → 88 atoms, 118 bonds, Yb-O 2.22 Å, Si-O 1.63 Å); X2-Yb₂SiO₅ from `mp-16969` (Lu₂SiO₅ C2/c with Lu→Yb substitution; ionic radii <1% apart, isostructural across late lanthanides). Renderable 58 → 60; **0 metadata-only stubs remaining**. Smoke 240/240. `_ingest_mp_silicates.py` shipped; MP responses cached in `data/.mp_cache/`. May 27, 2026.
 - ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials live in both systems
-- ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html, transitions-graph.html
+- ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html
 
 **Deliverables:**
 1. **howell-help:** `data/high_temp_ceramics_starter.json` (source of truth for aerospace specs)
@@ -21,7 +21,7 @@
 3. **ceramictransitions:** `data/crystal_vr.json` (60 structures with 3D viewer metadata, **60/60 renderable** — 40 native + 20 procedural)
 4. **ceramictransitions:** `BUILD.md` (6-phase development roadmap)
 5. **ceramictransitions:** `_deploy.py` FTP deploy + `test_prototype_generators.js` (240-check smoke test)
-6. **ceramictransitions:** `transitions-graph.html` (zero-dependency SVG + canvas; yFiles removed)
+6. **ceramictransitions:** ~~`transitions-graph.html`~~ — **RETIRED 2026-06-17** (generic SVG/canvas firing toy, disconnected from the 83-material atlas; see Tier D)
 
 **Deploy mechanism:** **GitHub Pages** is the live host — `ceramictransitions.com` (CNAME) is served from `master` and auto-deployed by `.github/workflows/pages.yml` on every push, after `.github/workflows/validate.yml` gates any `data/**`/HTML change (validator + JSON Schema + 240-check smoke). So **`git push origin master` deploys live** (verified 2026-06-17: `server: GitHub.com`). The FTP path (`python _deploy.py --tls --force`, requires `$CERAMICTRANSITIONS_FTP_PASS`) is a legacy/secondary Porkbun mirror, not the live host.
 
@@ -116,7 +116,7 @@
 Stop and decide three things with the data in front of us, **before** authoring transition data:
 
 1. **What does the data honestly support?** Only 2/83 carry a `transitions` field, but the structural `application_tags` (`transforms-to:β-Quartz@573C`, `transforms-to:Magnetite>1390C`, `decomp-to:CaO+CO2@825C`, `polymorph-of:SiO2`, plus the firing-phase quartz inversion already modeled) are a **latent transition dataset already in the file**. First task of D is to *harvest* these into the structured schema rather than inventing — provenance stays honest.
-2. **Where is the repo boundary?** Per the standing roadmap constraint, heavy 3D animation is **Taichi-only** (`ceramictransitions-taichi`). So D's web scope = (a) author/normalize per-material transition **data** + (b) make `transitions-graph.html` **data-driven**. The animated polymorph morph in the 3D viewer is a Taichi deliverable — name it, don't build it here.
+2. **Where is the repo boundary?** Per the standing roadmap constraint, heavy 3D animation is **Taichi-only** (`ceramictransitions-taichi`). So D's web scope = (a) author/normalize per-material transition **data** + (b) surface that data in the **flagship's Firing mode** (the standalone `transitions-graph.html` was retired 2026-06-17). The animated polymorph morph in the 3D viewer is a Taichi deliverable — name it, don't build it here.
 3. **Schema before content.** Lock a `transitions[]` schema (below) and a validator rule for it BEFORE bulk-authoring, so D can't drift the way the header counts did. Pair every claim with a citation field. This is the "pair prose with a verifiable artifact" principle applied to transition data.
 
 Output of the checkpoint: a short go/no-go + the locked schema, recorded in this file, before any D content lands.
@@ -152,13 +152,17 @@ Three findings from inspecting the live data (`data/crystal_vr.json`), each of w
 
 **Validator rule to add BEFORE content (D.2 step 1):** in `validate_crystal_vr.py`, if an entry has `transitions`, assert it's a non-empty list and every row has at least `structure` + (`tempRange` OR `temp_c`); `transformType` ∈ the enum if present; `volume_change_pct` numeric if present. This makes the schema enforceable so D content can't drift.
 
-**Build order for D (revised by this checkpoint):** (D.2) add the validator rule + `_harvest_transitions.py` (idempotent, `--dry-run`, parses the 17 tags into the locked shape) → run, eyeball, commit data. (D.3) author the ~8 cited polymorphs **report-only** → human reviews the proposed JSON before it enters canon (per the standing "apprentice proposes, human disposes" discipline for data claims). (D.4) make `transitions-graph.html` load `crystal_vr.json` and add a Material view. (D.5) record the Taichi handoff for the animated morph.
+**Build order for D (revised by this checkpoint):** (D.2) add the validator rule + `_harvest_transitions.py` (idempotent, `--dry-run`, parses the 17 tags into the locked shape) → run, eyeball, commit data. (D.3) author the ~8 cited polymorphs **report-only** → human reviews the proposed JSON before it enters canon (per the standing "apprentice proposes, human disposes" discipline for data claims). (D.4) ~~make `transitions-graph.html` load `crystal_vr.json`~~ → instead add a Material view *inside the flagship Firing mode* (standalone page retired 2026-06-17). (D.5) record the Taichi handoff for the animated morph.
 
 ---
 
 ### TIER D — Make *Transitions* real (the namesake)
 
-**Goal.** The weakest part of the project is its own title. Give the polymorphic high-temp ceramics real, cited phase-transition data and a data-driven graph.
+> **DECISION 2026-06-17 (CH-260617-1, Ryan "a" = retire):** `transitions-graph.html` is **RETIRED** (file + both nav links deleted). It was a hardcoded studio-stoneware firing curve (tops out at 1280°C "mature") plus an off-topic draggable NaCl toy — neither loaded `crystal_vr.json`, and the 1280°C curve actively contradicts an atlas whose materials mature at 2000–3900°C (HfC, TaC, graphite). A generic decoration that fights its own data has no slot in the analyze/behold two-surface story (flagship = analyze, lattice = behold).
+>
+> **What survives:** the *data* work (D.1–D.3, D.5). If transitions return, they fold into the **flagship's existing Firing mode** (it already has Firing mode + Thermal vibration), keyed off the `transitions[]` field — NOT a separate page. **D.4 (the standalone data-driven page) is CANCELLED.** The locked schema below stays valid for that in-flagship Material view.
+
+**Goal.** The weakest part of the project is its own title. Give the polymorphic high-temp ceramics real, cited phase-transition data — surfaced *inside the flagship's Firing mode*, not a standalone page.
 
 **D.1 — Schema (lock at the checkpoint).** Extend each applicable entry with:
 
@@ -173,13 +177,13 @@ Three findings from inspecting the live data (`data/crystal_vr.json`), each of w
 
 **D.3 — Author the key polymorph set (cited).** The materials PLANS already names: **α↔β SiC**, **t↔m ZrO₂ (Bain/martensitic path, the toughening transformation)**, **m↔t↔c HfO₂**, **α↔β Si₃N₄**, **sialon solid-solution**, **α↔β quartz (573°C displacive)**, **cristobalite inversion (~220°C)**. ~6–8 materials, each with cited `temp_c`, `type`, `volume_change_pct` (the ZrO₂ ~4–5% dilation is the whole point of PSZ — get it right). Report-only review before committing canon.
 
-**D.4 — Data-driven transitions graph.** `transitions-graph.html` currently shows a hardcoded generic stoneware clay-firing curve and never loads `crystal_vr.json` — thematically disconnected from the 83 HT ceramics it links from. Make it load the data and offer two views: (1) **Process view** = keep the clay firing curve (it's pedagogically good); (2) **Material view** = pick a material → render its own transition chain from the new `transitions[]` on a temperature axis, with hover notes + volume-change + reversibility. Cross-link from each material's info panel ("View transitions →").
+**D.4 — ~~Data-driven transitions graph~~ → CANCELLED (page retired 2026-06-17).** The standalone `transitions-graph.html` is gone. Its replacement, if pursued, is a **Material view *inside the flagship*** (`index.html`): when a selected material carries `transitions[]`, render its transition chain on a temperature axis (hover notes + volume-change + reversibility) within the existing Firing-mode panel — no second page, no generic stoneware curve.
 
 **D.5 — Taichi handoff note (NOT built here).** The animated 3D polymorph morph (atoms migrating α→β at T) belongs in `ceramictransitions-taichi`. Record the schema + the target materials as the handoff spec so the Taichi work consumes the same `transitions[]` data.
 
-**Acceptance:** ≥8 materials carry cited `transitions[]`; validator enforces the shape; `transitions-graph.html` Material view renders ZrO₂'s t↔m transformation with its volume change from data; info-panel cross-link works.
+**Acceptance:** ≥8 materials carry cited `transitions[]`; validator enforces the shape; the flagship's Firing-mode **Material view** renders ZrO₂'s t↔m transformation with its volume change from data.
 
-**Files:** `data/crystal_vr.json` (+ validator, + harvest script, + `transitions-graph.html`). **Effort:** L (real domain authoring). **Risk:** medium — data-touching; gate on schema + validator + citations.
+**Files:** `data/crystal_vr.json` (+ validator, + harvest script) and the Firing-mode panel in `index.html`. **Effort:** L (real domain authoring). **Risk:** medium — data-touching; gate on schema + validator + citations.
 
 ---
 
@@ -452,7 +456,7 @@ Stub-to-renderable progress: **17 → 20 procedural · 2 metadata-only stubs rem
 **P3 — system-level visualizations:**
 
 8. Introduce `system` entry type modeling layered TBC (NiCoCrAlY bond coat / TGO Al₂O₃ / YSZ topcoat), EBC (Si bond coat / mullite / Yb-disilicate / Yb-monosilicate), and SiC/SiC CMC architecture.
-9. Audit `transitions-graph.html` to include α↔β SiC, t↔m ZrO₂ (Bain path), α↔β Si₃N₄, m↔t↔c HfO₂, sialon solid-solution path.
+9. ~~Audit `transitions-graph.html`~~ — **MOOT (page retired 2026-06-17).** The α↔β SiC / t↔m ZrO₂ (Bain path) / α↔β Si₃N₄ / m↔t↔c HfO₂ / sialon transition set is now Tier D data feeding the flagship Firing-mode Material view.
 
 **P4 — pipeline hardening:**
 

@@ -5,7 +5,6 @@ on:
       - 'data/**'
       - 'index.html'
       - 'lattice.html'
-      - 'transitions-graph.html'
       - 'validate_crystal_vr.py'
       - 'test_prototype_generators.js'
   push:
@@ -14,7 +13,6 @@ on:
       - 'data/**'
       - 'index.html'
       - 'lattice.html'
-      - 'transitions-graph.html'
 
 jobs:
   validate:

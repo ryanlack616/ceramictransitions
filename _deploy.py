@@ -80,7 +80,7 @@ SKIP_DIRS = {
 SKIP_FILES = {
     '_deploy.py', '.gitignore', '.pass.local', '.env',
     '.env.local', '.env.prod', 'BUILD.md', 'PLANS.md',
-    'test_prototype_generators.js', 'transitions-graph-local.html',
+    'test_prototype_generators.js',
 }
 
 # Extensions we never upload (source / dev artifacts).

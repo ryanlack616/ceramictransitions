@@ -73,7 +73,7 @@ FTP target:
 - Password: env `CERAMICTRANSITIONS_FTP_PASS` (required; never commit)
 
 What `_deploy.py` uploads:
-- `index.html`, `lattice.html`, `transitions-graph.html`, `transitions-graph-local.html`
+- `index.html`, `lattice.html`
 - `data/**/*.json` (notably `data/crystal_vr.json`)
 - Any root-level `.ico`/`.png`/`.svg`/`.css`/`.js` viewer assets
 
