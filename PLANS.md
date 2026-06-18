@@ -13,7 +13,7 @@
 - ✅ **ceramictransitions Phase 3.1:** β-Si₃N₄ prototype (P6₃, 14-atom Wyckoff basis) covering Silicon Nitride + Sintered Silicon Nitride + Sialon. Yb-silicate stubs enriched with lattice + EBC service metadata. Renderable 55 → 58; smoke 215 → 240. Master `4debeca` pushed May 16, 2026.
 - ✅ **ceramictransitions Phase 3.2:** Materials Project ingest for Yb-silicate EBC structures. β-Yb₂Si₂O₇ from `mp-4300` (real Yb, C2/m, 2×2×2 → 88 atoms, 118 bonds, Yb-O 2.22 Å, Si-O 1.63 Å); X2-Yb₂SiO₅ from `mp-16969` (Lu₂SiO₅ C2/c with Lu→Yb substitution; ionic radii <1% apart, isostructural across late lanthanides). Renderable 58 → 60; **0 metadata-only stubs remaining**. Smoke 240/240. `_ingest_mp_silicates.py` shipped; MP responses cached in `data/.mp_cache/`. May 27, 2026.
 - ✅ **Cross-project integration:** Bidirectional sync architecture planned; materials live in both systems
-- ✅ **Companion site:** ceramic-micros (diffusion kinetics, L1+L2 tools) cross-linked from index.html, lattice.html
+- ✅ **Companion site:** ~~ceramic-micros~~ — cross-links removed 2026-06-17 (per Ryan).
 
 **Deliverables:**
 1. **howell-help:** `data/high_temp_ceramics_starter.json` (source of truth for aerospace specs)
