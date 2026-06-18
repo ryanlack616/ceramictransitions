@@ -4,7 +4,7 @@ Replaces stub entries in `data/crystal_vr.json` with DFT-relaxed atomic
 coordinates pulled from the Materials Project REST API. Pure stdlib (urllib),
 no pymatgen/mp_api dependency.
 
-Targets (11 stubs):
+Targets (11 stubs, +7 new Phase 3.4):
   Silicon Carbide              (β-SiC, 3C, F-43m)            mp-8062
   Silicon Nitride              (β-Si₃N₄, P6₃/m)              mp-988
   Zirconium Diboride           (ZrB₂, P6/mmm, AlB₂-type)     mp-1788
@@ -91,6 +91,12 @@ BOND_CUTOFFS = {
     frozenset(("Ti", "O")): 2.40,
     frozenset(("Al", "O")): 2.20,
     frozenset(("Mg", "O")): 2.45,
+    # MAX-phase
+    frozenset(("Cr", "Al")): 2.80,
+    frozenset(("Al", "C")): 2.30,
+    # MAX-phase
+    frozenset(("Cr", "Al")): 2.80,
+    frozenset(("Al", "C")): 2.30,
     # disilicide / MAX-phase fragments (future use)
     frozenset(("Mo", "Si")): 2.80,
     frozenset(("Ti", "Si")): 2.80,
@@ -175,8 +181,58 @@ TARGETS = [
         "system": "Cubic Fd-3m (pyrochlore A₂B₂O₇)",
         "note": "La₂Zr₂O₇ pyrochlore (sg Fd-3m). Next-gen TBC candidate (lower k, higher T cap than YSZ).",
     },
-]
+    # Phase 3.4: remaining simple crystal structures
+    {
+        "stub_name": "Zirconium Nitride",
+        "mp_id": "mp-aaaaacaa",
+        "supercell": (2, 2, 2),
+        "system": "Cubic Fm-3m (rock-salt NaCl-type)",
+        "note": "ZrN rock-salt (sg Fm-3m, ehull=0). Hard, gold-coloured refractory ceramic.",
+    },
+    {
+        "stub_name": "Cubic Boron Nitride",
+        "mp_id": "mp-aaaaaclb",
+        "supercell": (2, 2, 2),
+        "system": "Cubic F-43m (zinc-blende / sphalerite-type)",
+        "note": "c-BN zinc-blende (sg F-43m, ehull≈0.077). Second-hardest known material.",
+    },
+    {
+        "stub_name": "Cr₂AlC",
+        "mp_id": "mp-aaaaaosy",
+        "supercell": (2, 2, 1),
+        "system": "Hexagonal P6₃/mmc (MAX phase, 211-type)",
+        "note": "Cr₂AlC MAX phase (sg P6₃/mmc, ehull=0). Nanoscale-layered ternary carbide.",
+    },
+    {
+        "stub_name": "Lutetium Silicate",
+        "mp_id": "mp-aaaaazcr",
+        "supercell": (1, 1, 1),
+        "system": "Monoclinic C2/c (oxyorthosilicate X₂SiO₅-type)",
+        "note": "Lu₂SiO₅ (sg C2/c, ehull=0). EBC candidate — low CTE, high-temperature stability.",
+    },
+    {
+        "stub_name": "Sintered Silicon Carbide",
+        "mp_id": "mp-8062",
+        "supercell": (2, 2, 2),
+        "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
+        "note": "β-SiC (3C polytype, sg F-43m, ehull=0). Dense sintered form with same crystal structure.",
+    },
+    {
+        "stub_name": "Reaction-Bonded Silicon Carbide",
+        "mp_id": "mp-8062",
+        "supercell": (2, 2, 2),
+        "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
+        "note": "β-SiC (3C polytype, sg F-43m, ehull=0). RB-SiC retains same crystal structure as dense SiC.",
+    },
+    {
+        "stub_name": "Sintered Silicon Nitride",
+        "mp_id": "mp-988",
+        "supercell": (1, 1, 2),
+        "system": "Hexagonal P6₃/m (β-Si₃N₄)",
+        "note": "β-Si₃N₄ (sg P6\u2083, ehull≈0). Dense sintered form with same crystal structure.",
+    },
 
+]
 
 # ─────────────────────────── MP fetch (cached) ───────────────────────────
 

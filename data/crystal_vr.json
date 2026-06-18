@@ -159122,6 +159122,8 @@
         "Thermal expansion: 4.5 × 10⁻⁶/°C",
         "Thermal shock risk: low",
         "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0).",
+        "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0).",
+        "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0).",
         "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0)."
       ],
       "supercell": [
@@ -159405,8 +159407,7 @@
         "kiln-shelf",
         "armor"
       ],
-      "oxidation_temp_c": 1300,
-      "bound_type": "melts"
+      "oxidation_temp_c": 1300
     },
     {
       "system": "Hexagonal P6₃/m (β-Si₃N₄)",
@@ -159415,6 +159416,8 @@
         "Service temperature: 1400°C",
         "Thermal expansion: 3.2 × 10⁻⁶/°C",
         "Thermal shock risk: low",
+        "Source: Materials Project mp-988. β-Si₃N₄ (sg P6₃, ehull≈0). Dominant HT polymorph.",
+        "Source: Materials Project mp-988. β-Si₃N₄ (sg P6₃, ehull≈0). Dominant HT polymorph.",
         "Source: Materials Project mp-988. β-Si₃N₄ (sg P6₃, ehull≈0). Dominant HT polymorph.",
         "Source: Materials Project mp-988. β-Si₃N₄ (sg P6₃, ehull≈0). Dominant HT polymorph."
       ],
@@ -159865,8 +159868,7 @@
         "bearing",
         "cutting-tool"
       ],
-      "oxidation_temp_c": 1300,
-      "bound_type": "melts"
+      "oxidation_temp_c": 1300
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -165556,26 +165558,286 @@
       "bound_type": "melts"
     },
     {
-      "name": "Reaction-Bonded Silicon Carbide",
-      "formula": "SiC (reaction-bonded)",
-      "system": "Hexagonal 6H or 4H SiC + residual Si",
+      "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
       "info": [
         "Cost-effective high-performance ceramic",
         "Service temperature up to 1400°C",
         "Two-phase structure (SiC + residual Si); residual Si oxidizes above 1400°C",
-        "Sintering-less consolidation via reactive infiltration"
+        "Sintering-less consolidation via reactive infiltration",
+        "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0). RB-SiC retains same crystal structure as dense SiC."
       ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
+      "supercell": [
+        2,
+        2,
+        2
+      ],
+      "cellVectors": [
+        [
+          2.6663,
+          0.0,
+          1.5394
+        ],
+        [
+          0.8888,
+          2.5138,
+          1.5394
+        ],
+        [
+          0.0,
+          0.0,
+          3.0787
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Si",
+          "x": -2.6663,
+          "y": -1.8853,
+          "z": -4.6181,
+          "r": 1.1,
+          "cn": 4
+        },
+        {
+          "e": "C",
+          "x": -3.555,
+          "y": -2.5138,
+          "z": -6.1575,
+          "r": 0.7,
+          "cn": 1
+        },
+        {
+          "e": "Si",
+          "x": -2.6663,
+          "y": -1.8853,
+          "z": -1.5394,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -3.555,
+          "y": -2.5138,
+          "z": -3.0787,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": -1.7775,
+          "y": 0.6284,
+          "z": -3.0787,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -2.6663,
+          "y": 0.0,
+          "z": -4.6181,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": -1.7775,
+          "y": 0.6284,
+          "z": 0.0,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -2.6663,
+          "y": 0.0,
+          "z": -1.5394,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.0,
+          "y": -1.8853,
+          "z": -3.0787,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -0.8888,
+          "y": -2.5138,
+          "z": -4.6181,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": 0.0,
+          "y": -1.8853,
+          "z": 0.0,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -0.8888,
+          "y": -2.5138,
+          "z": -1.5394,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.8888,
+          "y": 0.6284,
+          "z": -1.5394,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": -3.0787,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.8888,
+          "y": 0.6284,
+          "z": 1.5394,
+          "r": 1.1,
+          "cn": 1
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "r": 0.7,
+          "cn": 4
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          13
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          15
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          15
+        ],
+        [
+          14,
+          15
+        ]
+      ],
+      "bondTypes": [
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si"
+      ],
       "stats": {
-        "bondLengths": {},
-        "coordDist": {}
+        "bondLengths": {
+          "C-Si": 1.885
+        },
+        "coordDist": {
+          "4": 2,
+          "1": 2,
+          "3": 6,
+          "2": 6
+        }
       },
-      "isStub": true,
-      "oxidation_temp_c": 1300,
+      "isStub": false,
+      "mp_id": "mp-8062",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-8062 (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 2×2×2 of primitive cell; centred at origin.",
+      "name": "Reaction-Bonded Silicon Carbide",
+      "formula": "SiC (reaction-bonded)",
       "material_class": "carbide",
       "service_temp_c": 1380,
       "melting_point_c": 2730,
@@ -165584,29 +165846,289 @@
         "near-net-shape",
         "kiln-furniture"
       ],
-      "bound_type": "melts"
+      "oxidation_temp_c": 1300
     },
     {
-      "name": "Sintered Silicon Carbide",
-      "formula": "SiC",
-      "system": "Hexagonal 6H or 4H SiC",
+      "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
       "info": [
         "Premium high-performance ceramic",
         "Service temperature up to 1650°C",
         "Fully dense SiC; no residual metal phase",
-        "Highest thermal properties; used in kiln shelves and thermal-structural components"
+        "Highest thermal properties; used in kiln shelves and thermal-structural components",
+        "Source: Materials Project mp-8062. β-SiC (3C polytype, sg F-43m, ehull=0). Dense sintered form with same crystal structure."
       ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
+      "supercell": [
+        2,
+        2,
+        2
+      ],
+      "cellVectors": [
+        [
+          2.6663,
+          0.0,
+          1.5394
+        ],
+        [
+          0.8888,
+          2.5138,
+          1.5394
+        ],
+        [
+          0.0,
+          0.0,
+          3.0787
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Si",
+          "x": -2.6663,
+          "y": -1.8853,
+          "z": -4.6181,
+          "r": 1.1,
+          "cn": 4
+        },
+        {
+          "e": "C",
+          "x": -3.555,
+          "y": -2.5138,
+          "z": -6.1575,
+          "r": 0.7,
+          "cn": 1
+        },
+        {
+          "e": "Si",
+          "x": -2.6663,
+          "y": -1.8853,
+          "z": -1.5394,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -3.555,
+          "y": -2.5138,
+          "z": -3.0787,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": -1.7775,
+          "y": 0.6284,
+          "z": -3.0787,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -2.6663,
+          "y": 0.0,
+          "z": -4.6181,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": -1.7775,
+          "y": 0.6284,
+          "z": 0.0,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -2.6663,
+          "y": 0.0,
+          "z": -1.5394,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.0,
+          "y": -1.8853,
+          "z": -3.0787,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -0.8888,
+          "y": -2.5138,
+          "z": -4.6181,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": 0.0,
+          "y": -1.8853,
+          "z": 0.0,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -0.8888,
+          "y": -2.5138,
+          "z": -1.5394,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.8888,
+          "y": 0.6284,
+          "z": -1.5394,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": -3.0787,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.8888,
+          "y": 0.6284,
+          "z": 1.5394,
+          "r": 1.1,
+          "cn": 1
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "r": 0.7,
+          "cn": 4
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          13
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          15
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          15
+        ],
+        [
+          14,
+          15
+        ]
+      ],
+      "bondTypes": [
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si",
+        "C-Si"
+      ],
       "stats": {
-        "bondLengths": {},
-        "coordDist": {}
+        "bondLengths": {
+          "C-Si": 1.885
+        },
+        "coordDist": {
+          "4": 2,
+          "1": 2,
+          "3": 6,
+          "2": 6
+        }
       },
-      "isStub": true,
-      "oxidation_temp_c": 1300,
+      "isStub": false,
+      "mp_id": "mp-8062",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-8062 (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 2×2×2 of primitive cell; centred at origin.",
+      "name": "Sintered Silicon Carbide",
+      "formula": "SiC",
       "material_class": "carbide",
       "service_temp_c": 1600,
       "melting_point_c": 2730,
@@ -165616,29 +166138,455 @@
         "armor",
         "kiln-furniture"
       ],
-      "bound_type": "melts"
+      "oxidation_temp_c": 1300
     },
     {
-      "name": "Sintered Silicon Nitride",
-      "formula": "Si₃N₄",
-      "system": "Hexagonal α-Si₃N₄ (majority) + β-Si₃N₄",
+      "system": "Hexagonal P6₃/m (β-Si₃N₄)",
       "info": [
         "Excellent high-temperature structural ceramic",
         "Service temperature up to 1500°C",
         "Outstanding creep resistance and thermal fatigue strength",
-        "Used in advanced engine components and hypersonic vehicle structures"
+        "Used in advanced engine components and hypersonic vehicle structures",
+        "Source: Materials Project mp-988. β-Si₃N₄ (sg P6₃, ehull≈0). Dense sintered form with same crystal structure."
       ],
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": null,
+      "supercell": [
+        1,
+        1,
+        2
+      ],
+      "cellVectors": [
+        [
+          7.6045,
+          0.0,
+          0.0
+        ],
+        [
+          -3.8023,
+          6.5857,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          2.9052
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Si",
+          "x": -3.2805,
+          "y": 2.14,
+          "z": -0.7263,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.3087,
+          "y": -1.771,
+          "z": -2.1789,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": 2.1142,
+          "y": 0.6182,
+          "z": -2.1789,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": -2.1142,
+          "y": -0.6182,
+          "z": -0.7263,
+          "r": 1.1,
+          "cn": 4
+        },
+        {
+          "e": "Si",
+          "x": -0.3087,
+          "y": 1.771,
+          "z": -0.7263,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 3.2805,
+          "y": -2.14,
+          "z": -2.1789,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -1.9011,
+          "y": 1.0976,
+          "z": -0.7263,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": 1.9011,
+          "y": -1.0976,
+          "z": -2.1789,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": 2.9222,
+          "y": 1.1186,
+          "z": -0.7263,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -3.3099,
+          "y": 3.09,
+          "z": -2.1789,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": 0.5287,
+          "y": 1.3215,
+          "z": -2.1789,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -0.5287,
+          "y": -1.3215,
+          "z": -0.7263,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -2.9222,
+          "y": -1.1186,
+          "z": -2.1789,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": 3.3099,
+          "y": -3.09,
+          "z": -0.7263,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": -3.2805,
+          "y": 2.14,
+          "z": 2.1789,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": 0.3087,
+          "y": -1.771,
+          "z": 0.7263,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 2.1142,
+          "y": 0.6182,
+          "z": 0.7263,
+          "r": 1.1,
+          "cn": 4
+        },
+        {
+          "e": "Si",
+          "x": -2.1142,
+          "y": -0.6182,
+          "z": 2.1789,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": -0.3087,
+          "y": 1.771,
+          "z": 2.1789,
+          "r": 1.1,
+          "cn": 2
+        },
+        {
+          "e": "Si",
+          "x": 3.2805,
+          "y": -2.14,
+          "z": 0.7263,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -1.9011,
+          "y": 1.0976,
+          "z": 2.1789,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": 1.9011,
+          "y": -1.0976,
+          "z": 0.7263,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": 2.9222,
+          "y": 1.1186,
+          "z": 2.1789,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": -3.3099,
+          "y": 3.09,
+          "z": 0.7263,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": 0.5287,
+          "y": 1.3215,
+          "z": 0.7263,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -0.5287,
+          "y": -1.3215,
+          "z": 2.1789,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -2.9222,
+          "y": -1.1186,
+          "z": 0.7263,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": 3.3099,
+          "y": -3.09,
+          "z": 2.1789,
+          "r": 0.65,
+          "cn": 1
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          11
+        ],
+        [
+          3,
+          12
+        ],
+        [
+          3,
+          26
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          4,
+          24
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          13
+        ],
+        [
+          8,
+          16
+        ],
+        [
+          11,
+          15
+        ],
+        [
+          13,
+          19
+        ],
+        [
+          14,
+          20
+        ],
+        [
+          14,
+          23
+        ],
+        [
+          15,
+          21
+        ],
+        [
+          15,
+          25
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          16,
+          22
+        ],
+        [
+          16,
+          24
+        ],
+        [
+          17,
+          20
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          17,
+          26
+        ],
+        [
+          18,
+          20
+        ],
+        [
+          18,
+          24
+        ],
+        [
+          19,
+          21
+        ],
+        [
+          19,
+          27
+        ]
+      ],
+      "bondTypes": [
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si",
+        "N-Si"
+      ],
       "stats": {
-        "bondLengths": {},
-        "coordDist": {}
+        "bondLengths": {
+          "N-Si": 1.733
+        },
+        "coordDist": {
+          "3": 12,
+          "2": 10,
+          "4": 2,
+          "1": 4
+        }
       },
-      "isStub": true,
-      "oxidation_temp_c": 1300,
+      "isStub": false,
+      "mp_id": "mp-988",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-988 (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 1×1×2 of primitive cell; centred at origin.",
+      "name": "Sintered Silicon Nitride",
+      "formula": "Si₃N₄",
       "material_class": "nitride",
       "service_temp_c": 1400,
       "melting_point_c": 1900,
@@ -165647,7 +166595,7 @@
         "bearing-ball",
         "turbocharger-rotor"
       ],
-      "bound_type": "melts"
+      "oxidation_temp_c": 1300
     },
     {
       "name": "Ti₃SiC₂",
@@ -173420,15 +174368,581 @@
       "bound_type": "melts"
     },
     {
-      "name": "Cr₂AlC",
-      "formula": "Cr₂AlC",
-      "system": "Hexagonal P6₃/mmc (MAX phase n=1)",
+      "system": "Hexagonal P6₃/mmc (MAX phase, 211-type)",
       "info": [
         "Mₙ₊₁AXₙ MAX phase; M=Cr, A=Al, X=C, n=1.",
         "Forms protective Al₂O₃ scale above 1100°C.",
-        "Procedural placeholder — not yet ingested from MP."
+        "Procedural placeholder — not yet ingested from MP.",
+        "Source: Materials Project mp-aaaaaosy. Cr₂AlC MAX phase (sg P6₃/mmc, ehull=0). Nanoscale-layered ternary carbide."
       ],
-      "isStub": true,
+      "supercell": [
+        2,
+        2,
+        1
+      ],
+      "cellVectors": [
+        [
+          2.8251,
+          0.0,
+          0.0
+        ],
+        [
+          -1.4126,
+          2.4466,
+          -0.0
+        ],
+        [
+          0.0,
+          0.0,
+          12.6014
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Al",
+          "x": 0.0,
+          "y": -1.6311,
+          "z": -3.1506,
+          "r": 1.25,
+          "cn": 4
+        },
+        {
+          "e": "Al",
+          "x": -1.4126,
+          "y": -0.8155,
+          "z": 3.1507,
+          "r": 1.25,
+          "cn": 4
+        },
+        {
+          "e": "Cr",
+          "x": -1.4126,
+          "y": -0.8155,
+          "z": -1.0719,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "Cr",
+          "x": 0.0,
+          "y": -1.6311,
+          "z": 5.2304,
+          "r": 1.4,
+          "cn": 2
+        },
+        {
+          "e": "Cr",
+          "x": 0.0,
+          "y": -1.6311,
+          "z": 1.0712,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "Cr",
+          "x": -1.4126,
+          "y": -0.8155,
+          "z": -5.2297,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "C",
+          "x": -1.4126,
+          "y": -2.4466,
+          "z": -0.0002,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -1.4126,
+          "y": -2.4466,
+          "z": -6.3006,
+          "r": 0.7,
+          "cn": 1
+        },
+        {
+          "e": "Al",
+          "x": -1.4125,
+          "y": 0.8155,
+          "z": -3.1506,
+          "r": 1.25,
+          "cn": 6
+        },
+        {
+          "e": "Al",
+          "x": -2.8251,
+          "y": 1.6311,
+          "z": 3.1507,
+          "r": 1.25,
+          "cn": 2
+        },
+        {
+          "e": "Cr",
+          "x": -2.8251,
+          "y": 1.6311,
+          "z": -1.0719,
+          "r": 1.4,
+          "cn": 2
+        },
+        {
+          "e": "Cr",
+          "x": -1.4125,
+          "y": 0.8155,
+          "z": 5.2304,
+          "r": 1.4,
+          "cn": 3
+        },
+        {
+          "e": "Cr",
+          "x": -1.4125,
+          "y": 0.8155,
+          "z": 1.0712,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "Cr",
+          "x": -2.8251,
+          "y": 1.6311,
+          "z": -5.2297,
+          "r": 1.4,
+          "cn": 2
+        },
+        {
+          "e": "C",
+          "x": -2.8251,
+          "y": 0.0,
+          "z": -0.0002,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": -2.8251,
+          "y": 0.0,
+          "z": -6.3006,
+          "r": 0.7,
+          "cn": 2
+        },
+        {
+          "e": "Al",
+          "x": 2.8251,
+          "y": -1.6311,
+          "z": -3.1506,
+          "r": 1.25,
+          "cn": 2
+        },
+        {
+          "e": "Al",
+          "x": 1.4125,
+          "y": -0.8155,
+          "z": 3.1507,
+          "r": 1.25,
+          "cn": 6
+        },
+        {
+          "e": "Cr",
+          "x": 1.4125,
+          "y": -0.8155,
+          "z": -1.0719,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "Cr",
+          "x": 2.8251,
+          "y": -1.6311,
+          "z": 5.2304,
+          "r": 1.4,
+          "cn": 1
+        },
+        {
+          "e": "Cr",
+          "x": 2.8251,
+          "y": -1.6311,
+          "z": 1.0712,
+          "r": 1.4,
+          "cn": 2
+        },
+        {
+          "e": "Cr",
+          "x": 1.4125,
+          "y": -0.8155,
+          "z": -5.2297,
+          "r": 1.4,
+          "cn": 5
+        },
+        {
+          "e": "C",
+          "x": 1.4126,
+          "y": -2.4466,
+          "z": -0.0002,
+          "r": 0.7,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": 1.4126,
+          "y": -2.4466,
+          "z": -6.3006,
+          "r": 0.7,
+          "cn": 1
+        },
+        {
+          "e": "Al",
+          "x": 1.4126,
+          "y": 0.8155,
+          "z": -3.1506,
+          "r": 1.25,
+          "cn": 4
+        },
+        {
+          "e": "Al",
+          "x": -0.0,
+          "y": 1.6311,
+          "z": 3.1507,
+          "r": 1.25,
+          "cn": 4
+        },
+        {
+          "e": "Cr",
+          "x": -0.0,
+          "y": 1.6311,
+          "z": -1.0719,
+          "r": 1.4,
+          "cn": 3
+        },
+        {
+          "e": "Cr",
+          "x": 1.4126,
+          "y": 0.8155,
+          "z": 5.2304,
+          "r": 1.4,
+          "cn": 2
+        },
+        {
+          "e": "Cr",
+          "x": 1.4126,
+          "y": 0.8155,
+          "z": 1.0712,
+          "r": 1.4,
+          "cn": 3
+        },
+        {
+          "e": "Cr",
+          "x": -0.0,
+          "y": 1.6311,
+          "z": -5.2297,
+          "r": 1.4,
+          "cn": 3
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.0002,
+          "r": 0.7,
+          "cn": 6
+        },
+        {
+          "e": "C",
+          "x": 0.0,
+          "y": 0.0,
+          "z": -6.3006,
+          "r": 0.7,
+          "cn": 3
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          18
+        ],
+        [
+          0,
+          21
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          3,
+          17
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          17
+        ],
+        [
+          4,
+          22
+        ],
+        [
+          4,
+          30
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          5,
+          15
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          8,
+          26
+        ],
+        [
+          8,
+          29
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          14
+        ],
+        [
+          11,
+          25
+        ],
+        [
+          12,
+          14
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          12,
+          30
+        ],
+        [
+          13,
+          15
+        ],
+        [
+          16,
+          18
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          17,
+          19
+        ],
+        [
+          17,
+          20
+        ],
+        [
+          17,
+          27
+        ],
+        [
+          17,
+          28
+        ],
+        [
+          18,
+          22
+        ],
+        [
+          18,
+          24
+        ],
+        [
+          18,
+          30
+        ],
+        [
+          20,
+          22
+        ],
+        [
+          21,
+          23
+        ],
+        [
+          21,
+          24
+        ],
+        [
+          21,
+          31
+        ],
+        [
+          24,
+          26
+        ],
+        [
+          24,
+          29
+        ],
+        [
+          25,
+          27
+        ],
+        [
+          25,
+          28
+        ],
+        [
+          26,
+          30
+        ],
+        [
+          28,
+          30
+        ],
+        [
+          29,
+          31
+        ]
+      ],
+      "bondTypes": [
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "Al-Cr",
+        "C-Cr",
+        "C-Cr",
+        "C-Cr"
+      ],
+      "stats": {
+        "bondLengths": {
+          "Al-Cr": 2.643,
+          "C-Cr": 1.951
+        },
+        "coordDist": {
+          "4": 4,
+          "5": 6,
+          "2": 9,
+          "1": 3,
+          "6": 3,
+          "3": 7
+        }
+      },
+      "isStub": false,
+      "mp_id": "mp-aaaaaosy",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaosy (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 2×2×1 of primitive cell; centred at origin.",
+      "name": "Cr₂AlC",
+      "formula": "Cr₂AlC",
       "material_class": "max_phase",
       "service_temp_c": 1300,
       "melting_point_c": 1500,
@@ -173436,29 +174950,288 @@
         "max-phase",
         "damage-tolerant",
         "high-temperature-ceramic"
-      ],
-      "uncertainty_notes": "Procedural stub entry — viewer renders via FALLBACK_ELEMENT_META; atomic coordinates not baked. Phase 3.3 P2.",
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": [],
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      },
-      "bound_type": "melts"
+      ]
     },
     {
-      "name": "Cubic Boron Nitride",
-      "formula": "c-BN",
-      "system": "Cubic F-43m (zinc-blende)",
+      "system": "Cubic F-43m (zinc-blende / sphalerite-type)",
       "info": [
         "Second-hardest material after diamond (H_v ≈45 GPa).",
         "Stable in steel-machining where diamond is not (no Fe-C reaction).",
-        "Procedural placeholder — not yet ingested from MP."
+        "Procedural placeholder — not yet ingested from MP.",
+        "Source: Materials Project mp-aaaaaclb. c-BN zinc-blende (sg F-43m, ehull≈0.077). Second-hardest known material."
       ],
-      "isStub": true,
+      "supercell": [
+        2,
+        2,
+        2
+      ],
+      "cellVectors": [
+        [
+          0.0,
+          1.813,
+          1.813
+        ],
+        [
+          1.813,
+          0.0,
+          1.813
+        ],
+        [
+          1.813,
+          1.813,
+          0.0
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "B",
+          "x": -3.626,
+          "y": -3.626,
+          "z": -3.626,
+          "r": 0.85,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": -2.7195,
+          "y": -2.7195,
+          "z": -2.7195,
+          "r": 0.65,
+          "cn": 4
+        },
+        {
+          "e": "B",
+          "x": -1.813,
+          "y": -1.813,
+          "z": -3.626,
+          "r": 0.85,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -0.9065,
+          "y": -0.9065,
+          "z": -2.7195,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "B",
+          "x": -1.813,
+          "y": -3.626,
+          "z": -1.813,
+          "r": 0.85,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -0.9065,
+          "y": -2.7195,
+          "z": -0.9065,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "B",
+          "x": 0.0,
+          "y": -1.813,
+          "z": -1.813,
+          "r": 0.85,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": 0.9065,
+          "y": -0.9065,
+          "z": -0.9065,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "B",
+          "x": -3.626,
+          "y": -1.813,
+          "z": -1.813,
+          "r": 0.85,
+          "cn": 2
+        },
+        {
+          "e": "N",
+          "x": -2.7195,
+          "y": -0.9065,
+          "z": -0.9065,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "B",
+          "x": -1.813,
+          "y": 0.0,
+          "z": -1.813,
+          "r": 0.85,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -0.9065,
+          "y": 0.9065,
+          "z": -0.9065,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "B",
+          "x": -1.813,
+          "y": -1.813,
+          "z": 0.0,
+          "r": 0.85,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -0.9065,
+          "y": -0.9065,
+          "z": 0.9065,
+          "r": 0.65,
+          "cn": 2
+        },
+        {
+          "e": "B",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "r": 0.85,
+          "cn": 4
+        },
+        {
+          "e": "N",
+          "x": 0.9065,
+          "y": 0.9065,
+          "z": 0.9065,
+          "r": 0.65,
+          "cn": 1
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          12
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          14
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          13,
+          14
+        ],
+        [
+          14,
+          15
+        ]
+      ],
+      "bondTypes": [
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N",
+        "B-N"
+      ],
+      "stats": {
+        "bondLengths": {
+          "B-N": 1.57
+        },
+        "coordDist": {
+          "1": 2,
+          "4": 2,
+          "2": 6,
+          "3": 6
+        }
+      },
+      "isStub": false,
+      "mp_id": "mp-aaaaaclb",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaclb (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 2×2×2 of primitive cell; centred at origin.",
+      "name": "Cubic Boron Nitride",
+      "formula": "c-BN",
       "material_class": "nitride",
       "service_temp_c": 1400,
       "melting_point_c": 2973,
@@ -173467,29 +175240,278 @@
         "abrasive",
         "cutting-tool",
         "high-temperature-ceramic"
-      ],
-      "uncertainty_notes": "Procedural stub entry — viewer renders via FALLBACK_ELEMENT_META; atomic coordinates not baked. Phase 3.3 P2.",
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": [],
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      },
-      "bound_type": "melts"
+      ]
     },
     {
-      "name": "Zirconium Nitride",
-      "formula": "ZrN",
-      "system": "Cubic Fm-3m (rock-salt)",
+      "system": "Cubic Fm-3m (rock-salt NaCl-type)",
       "info": [
         "Hard gold-coloured PVD coating, harder than TiN.",
         "Conductive (metallic resistivity).",
-        "Procedural placeholder — not yet ingested from MP."
+        "Procedural placeholder — not yet ingested from MP.",
+        "Source: Materials Project mp-aaaaacaa. ZrN rock-salt (sg Fm-3m, ehull=0). Hard, gold-coloured refractory ceramic."
       ],
-      "isStub": true,
+      "supercell": [
+        2,
+        2,
+        2
+      ],
+      "cellVectors": [
+        [
+          2.8099,
+          0.0,
+          1.6223
+        ],
+        [
+          0.9366,
+          2.6492,
+          1.6223
+        ],
+        [
+          0.0,
+          0.0,
+          3.2446
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Zr",
+          "x": -1.8733,
+          "y": -1.3246,
+          "z": -3.2446,
+          "r": 1.55,
+          "cn": 6
+        },
+        {
+          "e": "N",
+          "x": -3.7465,
+          "y": -2.6492,
+          "z": -6.4892,
+          "r": 0.65,
+          "cn": 0
+        },
+        {
+          "e": "Zr",
+          "x": -1.8733,
+          "y": -1.3246,
+          "z": -0.0,
+          "r": 1.55,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -3.7465,
+          "y": -2.6492,
+          "z": -3.2446,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "Zr",
+          "x": -0.9366,
+          "y": 1.3246,
+          "z": -1.6223,
+          "r": 1.55,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -2.8099,
+          "y": -0.0,
+          "z": -4.8669,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "Zr",
+          "x": -0.9366,
+          "y": 1.3246,
+          "z": 1.6223,
+          "r": 1.55,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": -2.8099,
+          "y": 0.0,
+          "z": -1.6223,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "Zr",
+          "x": 0.9366,
+          "y": -1.3246,
+          "z": -1.6223,
+          "r": 1.55,
+          "cn": 3
+        },
+        {
+          "e": "N",
+          "x": -0.9366,
+          "y": -2.6492,
+          "z": -4.8669,
+          "r": 0.65,
+          "cn": 1
+        },
+        {
+          "e": "Zr",
+          "x": 0.9366,
+          "y": -1.3246,
+          "z": 1.6223,
+          "r": 1.55,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": -0.9366,
+          "y": -2.6492,
+          "z": -1.6223,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "Zr",
+          "x": 1.8733,
+          "y": 1.3246,
+          "z": 0.0,
+          "r": 1.55,
+          "cn": 1
+        },
+        {
+          "e": "N",
+          "x": -0.0,
+          "y": -0.0,
+          "z": -3.2446,
+          "r": 0.65,
+          "cn": 3
+        },
+        {
+          "e": "Zr",
+          "x": 1.8733,
+          "y": 1.3246,
+          "z": 3.2446,
+          "r": 1.55,
+          "cn": 0
+        },
+        {
+          "e": "N",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "r": 0.65,
+          "cn": 6
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          11
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          13
+        ],
+        [
+          4,
+          15
+        ],
+        [
+          6,
+          15
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          8,
+          15
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          12,
+          15
+        ]
+      ],
+      "bondTypes": [
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr",
+        "N-Zr"
+      ],
+      "stats": {
+        "bondLengths": {
+          "N-Zr": 2.294
+        },
+        "coordDist": {
+          "6": 2,
+          "0": 2,
+          "3": 6,
+          "1": 6
+        }
+      },
+      "isStub": false,
+      "mp_id": "mp-aaaaacaa",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaacaa (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 2×2×2 of primitive cell; centred at origin.",
+      "name": "Zirconium Nitride",
+      "formula": "ZrN",
       "material_class": "nitride",
       "service_temp_c": 1100,
       "melting_point_c": 2980,
@@ -173497,29 +175519,548 @@
         "tool-coating",
         "conductive-ceramic",
         "high-temperature-ceramic"
-      ],
-      "uncertainty_notes": "Procedural stub entry — viewer renders via FALLBACK_ELEMENT_META; atomic coordinates not baked. Phase 3.3 P2.",
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": [],
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      },
-      "bound_type": "melts"
+      ]
     },
     {
-      "name": "Lutetium Silicate",
-      "formula": "Lu₂SiO₅",
-      "system": "Monoclinic C2/c (X2-Lu₂SiO₅)",
+      "system": "Monoclinic C2/c (oxyorthosilicate X₂SiO₅-type)",
       "info": [
         "Monosilicate counterpart to Lu₂Si₂O₇.",
         "X2 polymorph isostructural with Yb₂SiO₅ (Felsche 1973).",
-        "Procedural placeholder — not yet ingested from MP."
+        "Procedural placeholder — not yet ingested from MP.",
+        "Source: Materials Project mp-aaaaazcr. Lu₂SiO₅ (sg C2/c, ehull=0). EBC candidate — low CTE, high-temperature stability."
       ],
-      "isStub": true,
+      "supercell": [
+        1,
+        1,
+        1
+      ],
+      "cellVectors": [
+        [
+          3.2943,
+          7.0838,
+          -0.0107
+        ],
+        [
+          -3.2943,
+          7.0838,
+          -0.0107
+        ],
+        [
+          -0.0,
+          5.3934,
+          8.577
+        ]
+      ],
+      "atoms": [
+        {
+          "e": "Lu",
+          "x": -0.8103,
+          "y": 2.8645,
+          "z": 1.3911,
+          "r": 1.75,
+          "cn": 5
+        },
+        {
+          "e": "Lu",
+          "x": -0.8103,
+          "y": -0.1678,
+          "z": 2.8974,
+          "r": 1.75,
+          "cn": 4
+        },
+        {
+          "e": "Lu",
+          "x": 0.8103,
+          "y": -2.8645,
+          "z": -1.3911,
+          "r": 1.75,
+          "cn": 5
+        },
+        {
+          "e": "Lu",
+          "x": 0.8103,
+          "y": 0.1678,
+          "z": -2.8974,
+          "r": 1.75,
+          "cn": 4
+        },
+        {
+          "e": "Lu",
+          "x": -1.6046,
+          "y": -1.9978,
+          "z": -4.0162,
+          "r": 1.75,
+          "cn": 3
+        },
+        {
+          "e": "Lu",
+          "x": -1.6046,
+          "y": -0.6989,
+          "z": -0.2723,
+          "r": 1.75,
+          "cn": 5
+        },
+        {
+          "e": "Lu",
+          "x": 1.6046,
+          "y": 1.9978,
+          "z": 4.0162,
+          "r": 1.75,
+          "cn": 3
+        },
+        {
+          "e": "Lu",
+          "x": 1.6046,
+          "y": 0.6989,
+          "z": 0.2723,
+          "r": 1.75,
+          "cn": 5
+        },
+        {
+          "e": "Si",
+          "x": 0.612,
+          "y": 3.456,
+          "z": -1.6616,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": 0.612,
+          "y": -6.1527,
+          "z": -2.6269,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": -0.612,
+          "y": -3.456,
+          "z": 1.6616,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "Si",
+          "x": -0.612,
+          "y": 6.1527,
+          "z": 2.6269,
+          "r": 1.1,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": -0.6412,
+          "y": 0.8009,
+          "z": 0.879,
+          "r": 0.6,
+          "cn": 4
+        },
+        {
+          "e": "O",
+          "x": -0.6412,
+          "y": 1.8958,
+          "z": 3.4095,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": 0.6412,
+          "y": -0.8009,
+          "z": -0.879,
+          "r": 0.6,
+          "cn": 4
+        },
+        {
+          "e": "O",
+          "x": 0.6412,
+          "y": -1.8958,
+          "z": -3.4095,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": -0.4798,
+          "y": 3.8817,
+          "z": -0.5382,
+          "r": 0.6,
+          "cn": 2
+        },
+        {
+          "e": "O",
+          "x": -0.4798,
+          "y": -6.5784,
+          "z": -3.7503,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": 0.4798,
+          "y": -3.8817,
+          "z": 0.5382,
+          "r": 0.6,
+          "cn": 2
+        },
+        {
+          "e": "O",
+          "x": 0.4798,
+          "y": 6.5784,
+          "z": 3.7503,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": 0.9915,
+          "y": 1.8912,
+          "z": -1.5242,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": 0.9915,
+          "y": -4.5879,
+          "z": -2.7643,
+          "r": 0.6,
+          "cn": 2
+        },
+        {
+          "e": "O",
+          "x": -0.9915,
+          "y": -1.8912,
+          "z": 1.5242,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": -0.9915,
+          "y": 4.5879,
+          "z": 2.7643,
+          "r": 0.6,
+          "cn": 2
+        },
+        {
+          "e": "O",
+          "x": -0.056,
+          "y": 6.5702,
+          "z": 1.1574,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": -0.056,
+          "y": -3.8735,
+          "z": 3.1311,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": 0.056,
+          "y": -6.5702,
+          "z": -1.1574,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": 0.056,
+          "y": 3.8735,
+          "z": -3.1311,
+          "r": 0.6,
+          "cn": 1
+        },
+        {
+          "e": "O",
+          "x": 1.3769,
+          "y": 0.0544,
+          "z": 2.8002,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": 1.3769,
+          "y": 2.6424,
+          "z": 1.4883,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": -1.3769,
+          "y": -0.0544,
+          "z": -2.8002,
+          "r": 0.6,
+          "cn": 3
+        },
+        {
+          "e": "O",
+          "x": -1.3769,
+          "y": -2.6424,
+          "z": -1.4883,
+          "r": 0.6,
+          "cn": 3
+        }
+      ],
+      "bonds": [
+        [
+          0,
+          12
+        ],
+        [
+          0,
+          13
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          29
+        ],
+        [
+          1,
+          12
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          1,
+          22
+        ],
+        [
+          1,
+          28
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          18
+        ],
+        [
+          2,
+          21
+        ],
+        [
+          2,
+          31
+        ],
+        [
+          3,
+          14
+        ],
+        [
+          3,
+          15
+        ],
+        [
+          3,
+          20
+        ],
+        [
+          3,
+          30
+        ],
+        [
+          4,
+          15
+        ],
+        [
+          4,
+          30
+        ],
+        [
+          4,
+          31
+        ],
+        [
+          5,
+          12
+        ],
+        [
+          5,
+          14
+        ],
+        [
+          5,
+          22
+        ],
+        [
+          5,
+          30
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          6,
+          13
+        ],
+        [
+          6,
+          28
+        ],
+        [
+          6,
+          29
+        ],
+        [
+          7,
+          12
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          7,
+          20
+        ],
+        [
+          7,
+          28
+        ],
+        [
+          7,
+          29
+        ],
+        [
+          8,
+          16
+        ],
+        [
+          8,
+          20
+        ],
+        [
+          8,
+          27
+        ],
+        [
+          9,
+          17
+        ],
+        [
+          9,
+          21
+        ],
+        [
+          9,
+          26
+        ],
+        [
+          10,
+          18
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          10,
+          25
+        ],
+        [
+          11,
+          19
+        ],
+        [
+          11,
+          23
+        ],
+        [
+          11,
+          24
+        ]
+      ],
+      "bondTypes": [
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "Lu-O",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si",
+        "O-Si"
+      ],
+      "stats": {
+        "bondLengths": {
+          "Lu-O": 2.274,
+          "O-Si": 1.622
+        },
+        "coordDist": {
+          "5": 4,
+          "4": 4,
+          "3": 14,
+          "2": 4,
+          "1": 6
+        }
+      },
+      "isStub": false,
+      "mp_id": "mp-aaaaazcr",
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaazcr (DFT-relaxed). Phase 3.3 P1 ingest May 27 2026. Supercell 1×1×1 of primitive cell; centred at origin.",
+      "name": "Lutetium Silicate",
+      "formula": "Lu₂SiO₅",
       "material_class": "EBC",
       "service_temp_c": 1450,
       "melting_point_c": 2050,
@@ -173527,18 +176068,7 @@
         "ebc",
         "steam-resistant",
         "high-temperature-ceramic"
-      ],
-      "uncertainty_notes": "Procedural stub entry — viewer renders via FALLBACK_ELEMENT_META; atomic coordinates not baked. Phase 3.3 P2.",
-      "atoms": [],
-      "bonds": [],
-      "bondTypes": [],
-      "cellVectors": [],
-      "supercell": [],
-      "stats": {
-        "bondLengths": {},
-        "coordDist": {}
-      },
-      "bound_type": "melts"
+      ]
     },
     {
       "name": "High-Entropy Carbide (Hf,Zr,Ti,Ta,Nb)C",
