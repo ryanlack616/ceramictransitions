@@ -206,6 +206,8 @@ def main() -> int:
                     help="with --write: append harvested transition rows (never overwrites hand-authored)")
     ap.add_argument("--apply-bound-type", action="store_true",
                     help="with --write: set bound_type on each entry")
+    ap.add_argument("--clean-only", action="store_true",
+                    help="exclude path-1 rows that need human-authored temperatures (where the tag carried no @T and no auto-adopt was possible). Use for staged commits where the human-authored temps come later.")
     ap.add_argument("--json", action="store_true", help="emit machine-readable proposal JSON")
     args = ap.parse_args()
 
@@ -215,6 +217,9 @@ def main() -> int:
     proposal = {"transitions": {}, "bound_type": {}, "flags": []}
     for s in structures:
         rows = harvest_transitions(s)
+        if args.clean_only:
+            # drop rows that have no temperature — these need human authoring
+            rows = [r for r in rows if r.get("temp_c") is not None]
         if rows:
             proposal["transitions"][s["name"]] = rows
         btype, flagged, reason = classify_bound(s)
@@ -232,7 +237,73 @@ def main() -> int:
         print(json.dumps(proposal, indent=2, ensure_ascii=False))
         return 0
 
-    # ── human-readable report ────────────────────────────────────────────────
+    # ── write path (only invoked with --write) ──────────────────────────────
+    if not args.dry_run:
+        if not (args.append_transitions or args.apply_bound_type):
+            print("ERROR: --write requires --append-transitions and/or --apply-bound-type")
+            return 2
+        # Edit the live data in place
+        n_trans = 0
+        n_bound = 0
+        n_skipped_existing = 0
+        for s in structures:
+            name = s["name"]
+            if args.append_transitions and name in proposal["transitions"]:
+                # idempotent: skip if a row with the same `to` and temp_c already exists
+                existing = s.get("transitions") or []
+                existing_keys = {(r.get("to"), r.get("temp_c")) for r in existing}
+                new_rows = [r for r in proposal["transitions"][name]
+                            if (r.get("to"), r.get("temp_c")) not in existing_keys]
+                if new_rows:
+                    s.setdefault("transitions", []).extend(new_rows)
+                    n_trans += len(new_rows)
+                else:
+                    n_skipped_existing += len(proposal["transitions"][name])
+            if args.apply_bound_type and name in proposal["bound_type"]:
+                if "bound_type" not in s:
+                    s["bound_type"] = proposal["bound_type"][name]
+                    n_bound += 1
+                # never overwrite an existing bound_type (human-authored values are sacred)
+
+        # Validate the proposed data BEFORE writing it to canon.
+        # The validator hard-codes data/crystal_vr.json (no CLI arg), so we
+        # swap the file in place, run the validator, and swap back. The
+        # proposed data has been edited IN MEMORY only at this point.
+        import subprocess as _sp
+        live_backup = DATA.read_text(encoding="utf-8")
+        try:
+            DATA.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            _val_path = DATA.parent.parent / "validate_crystal_vr.py"
+            _r = _sp.run([sys.executable, str(_val_path)], capture_output=True, text=True)
+            if _r.returncode != 0:
+                print("=" * 72)
+                print("WRITE ABORTED — validator rejected the proposed data.")
+                print("Restoring live data from in-memory backup.")
+                print("=" * 72)
+                print(_r.stdout)
+                print(_r.stderr)
+                DATA.write_text(live_backup, encoding="utf-8")
+                return 1
+            # Print validator OK for transparency
+            print("[validator] OK on proposed data")
+        except Exception:
+            # Restore on any failure during validation
+            DATA.write_text(live_backup, encoding="utf-8")
+            raise
+
+        # The proposed data is already on disk (validator just approved it).
+        # No further write step needed — the swap-in-place above IS the write.
+        print("=" * 72)
+        print(f"WRITE OK — {n_trans} transition rows appended, {n_bound} bound_type rows set")
+        if n_skipped_existing:
+            print(f"  (skipped {n_skipped_existing} rows already in canon)")
+        if args.clean_only and len(proposal["transitions"]) == 0:
+            print("  (--clean-only: rows needing human-authored temps deferred)")
+        print("=" * 72)
+        print("Now run: python3 validate_crystal_vr.py && node test_prototype_generators.js")
+        return 0
+
+    # ── human-readable report (default dry-run path) ─────────────────────────
     print("=" * 72)
     print("PATH 1 — proposed transitions[] (harvested from tags, NO invention)")
     print("=" * 72)
@@ -266,6 +337,7 @@ def main() -> int:
     print("REPORT-ONLY. Nothing written. Review above, then:")
     print("  --write --append-transitions   (append PATH 1 rows)")
     print("  --write --apply-bound-type     (set PATH 2 bound_type)")
+    print("  --clean-only                   (exclude rows needing human-authored temps)")
     print("Both gate on the validator rules being added first.")
     return 0
 

@@ -10875,7 +10875,8 @@
         "high-temperature-ceramic",
         "refractory-brick",
         "crucible"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Cuprite",
@@ -16138,7 +16139,8 @@
       "application_tags": [
         "pigment",
         "p-type-semiconductor"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Rutile",
@@ -23843,7 +23845,8 @@
         "high-temperature-ceramic",
         "white-pigment",
         "photocatalyst"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Corundum",
@@ -28274,7 +28277,8 @@
         "Nd-YAG-host",
         "spark-plug",
         "armor"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Hematite",
@@ -32436,7 +32440,19 @@
         "pigment",
         "iron-ore",
         "transforms-to:Magnetite>1390C"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Hematite",
+          "to": "Magnetite",
+          "transformType": "polymorphic",
+          "reversible": false,
+          "source": "tag:transforms-to:Magnetite>1390C",
+          "temp_c": 1390,
+          "temp_qualifier": "above"
+        }
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Cassiterite",
@@ -40140,7 +40156,8 @@
       "application_tags": [
         "gas-sensor",
         "tin-ore"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Magnetite",
@@ -47306,7 +47323,8 @@
       "application_tags": [
         "magnetic-ceramic",
         "iron-ore"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "α-Quartz",
@@ -49913,6 +49931,14 @@
             1713
           ],
           "transformType": "reconstructive"
+        },
+        {
+          "structure": "α-Quartz",
+          "to": "β-Quartz",
+          "transformType": "displacive",
+          "reversible": true,
+          "source": "tag:transforms-to:β-Quartz@573C",
+          "temp_c": 573
         }
       ],
       "material_class": "polymorph_silica",
@@ -49922,7 +49948,8 @@
         "high-temperature-ceramic",
         "polymorph-of:SiO2",
         "transforms-to:β-Quartz@573C"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "β-Cristobalite",
@@ -52586,7 +52613,8 @@
         "high-temperature-ceramic",
         "polymorph-of:SiO2",
         "high-temp-SiO2-form"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Tridymite",
@@ -54154,7 +54182,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "polymorph-of:SiO2"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Forsterite",
@@ -63431,7 +63460,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "refractory-brick"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Willemite",
@@ -64934,7 +64964,8 @@
       "melting_point_c": 1512,
       "application_tags": [
         "green-phosphor"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Zircon",
@@ -67125,7 +67156,8 @@
         "foundry-mold",
         "refractory",
         "decomp-to:ZrO2+SiO2"
-      ]
+      ],
+      "bound_type": "decomposes"
     },
     {
       "name": "Diopside",
@@ -75288,7 +75320,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "glass-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Enstatite",
@@ -78852,7 +78885,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "refractory-component"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Spodumene",
@@ -86912,7 +86946,8 @@
       "application_tags": [
         "Li-source",
         "low-CTE-glass-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Wollastonite",
@@ -90821,7 +90856,8 @@
       "application_tags": [
         "filler",
         "low-loss-microwave"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Albite",
@@ -92165,7 +92201,8 @@
       "application_tags": [
         "feldspar",
         "flux"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Orthoclase",
@@ -93529,7 +93566,8 @@
       "application_tags": [
         "feldspar",
         "flux"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Anorthite",
@@ -94242,7 +94280,8 @@
         "feldspar",
         "flux",
         "porcelain-component"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Nepheline",
@@ -98735,7 +98774,8 @@
       "application_tags": [
         "feldspathoid",
         "glass-component"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Leucite",
@@ -100192,7 +100232,8 @@
       "application_tags": [
         "feldspathoid",
         "dental-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Akermanite",
@@ -103608,7 +103649,8 @@
         "high-temperature-ceramic",
         "slag",
         "bioceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Gehlenite",
@@ -107022,7 +107064,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "cement-clinker-phase"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Kaolinite",
@@ -113134,7 +113177,18 @@
       "application_tags": [
         "precursor-to:Mullite",
         "decomp-to:Metakaolin@450C"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Kaolinite",
+          "to": "Metakaolin",
+          "transformType": "decomposition",
+          "reversible": false,
+          "source": "tag:decomp-to:Metakaolin@450C",
+          "temp_c": 450
+        }
+      ],
+      "bound_type": "transforms"
     },
     {
       "name": "Talc",
@@ -116381,7 +116435,8 @@
       "application_tags": [
         "precursor-to:Enstatite+SiO2",
         "soft-lubricant"
-      ]
+      ],
+      "bound_type": "transforms"
     },
     {
       "name": "Andalusite",
@@ -117769,7 +117824,19 @@
         "high-temperature-ceramic",
         "refractory-precursor",
         "decomp-to:Mullite+SiO2"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Andalusite",
+          "to": "Mullite+SiO2",
+          "transformType": "decomposition",
+          "reversible": false,
+          "source": "tag:decomp-to:Mullite+SiO2",
+          "temp_c": 1380,
+          "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
+        }
+      ],
+      "bound_type": "transforms"
     },
     {
       "name": "Kyanite",
@@ -119338,7 +119405,19 @@
         "high-temperature-ceramic",
         "refractory-precursor",
         "decomp-to:Mullite+SiO2"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Kyanite",
+          "to": "Mullite+SiO2",
+          "transformType": "decomposition",
+          "reversible": false,
+          "source": "tag:decomp-to:Mullite+SiO2",
+          "temp_c": 1100,
+          "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
+        }
+      ],
+      "bound_type": "transforms"
     },
     {
       "name": "Sillimanite",
@@ -120726,7 +120805,19 @@
         "high-temperature-ceramic",
         "refractory-precursor",
         "decomp-to:Mullite+SiO2"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Sillimanite",
+          "to": "Mullite+SiO2",
+          "transformType": "decomposition",
+          "reversible": false,
+          "source": "tag:decomp-to:Mullite+SiO2",
+          "temp_c": 1545,
+          "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
+        }
+      ],
+      "bound_type": "transforms"
     },
     {
       "name": "Spinel",
@@ -127894,7 +127985,8 @@
         "high-temperature-ceramic",
         "transparent-armor",
         "refractory"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Mullite",
@@ -132689,7 +132781,8 @@
         "EBC-intermediate",
         "kiln-furniture",
         "refractory"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Baddeleyite",
@@ -134581,7 +134674,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "precursor-to:TBC"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Tetragonal Zirconia",
@@ -139349,7 +139443,8 @@
         "high-temperature-ceramic",
         "TBC-research",
         "PSZ-component"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Cubic Zirconia",
@@ -145324,7 +145419,8 @@
         "high-temperature-ceramic",
         "jewelry",
         "FSZ"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Brucite",
@@ -149009,7 +149105,8 @@
       "application_tags": [
         "precursor-to:MgO",
         "decomp@350C"
-      ]
+      ],
+      "bound_type": "decomposes"
     },
     {
       "name": "Calcite",
@@ -153837,7 +153934,18 @@
       "application_tags": [
         "precursor-to:CaO",
         "decomp-to:CaO+CO2@825C"
-      ]
+      ],
+      "transitions": [
+        {
+          "structure": "Calcite",
+          "to": "CaO+CO2",
+          "transformType": "decomposition",
+          "reversible": false,
+          "source": "tag:decomp-to:CaO+CO2@825C",
+          "temp_c": 825
+        }
+      ],
+      "bound_type": "decomposes"
     },
     {
       "name": "Dolomite",
@@ -156014,7 +156122,8 @@
       "application_tags": [
         "precursor-to:MgO+CaO",
         "refractory-precursor"
-      ]
+      ],
+      "bound_type": "decomposes"
     },
     {
       "name": "Cordierite",
@@ -158973,7 +159082,8 @@
         "high-temperature-ceramic",
         "catalytic-converter-substrate",
         "kiln-shelf"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Stabilized Zirconia",
@@ -159001,7 +159111,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "TBC-topcoat-legacy"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
@@ -159294,7 +159405,8 @@
         "kiln-shelf",
         "armor"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "bound_type": "melts"
     },
     {
       "system": "Hexagonal P6₃/m (β-Si₃N₄)",
@@ -159753,7 +159865,8 @@
         "bearing",
         "cutting-tool"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "bound_type": "melts"
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -160304,7 +160417,8 @@
         "hypersonic-leading-edge",
         "rocket-nozzle"
       ],
-      "oxidation_temp_c": 1100
+      "oxidation_temp_c": 1100,
+      "bound_type": "melts"
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -160855,7 +160969,8 @@
         "hypersonic-leading-edge",
         "atmospheric-reentry"
       ],
-      "oxidation_temp_c": 1500
+      "oxidation_temp_c": 1500,
+      "bound_type": "melts"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -161137,7 +161252,8 @@
         "rocket-nozzle",
         "nuclear-fuel-coating"
       ],
-      "oxidation_temp_c": 600
+      "oxidation_temp_c": 600,
+      "bound_type": "melts"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -161419,7 +161535,8 @@
         "highest-mp-binary",
         "hypersonic-leading-edge"
       ],
-      "oxidation_temp_c": 500
+      "oxidation_temp_c": 500,
+      "bound_type": "melts"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -161701,7 +161818,8 @@
         "rocket-nozzle",
         "cutting-tool"
       ],
-      "oxidation_temp_c": 700
+      "oxidation_temp_c": 700,
+      "bound_type": "melts"
     },
     {
       "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
@@ -161730,7 +161848,8 @@
         "high-temperature-ceramic",
         "TBC-topcoat",
         "structural-tetragonal-PSZ"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
@@ -161759,7 +161878,8 @@
         "high-temperature-ceramic",
         "TBC-topcoat-standard",
         "turbine-blade"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Ceria-Stabilized Zirconia",
@@ -161787,7 +161907,8 @@
       "application_tags": [
         "high-temperature-ceramic",
         "TBC-topcoat-research"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "system": "Monoclinic P2₁/c (baddeleyite-type m-HfO₂)",
@@ -162224,7 +162345,8 @@
         "high-temperature-ceramic",
         "TBC-next-gen",
         "high-k-dielectric"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "system": "Cubic Fd-3m (pyrochlore A₂B₂O₇)",
@@ -162639,7 +162761,8 @@
         "high-temperature-ceramic",
         "TBC-topcoat-pyrochlore",
         "lower-thermal-conductivity"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Ytterbium Silicate",
@@ -163191,7 +163314,8 @@
         "EBC-topcoat",
         "CMC-protection",
         "low-CTE-match-to-SiC"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Ytterbium Disilicate",
@@ -164552,7 +164676,8 @@
         "EBC-topcoat",
         "CMC-protection",
         "low-CTE-match-to-SiC"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "SiC-SiC Ceramic Matrix Composite",
@@ -164583,7 +164708,8 @@
         "turbine-shroud",
         "combustor-liner",
         "engine-hot-section"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "system": "Hexagonal P6₃mc (wurtzite)",
@@ -165123,7 +165249,8 @@
         "electronic-substrate",
         "thermal-management"
       ],
-      "oxidation_temp_c": 700
+      "oxidation_temp_c": 700,
+      "bound_type": "melts"
     },
     {
       "system": "Hexagonal P6₃/mmc (graphitic h-BN)",
@@ -165395,7 +165522,8 @@
         "crucible",
         "breakdown-insulator"
       ],
-      "oxidation_temp_c": 850
+      "oxidation_temp_c": 850,
+      "bound_type": "melts"
     },
     {
       "name": "Sialon",
@@ -165424,7 +165552,8 @@
         "high-temperature-ceramic",
         "cutting-tool",
         "molten-metal-handling"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Reaction-Bonded Silicon Carbide",
@@ -165454,7 +165583,8 @@
         "high-temperature-ceramic",
         "near-net-shape",
         "kiln-furniture"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Sintered Silicon Carbide",
@@ -165485,7 +165615,8 @@
         "pump-seal",
         "armor",
         "kiln-furniture"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Sintered Silicon Nitride",
@@ -165515,7 +165646,8 @@
         "high-temperature-ceramic",
         "bearing-ball",
         "turbocharger-rotor"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Ti₃SiC₂",
@@ -166370,7 +166502,8 @@
         "machinable-ceramic",
         "oxidation-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Ti₃AlC₂",
@@ -167082,7 +167215,8 @@
         "mxene-precursor",
         "damage-tolerant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Boron Carbide",
@@ -167292,7 +167426,8 @@
         "abrasive",
         "low-density-uhtc-companion",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Titanium Diboride",
@@ -167841,7 +167976,8 @@
         "electrode",
         "wear-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Titanium Carbide",
@@ -168120,7 +168256,8 @@
         "wear-resistant",
         "cermet-base",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Niobium Carbide",
@@ -168398,7 +168535,8 @@
         "cutting-tool",
         "grain-refiner",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Chromium Carbide",
@@ -168729,7 +168867,8 @@
         "hvof-thermal-spray",
         "oxidation-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Tungsten Carbide",
@@ -169024,7 +169163,8 @@
         "cemented-carbide",
         "wear-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Titanium Nitride",
@@ -169303,7 +169443,8 @@
         "decorative",
         "diffusion-barrier",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Yttrium Disilicate",
@@ -170662,7 +170803,8 @@
         "cmas-resistant",
         "cte-match-sic",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Yttrium Silicate",
@@ -171211,7 +171353,8 @@
         "ebc",
         "steam-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Lutetium Disilicate",
@@ -171942,7 +172085,8 @@
         "cmas-resistant",
         "cte-match-sic",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Gadolinium Zirconate",
@@ -172299,7 +172443,8 @@
         "low-thermal-conductivity",
         "cmas-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Molybdenum Disilicide",
@@ -173012,7 +173157,8 @@
         "conductive-ceramic",
         "oxidation-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Graphite",
@@ -173270,7 +173416,8 @@
         "reference-structure",
         "anisotropic-conductor",
         "high-temperature-ceramic"
-      ]
+      ],
+      "bound_type": "melts"
     },
     {
       "name": "Cr₂AlC",
@@ -173299,7 +173446,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "bound_type": "melts"
     },
     {
       "name": "Cubic Boron Nitride",
@@ -173329,7 +173477,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "bound_type": "melts"
     },
     {
       "name": "Zirconium Nitride",
@@ -173358,7 +173507,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "bound_type": "melts"
     },
     {
       "name": "Lutetium Silicate",
@@ -173387,7 +173537,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "bound_type": "melts"
     },
     {
       "name": "High-Entropy Carbide (Hf,Zr,Ti,Ta,Nb)C",
@@ -173417,7 +173568,8 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "bound_type": "melts"
     },
     {
       "name": "TBC System (7YSZ on Superalloy)",
