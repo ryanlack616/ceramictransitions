@@ -24,6 +24,22 @@ REQUIRED_SYSTEM = {"name", "formula", "system", "layers", "material_class", "ser
 HT_CLASSIFICATION_REQUIRED = True
 NON_HT_CLASSES = {"precursor", "carbonate", "hydroxide", "mineral"}
 
+# Tier D PATH 2 (2026-06-17): bound_type disambiguates what melting_point_c MEANS.
+# Many minerals carry a melting_point_c that is really a decomposition or
+# polymorphic-transformation bound, not a congruent melt (e.g. Calcite "melts"
+# at 825C actually decomposes to CaO+CO2). When present, bound_type must be one
+# of these and the UI labels the number accordingly.
+BOUND_TYPES = {"melts", "decomposes", "transforms", "sublimes"}
+
+# Tier D PATH 1: transitions[] rows. The original hand-authored shape is a
+# per-phase stability window {structure, phaseName, tempRange, transformType};
+# the reconciled shape adds optional event fields {to, temp_c, ...}. A row is
+# valid if it has `structure` and at least one of tempRange / temp_c.
+TRANSFORM_TYPES = {
+    "displacive", "reconstructive", "martensitic",
+    "decomposition", "polymorphic", "oxidation",
+}
+
 # Phase 2.5.1: stub formulas the viewer can synthesize procedurally at load
 # time from canonical structure prototypes (kept in sync with PROTOTYPE_TABLE
 # in index.html / lattice.html).
@@ -107,6 +123,35 @@ def main() -> int:
                     f"[{i}] {s.get('name', '?')}: missing service_temp_c "
                     f"(material_class={mc!r} is HT-relevant)"
                 )
+
+        # Tier D PATH 2: bound_type shape (optional field, enforced when present).
+        if "bound_type" in s:
+            bt = s.get("bound_type")
+            if bt not in BOUND_TYPES:
+                errors.append(
+                    f"[{i}] {s.get('name', '?')}: bound_type={bt!r} not in {sorted(BOUND_TYPES)}"
+                )
+
+        # Tier D PATH 1: transitions[] shape (optional field, enforced when present).
+        if "transitions" in s:
+            tr = s.get("transitions")
+            if not isinstance(tr, list) or not tr:
+                errors.append(f"[{i}] {s.get('name', '?')}: transitions must be a non-empty list")
+            else:
+                for j, row in enumerate(tr):
+                    if not isinstance(row, dict) or not row.get("structure"):
+                        errors.append(f"[{i}] {s.get('name', '?')}: transitions[{j}] missing 'structure'")
+                        continue
+                    if "tempRange" not in row and "temp_c" not in row:
+                        errors.append(
+                            f"[{i}] {s.get('name', '?')}: transitions[{j}] needs tempRange or temp_c"
+                        )
+                    tt = row.get("transformType")
+                    if tt is not None and tt not in TRANSFORM_TYPES:
+                        errors.append(
+                            f"[{i}] {s.get('name', '?')}: transitions[{j}] transformType={tt!r} "
+                            f"not in {sorted(TRANSFORM_TYPES)}"
+                        )
 
     # Header count consistency (Phase 3.3 drift guard, added 2026-06-17).
     # The top-level header counts must mirror the array exactly, matching how the
