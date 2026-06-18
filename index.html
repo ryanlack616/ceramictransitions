@@ -159,6 +159,12 @@ label.opt input{accent-color:var(--accent);}
 #tour-overlay .tour-title{font-size:16px;color:var(--accent);font-family:var(--mono);margin-bottom:6px;}
 #tour-overlay .tour-text{font-size:12px;color:var(--text);line-height:1.6;font-family:var(--mono);}
 #tour-overlay .tour-progress{margin-top:10px;height:3px;background:var(--surface);border-radius:2px;overflow:hidden;}
+
+/* ── Stub overlay (coming soon placeholder) ────────────────────────── */
+#stub-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(10,10,12,.85);backdrop-filter:blur(6px);z-index:40;pointer-events:none;}
+#stub-overlay .stub-icon{font-size:40px;line-height:1;opacity:.6;}
+#stub-overlay .stub-title{font-size:20px;font-weight:600;color:var(--accent);font-family:var(--mono);letter-spacing:.5px;}
+#stub-overlay .stub-desc{font-size:12px;color:var(--text-dim);font-family:var(--mono);max-width:320px;text-align:center;line-height:1.5;}
 #tour-overlay .tour-fill{height:100%;background:var(--accent);width:0%;}
 #tour-controls{display:flex;gap:6px;margin-top:8px;justify-content:center;}
 #tour-controls button{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:4px 12px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--mono);transition:all .15s;}
@@ -394,6 +400,12 @@ label.opt input{accent-color:var(--accent);}
   <div id="phase-narrative"><div class="phase-name"></div><div class="phase-range"></div><div class="phase-desc"></div></div>
 
   <div id="stats"></div>
+</div>
+
+<div id="stub-overlay">
+  <div class="stub-icon">🔮</div>
+  <div class="stub-title">Coming Soon</div>
+  <div class="stub-desc">Full 3D crystal model in progress — material data is complete below.</div>
 </div>
 
 <div id="tour-overlay">
@@ -1513,6 +1525,9 @@ function updateInfoPanel() {
 
   let html = renderProvenanceBadge(s);
   if (!s.isStub) {
+    document.getElementById("stub-overlay").style.display = "none";
+  } else {
+    document.getElementById("stub-overlay").style.display = "flex";
     html += `<div class="row"><span class="label">Atoms</span><span class="value">${s.atoms.length}</span></div>`;
     html += `<div class="row"><span class="label">Bonds</span><span class="value">${s.bonds.length}</span></div>`;
     html += `<div class="row"><span class="label">Supercell</span><span class="value">${s.supercell.join('×')}</span></div>`;
@@ -1531,6 +1546,9 @@ function updateInfoPanel() {
   }
   // Cross-page: open this material in the visual tiling gallery (renderable only).
   if (!s.isStub) {
+    document.getElementById("stub-overlay").style.display = "none";
+  } else {
+    document.getElementById("stub-overlay").style.display = "flex";
     html += `<div style="margin-top:8px"><a href="lattice.html?s=${encodeURIComponent(s.name)}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="See this lattice tiled large in the visual gallery">⧫ View tiled →</a></div>`;
   }
   const detailsEl = document.getElementById('info-details');
@@ -1673,6 +1691,7 @@ function buildCrystal(idx) {
 
   // Stub structures (Phase 2 aerospace imports without 3D models yet) skip
   // geometry generation — the info panel surfaces a placeholder instead.
+  document.getElementById("stub-overlay").style.display = s.isStub ? "flex" : "none";
   if (!s.isStub) {
     buildAtoms(s);
     buildBonds(s);
