@@ -29,6 +29,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 .strip-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;background:rgba(196,130,110,.08);}
 .strip-btn.active{border-top-color:var(--accent);background:rgba(196,130,110,.1);}
 .strip-name{font-size:11px;font-family:var(--mono);color:var(--text);display:block;white-space:nowrap;}
+.strip-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:middle;}
 .strip-formula{font-size:9px;color:var(--text-dim);font-family:var(--mono);display:block;margin-top:1px;}
 .strip-btn.active .strip-name{color:var(--accent);}
 
@@ -152,7 +153,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   </div>
   <div class="slider-row">
     <span>Repeat</span>
-    <input type="range" id="sl-repeat" min="1" max="12" step="1" value="3" aria-label="Lattice repeat count">
+    <input type="range" id="sl-repeat" min="1" max="20" step="1" value="3" aria-label="Lattice repeat count" title="Tile the unit cell up to 20× (auto-capped for very dense structures to stay smooth)">
     <span class="val" id="sl-repeat-val">3×</span>
   </div>
 </div>
@@ -194,7 +195,30 @@ let atomScale  = 0.55;
 let showBonds  = true;
 let showCell   = true;
 let autoRotate = false;
-let repeatCount = 3;        // how many unit cells to tile per axis
+let repeatCount = 3;        // how many unit cells to tile per axis (requested)
+
+// Tiling can request up to 20×, but a dense unit cell × 20³ can reach ~1M
+// instances and jank the build. Cap the EFFECTIVE tiling to an atom budget so
+// 20× stays smooth on modest GPUs; the UI shows when a cap kicks in.
+const ATOM_BUDGET = 450000;
+function effectiveRepeat(perCellAtoms, requested) {
+  const r = Math.max(1, requested | 0);
+  if (!perCellAtoms || perCellAtoms < 1) return r;
+  const maxByBudget = Math.max(1, Math.floor(Math.cbrt(ATOM_BUDGET / perCellAtoms)));
+  return Math.min(r, maxByBudget);
+}
+// Per-cell atom estimate for a structure (total baked atoms / supercell product).
+function perCellAtoms(s) {
+  const sc = s.supercell || [1, 1, 1];
+  const cells = (sc[0] * sc[1] * sc[2]) || 1;
+  return Math.max(1, Math.round((s.atoms ? s.atoms.length : 0) / cells));
+}
+// Provenance dot color (visual only — matches the flagship's badge palette).
+function provDotColor(s) {
+  if (s.proceduralFallback) return '#d4b06e'; // procedural approximation
+  if (s.mp_id) return '#7fd49a';              // DFT-verified (Materials Project)
+  return '#7fb4d4';                            // reference (literature coords)
+}
 
 let crystalGroup;            // holds current crystal
 let atomMeshes = [];
@@ -258,7 +282,19 @@ async function init() {
 
   await loadData();
   setupUI();
+  selectFromUrl();
   animate();
+}
+
+// Deep-link: lattice.html?s=<name|formula> opens that material tiled (the
+// flagship's "View tiled →" link targets this).
+function selectFromUrl() {
+  const want = (new URLSearchParams(location.search).get('s') || '').trim().toLowerCase();
+  if (!want) return;
+  const list = data.renderableStructures || data.structures;
+  const i = list.findIndex(s =>
+    (s.name || '').toLowerCase() === want || (s.formula || '').toLowerCase() === want);
+  if (i >= 0) selectStructure(i);
 }
 
 /* ── Procedural Prototype Renderer (Phase 2.5.1 · May 15 2026) ──────────
@@ -562,7 +598,7 @@ function setupUI() {
     btn.dataset.system = (s.system||'').toLowerCase();
     btn.dataset.matclass = (s.material_class||'').toLowerCase();
     btn.dataset.servicetemp = (typeof s.service_temp_c === 'number') ? String(s.service_temp_c) : '';
-    btn.innerHTML = `<span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
+    btn.innerHTML = `<span class="strip-dot" style="background:${provDotColor(s)}"></span><span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
     btn.onclick = () => selectStructure(i);
     strip.appendChild(btn);
   });
@@ -620,8 +656,12 @@ function setupUI() {
   const slRepeat = document.getElementById('sl-repeat');
   slRepeat.oninput = () => {
     repeatCount = parseInt(slRepeat.value);
-    document.getElementById('sl-repeat-val').textContent = repeatCount + '×';
+    const s = _currentStructure(currentIdx);
+    const effR = s ? effectiveRepeat(perCellAtoms(s), repeatCount) : repeatCount;
+    document.getElementById('sl-repeat-val').textContent =
+      (effR < repeatCount) ? `${repeatCount}× (→${effR}×)` : `${repeatCount}×`;
     buildCrystal(currentIdx);
+    updateInfo(currentIdx);
   };
 
   // Build first
@@ -708,16 +748,23 @@ function updateInfo(idx) {
           + `Procedural approximation · lattice + bond topology from canonical crystallography. Phase 3 will replace with simulation-derived coordinates.`
           + `</div>`;
   }
+  const effR = effectiveRepeat(cellAtoms, repeatCount);
+  const capped = effR < repeatCount;
   html += `<b>${cellAtoms}</b> atoms per unit cell<br>`
         + `<b>${elems.size}</b> elements: ${[...elems].join(', ')}<br>`
         + `Cell: <b>${va}</b> × <b>${vb}</b> × <b>${vc}</b> Å<br>`
-        + `Tiled: <b>${repeatCount}×${repeatCount}×${repeatCount}</b> cells<br>`
-        + `Total atoms: <b>${(cellAtoms * repeatCount**3).toLocaleString()}</b>`;
+        + `Tiled: <b>${effR}×${effR}×${effR}</b> cells${capped ? ` <span style="color:var(--accent)">(capped from ${repeatCount}× to stay smooth)</span>` : ''}<br>`
+        + `Total atoms: <b>${(cellAtoms * effR ** 3).toLocaleString()}</b>`;
   if (Array.isArray(s.info) && s.info.length) {
     const esc = t => { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
     html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-dim);line-height:1.5">`;
     s.info.forEach(line => { html += esc(line) + '<br>'; });
     html += `</div>`;
+  }
+  // Cross-page: jump to the analytical flagship view for this exact material.
+  const gIdx = (data._renderIndexMap && data._renderIndexMap[idx] != null) ? data._renderIndexMap[idx] : null;
+  if (gIdx != null) {
+    html += `<div style="margin-top:8px"><a href="index.html#s=${gIdx}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="Open this material in the analytical viewer (properties, chemistry, provenance)">⊕ Analyze this material →</a></div>`;
   }
   document.getElementById('info-stat').innerHTML = html;
 }
@@ -819,8 +866,10 @@ function buildCrystal(idx) {
     }
   }
 
-  // Now tile: generate repeatCount^3 copies of unit cell atoms
-  const R = repeatCount;
+  // Now tile: generate repeatCount^3 copies of unit cell atoms.
+  // Cap the effective tiling to the atom budget so a dense cell at 20×
+  // doesn't blow past ~1M instances and stutter the build.
+  const R = effectiveRepeat(unitAtoms.length, repeatCount);
   const tiledAtoms = [];
   const tileCenter = new THREE.Vector3()
     .addScaledVector(va, R/2)

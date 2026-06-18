@@ -1531,6 +1531,10 @@ function updateInfoPanel() {
     jobs.forEach(j => { html += `<button class="job-chip" type="button" data-job="${escapeHtml(j)}">${escapeHtml(j)}</button>`; });
     html += `</div>`;
   }
+  // Cross-page: open this material in the visual tiling gallery (renderable only).
+  if (!s.isStub) {
+    html += `<div style="margin-top:8px"><a href="lattice.html?s=${encodeURIComponent(s.name)}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="See this lattice tiled large in the visual gallery">⧫ View tiled →</a></div>`;
+  }
   const detailsEl = document.getElementById('info-details');
   detailsEl.innerHTML = html;
   // Wire info-panel job chips (event delegation each render).
