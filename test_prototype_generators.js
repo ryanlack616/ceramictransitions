@@ -139,7 +139,7 @@ for (const [formula, entry] of Object.entries(PROTOTYPE_TABLE)) {
   check(Array.isArray(gen.bondTypes) && gen.bondTypes.length === gen.bonds.length, `${formula}: bondTypes length matches bonds`);
 
   // Homoatomic policy: only AlB2 allows like-like bonds (B-B honeycomb).
-  const allowHomo = entry.proto === 'AlB2';
+  const allowHomo = entry.proto === 'AlB2' || entry.proto === 'AlB2_mix'; // B-B honeycomb is real in diborides
   const homoCount = gen.bonds.filter(([i, j]) => gen.atoms[i].e === gen.atoms[j].e).length;
   if (!allowHomo) {
     check(homoCount === 0, `${formula}: no homoatomic bonds (got ${homoCount})`);

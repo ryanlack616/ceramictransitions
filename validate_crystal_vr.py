@@ -53,6 +53,8 @@ PROCEDURAL_FORMULAS = {
     "Si3N4", "Si6-xAlxOxN8-x",
     # 2026-10-26 audit additions (see PROTOTYPE_TABLE in index.html)
     "CaO", "BeO", "TaB2", "HfN", "(HfZrTiTaNb)C",
+    # 2026-10-26 extras: high-entropy nitride + diboride
+    "(HfZrTiTaNb)N", "(HfZrTiTaNb)B2",
 }
 
 _SUBSCRIPT_MAP = str.maketrans(
