@@ -213,7 +213,7 @@ Three findings from inspecting the live data (`data/crystal_vr.json`), each of w
 
 **D.4 — Material view *inside the flagship*.** ✅ SHIPPED (2026-10-26, commit `ad31c25` + follow-up). The Firing-mode panel in `index.html` is now schema-agnostic: it renders window buckets and point events (structure → to @ T°C) with `transformType`, reversibility, `volume_change_pct` and the citation, merges an entry's own chain with sibling polymorph rows, snaps the viewer across window boundaries, and keeps point events as narration. This also **fixed a live regression** where α-Quartz/Tridymite/β-Cristobalite crashed the panel (D.2's mixed-schema rows hit `tempRange[0]` on an event row).
 
-**D.5 — Taichi handoff note.** 📋 WRITTEN (2026-10-26) — the animated 3D polymorph morph (atoms migrating α→β at T) belongs in `ceramictransitions-taichi`:
+**D.5 — Taichi handoff note.** ▶️ BEGUN (2026-10-26): the ingestion bridge `load_crystal_vr.py` now lives in `ceramictransitions-taichi` and consumes this repo's `data/crystal_vr.json` as the sole structure source — verified against the 113-structure catalog (integrity OK; transitions[] exposed for the morph work). Next: migrate the Taichi viewer's hard-coded structure list to the JSON feed, then the animated polymorph morph (kinematics table above).
 
 > **Input:** `data/crystal_vr.json` — one `transitions[]` array per material (locked shape above; ~8 harvested + ~6–8 authored target materials). **Consume, don't duplicate:** the Taichi repo reads the web repo's JSON as the schema source of truth.
 >
