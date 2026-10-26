@@ -53,6 +53,8 @@ RADIUS = {
     "K": 1.60, "Zn": 1.35, "H": 0.50,
     # 2026-10-26: deferred additions element radii
     "Ba": 1.75, "V": 1.35,
+    # 2026-10-26 native-tier rebuild radii (Sn/Li/Na absent)
+    "Sn": 1.40, "Li": 0.95, "Na": 1.60, "Sr": 1.60,
 }
 
 # Bond cutoffs (Å) — covalent/ionic upper bounds for renderable bonds.
@@ -108,6 +110,14 @@ BOND_CUTOFFS = {
     # 2026-10-26 deep-audit additions (Ti2AlC, CeO2, Hibonite, LaB6, VN, BaZrO3)
     frozenset(("La", "B")): 3.25,
     frozenset(("V",  "N")): 2.30,
+    # 2026-10-26 native-tier rebuild (Periclase..Cordierite chemistry)
+    frozenset(("Cu", "O")): 2.25,
+    frozenset(("Fe", "O")): 2.35,
+    frozenset(("Sn", "O")): 2.35,
+    frozenset(("Li", "O")): 2.55,
+    frozenset(("Na", "O")): 3.05,
+    frozenset(("C",  "O")): 1.75,
+    frozenset(("Sr", "O")): 3.05,
     # MAX-phase
     frozenset(("Cr", "Al")): 2.80,
     frozenset(("Al", "C")): 2.30,
