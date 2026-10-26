@@ -373,7 +373,7 @@ label.opt input{accent-color:var(--accent);}
       <div style="font-size:10px;font-weight:600;color:#58a6ff;letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px">Phase Transitions</div>
       <button id="btn-transitions" class="btn-mode" style="width:100%;margin:0 0 6px">View transitions ▾</button>
       <div id="transitions-body" style="display:none">
-        <div style="font-size:10px;color:#999;margin-bottom:4px">Schematic — not simulation-derived. Snaps between polymorphs at transition T.</div>
+        <div style="font-size:10px;color:#999;margin-bottom:4px">Schematic — not simulation-derived. Window rows snap between polymorphs; event rows carry cited transitions (type, reversibility, volume change).</div>
         <div id="transitions-list" style="font-size:11px;line-height:1.5;margin-bottom:6px"></div>
         <div class="slider-row" style="display:flex;align-items:center;gap:6px">
           <span style="font-size:10px">T</span>
@@ -1564,53 +1564,115 @@ function updateInfoPanel() {
 
 // ── Phase 2.5.4: Phase-transition visualizer ──────────────────
 let transitionsExpanded = false;
-function updateTransitionsPanel() {
-  const panel = document.getElementById('transitions-panel');
-  const s = data.structures[currentIdx];
-  // Look for transitions on this structure OR on any parent that references it
-  let trans = (s && Array.isArray(s.transitions)) ? s.transitions : null;
-  if (!trans) {
-    // Search for another structure that defines a transitions chain containing this one
-    for (const other of data.structures) {
-      if (Array.isArray(other.transitions) && other.transitions.some(t => t.structure === s.name)) {
-        trans = other.transitions; break;
+
+// Normalize a transitions[] row so the panel renders either schema shape:
+//  - legacy window rows: {structure, phaseName, tempRange:[lo,hi], transformType}
+//  - reconciled event rows: {structure, to, temp_c, temp_qualifier?, transformType,
+//    reversible?, volume_change_pct?, note?, source}
+function _transRowWindow(r) {
+  if (Array.isArray(r.tempRange) && r.tempRange.length === 2) return [+r.tempRange[0], +r.tempRange[1]];
+  if (r.temp_c != null) return [+r.temp_c, +r.temp_c]; // single-point transition event
+  return null;
+}
+
+// Build the transition context for the selected structure: its own rows plus any
+// rows other entries define for it (a polymorph sibling like β-Cristobalite or
+// Tetragonal Zirconia appears as `to`/`structure` in its parent's chain). When a
+// material has no rows of its own and exactly one chain references it, inherit
+// that whole chain so the story stays coherent (original behavior).
+function collectTransitionContext(s) {
+  const own = (s && Array.isArray(s.transitions)) ? s.transitions : [];
+  const parents = new Set();
+  const referencing = [];
+  for (const other of data.structures) {
+    if (other === s || !Array.isArray(other.transitions)) continue;
+    for (const r of other.transitions) {
+      if (r.structure === s.name || r.to === s.name || (r.phaseName && r.phaseName === s.name)) {
+        parents.add(other);
+        referencing.push(r);
+        break;
       }
     }
   }
-  if (!trans || trans.length < 2) { panel.style.display = 'none'; return; }
+  if (own.length) return [...own, ...referencing];              // merge own + sibling refs
+  if (parents.size === 1) return [...parents][0].transitions;  // inherit whole chain
+  return referencing;
+}
+
+function updateTransitionsPanel() {
+  const panel = document.getElementById('transitions-panel');
+  const s = data.structures[currentIdx];
+  const trans = collectTransitionContext(s).map((r, i) => ({ r, w: _transRowWindow(r), i })).filter(x => x.w);
+  if (trans.length < 2) { panel.style.display = 'none'; return; }
   panel.style.display = 'block';
   const body = document.getElementById('transitions-body');
   body.style.display = transitionsExpanded ? 'block' : 'none';
   document.getElementById('btn-transitions').textContent = transitionsExpanded ? 'Hide transitions ▴' : 'View transitions ▾';
-  // List
-  const list = trans.map(t => {
-    const active = t.structure === s.name;
-    return `<div style="${active?'color:#fff;font-weight:600':'color:#999'}">${escapeHtml(t.phaseName||t.structure)} <span style="color:#666">[${t.tempRange[0]}–${t.tempRange[1]}°C]</span></div>`;
+  // Order by temperature so the chain reads top-down
+  trans.sort((a, b) => (a.w[0] - b.w[0]) || (a.w[1] - b.w[1]) || (a.i - b.i));
+  // List: window rows show the phase bucket; event rows show structure→to @ T
+  // with type, reversibility, volume change and the citation when present.
+  const list = trans.map(({ r, w }) => {
+    if (!Array.isArray(r.tempRange)) {
+      const q = r.temp_qualifier ? ` ${escapeHtml(r.temp_qualifier)}` : '';
+      const bits = [];
+      if (r.transformType) bits.push(escapeHtml(r.transformType));
+      if (r.reversible) bits.push('reversible');
+      if (r.volume_change_pct != null) bits.push(`${r.volume_change_pct >= 0 ? '+' : ''}${r.volume_change_pct}% vol`);
+      let line = `<span style="color:#8acfd9">${escapeHtml(r.structure)}</span> → <span style="color:#fff;font-weight:600">${escapeHtml(r.to || '?')}</span>` +
+        ` <span style="color:#666">@${Math.round(w[0])}°C${q}</span>` +
+        (bits.length ? ` <span style="color:#9aa0ad">[${bits.join(' · ')}]</span>` : '');
+      if (r.source) line += `<br><span style="color:#666;font-size:10px">${escapeHtml(r.source)}</span>`;
+      return `<div style="margin-bottom:5px;line-height:1.4;color:#999">${line}</div>`;
+    }
+    const active = r.structure === s.name || (r.phaseName && r.phaseName === s.name);
+    let line = `<span style="${active ? 'color:#fff;font-weight:600' : 'color:#999'}">${escapeHtml(r.phaseName || r.structure)}</span>` +
+      ` <span style="color:#666">[${Math.round(w[0])}–${Math.round(w[1])}°C]</span>`;
+    if (r.reversible) line += ` <span style="color:#9aa0ad">↔ reversible</span>`;
+    return `<div style="margin-bottom:5px;line-height:1.4;color:#999">${line}</div>`;
   }).join('');
   document.getElementById('transitions-list').innerHTML = list;
-  // Set slider range to span the chain
+  // Slider spans the whole context (windows and point events)
   const sl = document.getElementById('sl-trans-t');
-  sl.min = trans[0].tempRange[0];
-  sl.max = trans[trans.length - 1].tempRange[1];
-  // Current value: prefer firingMode temp, else low end of current polymorph
-  const curT = firingMode ? currentTemp : (trans.find(t => t.structure === s.name)?.tempRange[0] ?? sl.min);
+  const lo = trans[0].w[0], hi = trans[trans.length - 1].w[1];
+  sl.min = Math.floor(lo);
+  sl.max = Math.ceil(Math.max(hi, lo + 50));
+  const curRow = trans.find(x => x.r.structure === s.name || (x.r.phaseName && x.r.phaseName === s.name));
+  const curT = firingMode ? currentTemp : (curRow ? curRow.w[0] : sl.min);
   sl.value = curT;
   document.getElementById('sl-trans-t-val').textContent = curT + '°C';
-  const cur = trans.find(t => curT >= t.tempRange[0] && curT < t.tempRange[1]) || trans[trans.length - 1];
-  document.getElementById('trans-current').textContent = `At ${curT}°C → ${cur.phaseName || cur.structure} (${cur.transformType || 'transition'})`;
-  panel._transitions = trans;
+  document.getElementById('trans-current').textContent = _transCurrentText(_activeRowAt(trans, curT), curT);
+  panel._transitions = trans; // normalized [{r, w}]
+}
+
+// Last row whose window/event temperature is at or below T (rows are sorted).
+function _activeRowAt(rows, T) {
+  let last = rows[rows.length - 1];
+  for (const x of rows) { if (T >= x.w[0]) last = x; else break; }
+  return last;
+}
+
+function _transCurrentText(match, T) {
+  const r = match.r;
+  if (r.to && !Array.isArray(r.tempRange)) {
+    let s = `At ${T}°C → ${r.to} (${r.transformType || 'transition'})`;
+    if (r.volume_change_pct != null) s += ` — ${r.volume_change_pct >= 0 ? '+' : ''}${r.volume_change_pct}% volume change`;
+    return s;
+  }
+  return `At ${T}°C → ${r.phaseName || r.structure} (${r.transformType || 'transition'})`;
 }
 
 function onTransitionSliderInput() {
-  const trans = document.getElementById('transitions-panel')._transitions;
-  if (!trans) return;
+  const rows = document.getElementById('transitions-panel')._transitions;
+  if (!rows || !rows.length) return;
   const T = parseInt(document.getElementById('sl-trans-t').value);
   document.getElementById('sl-trans-t-val').textContent = T + '°C';
-  const match = trans.find(t => T >= t.tempRange[0] && T < t.tempRange[1]) || trans[trans.length - 1];
-  document.getElementById('trans-current').textContent = `At ${T}°C → ${match.phaseName || match.structure} (${match.transformType || 'transition'})`;
+  const match = _activeRowAt(rows, T);
+  document.getElementById('trans-current').textContent = _transCurrentText(match, T);
   const s = data.structures[currentIdx];
-  if (match.structure !== s.name) {
-    const idx = data.structures.findIndex(x => x.name === match.structure);
+  if (Array.isArray(match.r.tempRange) && match.r.structure !== s.name) {
+    // Window rows snap the viewer to the polymorph; single-point events narrate.
+    const idx = data.structures.findIndex(x => x.name === match.r.structure);
     if (idx >= 0 && !dissolving) switchStructure(idx);
   }
 }
