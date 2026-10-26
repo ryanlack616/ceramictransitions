@@ -43,7 +43,7 @@ UA = "ceramictransitions-mp-ingest/0.2 (+https://ceramictransitions.com)"
 
 
 def _mp_search(formula, api_key):
-    params = {"formula": formula, "_limit": 30,
+    params = {"formula": formula, "_limit": 100,
               "_fields": "material_id,formula_pretty,nsites,energy_above_hull,symmetry"}
     url = MP_BASE + "?" + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"X-API-KEY": api_key, "Accept": "application/json",
@@ -108,9 +108,6 @@ EXPECTED = {
 # catalog's teaching model is the better representation). Reason shown in the
 # skip list and recorded in PLANS.
 KEEP_NATIVE = {
-    "α-Quartz": "MP's only P3₂21/P3121 phase has anomalous Si-O (~1.81 Å); the native low-quartz teaching model is the correct representation.",
-    "Rutile": "MP has no tetragonal P4₂/mnm rutile in its (meta)stable catalog — only distorted settings; keeping the native model rather than relabel a different polymorph.",
-    "Corundum": "R-3c corundum absent from MP's formula search results; native model retained (stoichiometrically verified).",
     "Mullite": "Mullite is intrinsically non-stoichiometric (3Al₂O₃·2SiO₂ ↔ 2Al₂O₃·SiO₂); MP has no ordered 3:2 phase — native teaching model retained.",
 }
 

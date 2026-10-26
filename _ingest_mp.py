@@ -110,6 +110,8 @@ BOND_CUTOFFS = {
     # 2026-10-26 deep-audit additions (Ti2AlC, CeO2, Hibonite, LaB6, VN, BaZrO3)
     frozenset(("La", "B")): 3.25,
     frozenset(("V",  "N")): 2.30,
+    frozenset(("Nb", "N")): 2.40,
+    frozenset(("Ta", "N")): 2.45,
     # 2026-10-26 native-tier rebuild (Periclase..Cordierite chemistry)
     frozenset(("Cu", "O")): 2.25,
     frozenset(("Fe", "O")): 2.35,
