@@ -43,6 +43,33 @@ from _ingest_mp import _mp_fetch, _build_supercell, _compute_bonds
 
 MODEL_NOTE_MARKER = "Structural note (2026-10 audit)"
 
+# Stale claims in the ORIGINAL pedagogical info[] lines that the DFT rebuild
+# contradicts (geometry parameters, 'simplified/educational model' caveats,
+# and the old proto-enstatite identity). Lines matching are dropped on rebuild.
+STALE_INFO_MARKS = ("simplified", "educational model", "Pbcn",
+                    "Angstrom", "prototype", "(model)")
+
+# Whole-line replacements for the surviving domain descriptions that are still
+# partly off after the coordinates change (matched by exact substring).
+INFO_FIXES = {
+    "Enstatite": ("Proto-enstatite — talc decomposition product (>850°C)",
+                  "Clinoenstatite (MgSiO₃ pyroxene) — talc decomposition product"),
+}
+
+
+def surviving_info(entry):
+    out = []
+    for line in entry.get("info") or []:
+        if MODEL_NOTE_MARKER in line or "Source: Materials Project" in line:
+            continue  # model-note (gone) and the source line (re-appended fresh below)
+        if any(m in line for m in STALE_INFO_MARKS):
+            continue
+        for _name, (old, new) in INFO_FIXES.items():
+            if old in line:
+                line = line.replace(old, new)
+        out.append(line)
+    return out
+
 # (entry name, mp_id, supercell, system, note) — mp_ids verified 2026-10-26:
 # all the stable/low-ehull on-topic phases (probe output in _probe_mp.py).
 TARGETS = [
@@ -138,8 +165,7 @@ def main():
 
         composed = {
             "system": system,
-            "info": [n for n in (entry.get("info") or []) if MODEL_NOTE_MARKER not in n]
-                    + [f"Source: Materials Project {mp_id}. {note}"],
+            "info": surviving_info(entry) + [f"Source: Materials Project {mp_id}. {note}"],
             "supercell": scl,
             "cellVectors": [[round(v, 4) for v in row] for row in M],
             "atoms": atoms, "bonds": bonds, "bondTypes": bondTypes, "stats": stats,

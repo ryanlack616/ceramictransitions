@@ -63495,7 +63495,6 @@
       "system": "Trigonal R-3 (willemite)",
       "info": [
         "Zinc orthosilicate — host mineral for crystal glazes",
-        "a=13.948 c=9.314 Angstrom (Trigonal R-3)",
         "Zn tetrahedral (CN=4), isolated SiO₄ units (NBO/T=4)",
         "Large crystals grow ~900–10500°C slow-cool in oxidation",
         "Source: Materials Project mp-aaaaafpt. Zn₂SiO₄ willemite (sg R-3, ehull=0). Replaces the O-deficient pedagogical model."
@@ -68465,7 +68464,6 @@
     {
       "system": "Tetragonal I4₁/amd (zircon)",
       "info": [
-        "Key zircon opacifier/refractory phase (simplified model)",
         "Zr-Si framework with low thermal expansion",
         "Source: Materials Project mp-aaaaahdk. ZrSiO₄ zircon (sg I4₁/amd, ehull=0). Textbook stoichiometric model — replaces the O-halved pedagogical model."
       ],
@@ -81837,8 +81835,7 @@
     {
       "system": "Monoclinic P2₁/c (clinoenstatite)",
       "info": [
-        "Proto-enstatite — talc decomposition product (>850°C)",
-        "a=9.245 b=8.740 c=5.202 Angstrom (Pbcn)",
+        "Clinoenstatite (MgSiO₃ pyroxene) — talc decomposition product",
         "Mg octahedral + Si chain: NBO/T=2 (chain silicate)",
         "Low-expansion pyroxene used in flameware bodies",
         "Source: Materials Project mp-aaacgbbo. MgSiO₃ clinoenstatite (sg P2₁/c, lowest-ehull MP pyroxene). Replaces the non-stoichiometric pedagogical model."
@@ -105006,7 +105003,6 @@
     {
       "system": "Tetragonal I4₁/a (leucite)",
       "info": [
-        "High-K feldspathoid framework (approximate educational model)",
         "Key phase for high expansion and crazing/compression behavior",
         "Source: Materials Project mp-aaabfoej. KAlSi₂O₆ leucite (sg I4₁/a, ehull≈0). Replaces the doubled-K pedagogical model."
       ],
@@ -116808,7 +116804,6 @@
       "system": "Monoclinic Cc (kaolinite layer)",
       "info": [
         "Primary clay mineral, 1:1 layer silicate",
-        "a=5.15 b=8.94 c=7.39 Angstrom",
         "Dehydroxylates 550C -> metakaolin",
         "Essential for porcelain & stoneware",
         "Source: Materials Project mp-aaabpaxc. Al₂Si₂O₅(OH)₄ kaolinite (sg Cc, ehull≈0). DFT-relaxed layered model with explicit hydroxyl H — replaces the H/O-short pedagogical model."
