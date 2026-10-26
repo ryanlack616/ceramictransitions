@@ -55,7 +55,7 @@ ${src}
 
 let mod;
 try {
-  mod = vm.runInContext(wrapped, ctx, { filename: 'index.html:procedural' });
+  mod = vm.runInContext(wrapped, ctx, { filename: 'index.html:procedural' }); // pragma: allowlist secret — filename pattern, not a credential
 } catch (e) {
   console.error('FAIL: error evaluating procedural module:', e.message);
   process.exit(2);
@@ -165,9 +165,9 @@ for (const [formula, entry] of Object.entries(PROTOTYPE_TABLE)) {
 console.log('\n▶ Bond color coverage');
 const expectedPairs = new Set();
 for (const [formula, entry] of Object.entries(PROTOTYPE_TABLE)) {
-  const a = entry.cation, b = entry.anion;
-  const pair = [a, b].sort().join('-');
-  expectedPairs.add(pair);
+  const cations = Array.isArray(entry.cations) ? entry.cations : [entry.cation];
+  const b = entry.anion;
+  for (const a of cations) expectedPairs.add([a, b].sort().join('-'));
   if (entry.proto === 'AlB2') expectedPairs.add('B-B');
 }
 for (const pair of expectedPairs) {

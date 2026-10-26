@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "structureCount": 83,
+  "structureCount": 87,
   "structures": [
     {
       "name": "Periclase",
@@ -63499,7 +63499,8 @@
         "Zinc orthosilicate — host mineral for crystal glazes",
         "a=13.948 c=9.314 Angstrom (Trigonal R-3)",
         "Zn tetrahedral (CN=4), isolated SiO₄ units (NBO/T=4)",
-        "Large crystals grow ~900–10500°C slow-cool in oxidation"
+        "Large crystals grow ~900–10500°C slow-cool in oxidation",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         1,
@@ -65001,7 +65002,8 @@
       "system": "Tetragonal I4₁/amd (approx model)",
       "info": [
         "Key zircon opacifier/refractory phase (simplified model)",
-        "Zr-Si framework with low thermal expansion"
+        "Zr-Si framework with low thermal expansion",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         3,
@@ -75359,7 +75361,8 @@
         "Proto-enstatite — talc decomposition product (>850°C)",
         "a=9.245 b=8.740 c=5.202 Angstrom (Pbcn)",
         "Mg octahedral + Si chain: NBO/T=2 (chain silicate)",
-        "Low-expansion pyroxene used in flameware bodies"
+        "Low-expansion pyroxene used in flameware bodies",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         2,
@@ -93605,7 +93608,8 @@
         "Ca-feldspar — Ca end-member of plagioclase series",
         "a=8.18 b=12.88 c=14.17 alpha=93 beta=116 gamma=91",
         "3D Al-Si framework, Ca in large cavities (CN=7–8)",
-        "Melts 1553°C; forms in high-Ca glaze compositions"
+        "Melts 1553°C; forms in high-Ca glaze compositions",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         1,
@@ -98811,7 +98815,8 @@
       "system": "Tetragonal I4₁/a (approx model)",
       "info": [
         "High-K feldspathoid framework (approximate educational model)",
-        "Key phase for high expansion and crazing/compression behavior"
+        "Key phase for high expansion and crazing/compression behavior",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         2,
@@ -107103,7 +107108,8 @@
         "Primary clay mineral, 1:1 layer silicate",
         "a=5.15 b=8.94 c=7.39 Angstrom",
         "Dehydroxylates 550C -> metakaolin",
-        "Essential for porcelain & stoneware"
+        "Essential for porcelain & stoneware",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         3,
@@ -113226,7 +113232,8 @@
         "Hydrated Mg phyllosilicate — common raw material",
         "a=5.287 b=9.158 c=18.95 beta=99.5 (2:1 TOT layer)",
         "Mg octahedral sheet sandwiched by Si tet sheets",
-        "Dehydroxylates ~850°C → enstatite (MgSiO₃) + SiO₂"
+        "Dehydroxylates ~850°C → enstatite (MgSiO₃) + SiO₂",
+        "Structural note (2026-10 audit): this lattice is a pedagogical rendering; atom counts approximate the formula but are not exact crystallography. Rebuild in progress from a cited coordinate source."
       ],
       "supercell": [
         2,
@@ -176482,6 +176489,133 @@
         "bondLengths": {},
         "coordDist": {}
       }
+    },
+    {
+      "name": "Calcium Oxide",
+      "formula": "CaO",
+      "system": "Cubic Fm-3m (rock-salt)",
+      "material_class": "refractory_oxide",
+      "service_temp_c": 1800,
+      "melting_point_c": 2570,
+      "application_tags": [
+        "high-temperature-ceramic",
+        "refractory",
+        "lime",
+        "decomposition-product-of:Calcite"
+      ],
+      "info": [
+        "Common lime refractory. Forms by calcite decomposition (see Calcite transitions, CaO+CO2 @825°C).",
+        "Service temperature: 1800°C",
+        "Thermal expansion: 13.4 × 10⁻⁶/°C",
+        "Thermal shock risk: medium"
+      ],
+      "isStub": true,
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      },
+      "bound_type": "melts"
+    },
+    {
+      "name": "Beryllium Oxide",
+      "formula": "BeO",
+      "system": "Hexagonal P6₃mc (wurtzite)",
+      "material_class": "refractory_oxide",
+      "service_temp_c": 1800,
+      "melting_point_c": 2530,
+      "application_tags": [
+        "high-temperature-ceramic",
+        "refractory",
+        "high-thermal-conductivity",
+        "nuclear-applications",
+        "electronics-thermal-management"
+      ],
+      "info": [
+        "Outstanding thermal conductivity for an electrical insulator (~300 W/m·K, second to diamond among oxides).",
+        "Service temperature: 1800°C",
+        "Thermal expansion: 7.5 × 10⁻⁶/°C",
+        "Toxicity hazard: dust is a serious inhalation risk — handled with containment"
+      ],
+      "isStub": true,
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      },
+      "bound_type": "melts"
+    },
+    {
+      "name": "Tantalum Diboride",
+      "formula": "TaB₂",
+      "system": "Hexagonal P6/mmm (AlB₂-type)",
+      "material_class": "UHTC",
+      "service_temp_c": 1800,
+      "melting_point_c": 3040,
+      "application_tags": [
+        "high-temperature-ceramic",
+        "UHTC",
+        "thermal-protection-system",
+        "rocket-nozzle",
+        "leading-edge"
+      ],
+      "info": [
+        "Completes the canonical UHTC diboride trio with ZrB₂ and HfB₂.",
+        "Service temperature: 1800°C",
+        "Thermal expansion: 5.6 × 10⁻⁶/°C",
+        "Thermal shock risk: low-medium"
+      ],
+      "isStub": true,
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      },
+      "bound_type": "melts"
+    },
+    {
+      "name": "Hafnium Nitride",
+      "formula": "HfN",
+      "system": "Cubic Fm-3m (rock-salt)",
+      "material_class": "nitride",
+      "service_temp_c": 2000,
+      "melting_point_c": 3310,
+      "application_tags": [
+        "high-temperature-ceramic",
+        "nitride",
+        "UHTC",
+        "wear-resistant",
+        "nuclear-cladding-candidate"
+      ],
+      "info": [
+        "Rock-salt hafnium nitride; pairs with TiN and ZrN in the late-transition-metal nitride set.",
+        "Service temperature: 2000°C",
+        "Thermal expansion: 6.9 × 10⁻⁶/°C",
+        "Thermal shock risk: low"
+      ],
+      "isStub": true,
+      "atoms": [],
+      "bonds": [],
+      "bondTypes": [],
+      "cellVectors": [],
+      "supercell": null,
+      "stats": {
+        "bondLengths": {},
+        "coordDist": {}
+      },
+      "bound_type": "melts"
     }
   ],
   "elements": {

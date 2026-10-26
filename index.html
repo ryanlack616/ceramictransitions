@@ -792,12 +792,31 @@ const FALLBACK_ELEMENT_META = {
   Ce: { color: [1.00, 0.85, 0.30], radius: 1.85, mass: 140.12, name: 'Cerium' },
   B:  { color: [1.00, 0.71, 0.71], radius: 0.85, mass: 10.81,  name: 'Boron' },
   N:  { color: [0.19, 0.31, 0.97], radius: 0.65, mass: 14.01,  name: 'Nitrogen' },
+  Be: { color: [0.76, 0.85, 0.60], radius: 0.90, mass: 9.01,   name: 'Beryllium' },
 };
 
 // Prototype basis sets (fractional coords in conventional unit cell).
 // role: 'C' (cation/metal) or 'A' (anion/non-metal) — resolved at tile time.
 const PROTOTYPE_DEFS = {
   rocksalt: {
+    basis: [
+      {role:'C', fx:0,   fy:0,   fz:0  },
+      {role:'C', fx:0,   fy:0.5, fz:0.5},
+      {role:'C', fx:0.5, fy:0,   fz:0.5},
+      {role:'C', fx:0.5, fy:0.5, fz:0  },
+      {role:'A', fx:0.5, fy:0,   fz:0  },
+      {role:'A', fx:0,   fy:0.5, fz:0  },
+      {role:'A', fx:0,   fy:0,   fz:0.5},
+      {role:'A', fx:0.5, fy:0.5, fz:0.5},
+    ],
+    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
+    supercell: [3,3,3],
+    bondCutoff: ({a}) => 0.55 * a,
+    homoatomicBonds: false,
+  },
+  // Multi-cation rock-salt: the `cations[]` are cycled over cation sites
+  // (used for high-entropy carbides like (Hf,Zr,Ti,Ta,Nb)C solid solutions).
+  rocksalt_mix: {
     basis: [
       {role:'C', fx:0,   fy:0,   fz:0  },
       {role:'C', fx:0,   fy:0.5, fz:0.5},
@@ -945,6 +964,12 @@ const PROTOTYPE_TABLE = {
   // β-Sialon (Si6-xAlxOxN8-x) — isostructural with β-Si3N4; we approximate as
   // pure β-Si3N4 with proceduralFallback note (Si→Al, N→O substitution disorder unmodeled).
   'Si6-xAlxOxN8-x': { proto:'si3n4', params:{a:7.659, c:2.929}, cation:'Si', anion:'N' },
+  // 2026-10 audit additions — complete canonical high-temp sets:
+  'CaO':     { proto:'rocksalt', params:{a:4.811}, cation:'Ca', anion:'O' },  // lime (calcite's decomposition product)
+  'BeO':     { proto:'wurtzite', params:{a:2.698, c:4.377}, cation:'Be', anion:'O' }, // beryllia
+  'TaB2':    { proto:'AlB2', params:{a:3.098, c:3.227}, cation:'Ta', anion:'B' }, // completes the ZrB2/HfB2/TaB2 trio
+  'HfN':     { proto:'rocksalt', params:{a:4.525}, cation:'Hf', anion:'N' },
+  '(HfZrTiTaNb)C': { proto:'rocksalt_mix', params:{a:4.460}, cations:['Hf','Zr','Ti','Ta','Nb'], anion:'C' },
 };
 
 // Unicode subscript → ASCII digit (₂₃₄₅₆₇₈ etc).
@@ -968,11 +993,16 @@ function generateAtomsFromPrototype(s, elementsMap) {
   const def = PROTOTYPE_DEFS[entry.proto];
   if (!def) return null;
 
-  const { params, cation, anion } = entry;
+  const { params, cation, anion, cations } = entry;
   const lat = def.lattice(params);
   const [Nx, Ny, Nz] = def.supercell;
   const cutoff = def.bondCutoff(params);
   const cutoff2 = cutoff * cutoff;
+
+  // Multi-cation prototypes (rocksalt_mix) cycle a `cations[]` list over the
+  // cation sites — a schematic for solid solutions like (Hf,Zr,Ti,Ta,Nb)C.
+  let cationCount = 0;
+  const cationFor = () => cations ? cations[cationCount++ % cations.length] : cation;
 
   // Tile basis across supercell.
   const atoms = [];
@@ -984,7 +1014,7 @@ function generateAtomsFromPrototype(s, elementsMap) {
           const x = u*lat[0][0] + v*lat[1][0] + w*lat[2][0];
           const y = u*lat[0][1] + v*lat[1][1] + w*lat[2][1];
           const z = u*lat[0][2] + v*lat[1][2] + w*lat[2][2];
-          const el = (b.role === 'C') ? cation : anion;
+          const el = (b.role === 'C') ? cationFor() : anion;
           atoms.push({ e: el, x, y, z, r: _radiusFor(el, elementsMap), cn: 0 });
         }
       }
@@ -1046,6 +1076,13 @@ const FALLBACK_BOND_COLORS = {
   'B-N':   [0.75, 0.78, 0.95],
   'B-B':   [1.00, 0.71, 0.71],
   'N-Si':  [0.45, 0.60, 0.92],
+  // 2026-10 audit additions
+  'Ca-O':  [0.85, 0.70, 0.55],
+  'Be-O':  [0.75, 0.85, 0.60],
+  'B-Ta':  [0.95, 0.68, 0.68],
+  'Hf-N':  [0.55, 0.63, 0.92],
+  'C-Ti':  [0.65, 0.68, 0.75],
+  'C-Nb':  [0.60, 0.70, 0.82],
 };
 
 function ensureBondColorsCoverage(bondColorsMap) {

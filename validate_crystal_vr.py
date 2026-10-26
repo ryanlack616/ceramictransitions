@@ -51,6 +51,8 @@ PROCEDURAL_FORMULAS = {
     "SiC", "SiC (fiber-reinforced)", "SiC (reaction-bonded)", "SiC (sintered)",
     # Phase 3.1 (May 16, 2026) — β-Si3N4 family
     "Si3N4", "Si6-xAlxOxN8-x",
+    # 2026-10-26 audit additions (see PROTOTYPE_TABLE in index.html)
+    "CaO", "BeO", "TaB2", "HfN", "(HfZrTiTaNb)C",
 }
 
 _SUBSCRIPT_MAP = str.maketrans(
