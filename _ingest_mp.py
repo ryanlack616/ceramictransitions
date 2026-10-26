@@ -105,6 +105,9 @@ BOND_CUTOFFS = {
     frozenset(("Ba", "O")): 3.25,
     frozenset(("V",  "C")): 2.35,
     frozenset(("Mo", "C")): 2.55,
+    # 2026-10-26 deep-audit additions (Ti2AlC, CeO2, Hibonite, LaB6, VN, BaZrO3)
+    frozenset(("La", "B")): 3.25,
+    frozenset(("V",  "N")): 2.30,
     # MAX-phase
     frozenset(("Cr", "Al")): 2.80,
     frozenset(("Al", "C")): 2.30,
@@ -114,6 +117,8 @@ BOND_CUTOFFS = {
     # disilicide / MAX-phase fragments (future use)
     frozenset(("Mo", "Si")): 2.80,
     frozenset(("Ti", "Si")): 2.80,
+    # 2026-10-26 Ti2AlC (n=1 MAX): the Al monolayer sits ~2.9 A above the Ti-C slabs
+    frozenset(("Ti", "Al")): 3.00,
 }
 
 # Match stub `name` in crystal_vr.json → MP ingest config.
