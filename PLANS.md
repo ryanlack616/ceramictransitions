@@ -164,24 +164,43 @@ Three findings from inspecting the live data (`data/crystal_vr.json`), each of w
 
 **Goal.** The weakest part of the project is its own title. Give the polymorphic high-temp ceramics real, cited phase-transition data — surfaced *inside the flagship's Firing mode*, not a standalone page.
 
-**D.1 — Schema (lock at the checkpoint).** Extend each applicable entry with:
+**D.1 — Schema (lock at the checkpoint).** ✅ DONE (2026-06-17 locked; reconciled with the two pre-existing hand-authored entries + implemented). Fields extend the original `{structure, phaseName, tempRange, transformType}` shape; the harvest and all later data use this:
 
 ```json
 "transitions": [
-  { "from": "α-SiC (6H)", "to": "β-SiC (3C)", "temp_c": 2000, "type": "reconstructive|displacive|martensitic|decomposition",
-    "reversible": false, "volume_change_pct": 0.0, "note": "…", "source": "literature ref or mp_id" }
+  {
+    "structure": "β-SiC (3C)",          // required — the phase this row describes
+    "phaseName": "β-SiC (3C, cubic zincblende)",   // optional display name
+    "tempRange": [20, 2000],            // optional — [lo,hi] °C stability window
+    "transformType": "reconstructive",  // displacive|reconstructive|martensitic|decomposition|polymorphic|oxidation
+    "to": "α-SiC (6H)",                 // optional — product phase (event rows)
+    "temp_c": 2000,                     // optional — transition temperature (event rows)
+    "temp_qualifier": "above",          // optional — at/above/below
+    "reversible": false,                // optional
+    "volume_change_pct": 0.1,           // optional — + = expansion on heating
+    "note": "…",                        // optional
+    "source": "literature ref"          // optional — REQUIRED for authored claims (D.3)
+  }
 ]
 ```
 
-**D.2 — Harvest existing hints (do first; honest + free).** Parse the structural `application_tags` (`transforms-to:…@T`, `decomp-to:…@T`, `polymorph-of:…`) + the firing-phase quartz inversion into the new schema. Script: `_harvest_transitions.py` (stdlib; idempotent; `--dry-run`), writing into `data/crystal_vr.json`. **This touches data → run the full `validate.yml` suite locally + extend `validate_crystal_vr.py` with a `transitions[]` shape rule.**
+**D.2 — Harvest existing hints.** ✅ DONE (2026-06-18, commits `1dfcca4` + `2a8047c`). `_harvest_transitions.py` mined the structural `application_tags` (`transforms-to:…@T`, `decomp-to:…@T`, `polymorph-of:…`); validator gained the `transitions[]` shape rule (structure + `tempRange` OR `temp_c`, enum `transformType`). **Result: 8/83 entries carry transitions[]** (α-Quartz, Baddeleyite, Hematite, Kaolinite, Calcite, Andalusite, Kyanite, Sillimanite). 6 hand-authored window rows were left in the legacy shape pending D.3's reconcile pass.
 
-**D.3 — Author the key polymorph set (cited).** The materials PLANS already names: **α↔β SiC**, **t↔m ZrO₂ (Bain/martensitic path, the toughening transformation)**, **m↔t↔c HfO₂**, **α↔β Si₃N₄**, **sialon solid-solution**, **α↔β quartz (573°C displacive)**, **cristobalite inversion (~220°C)**. ~6–8 materials, each with cited `temp_c`, `type`, `volume_change_pct` (the ZrO₂ ~4–5% dilation is the whole point of PSZ — get it right). Report-only review before committing canon.
+**D.3 — Author the key polymorph set (cited).** ✍️ PROPOSED, NOT APPLIED (report-only per the 2026-06-17 decision). `_author_polymorphs.py` holds the authored set — **α↔β SiC**, **t↔m ZrO₂ (martensitic; the −4.5 vol% PSZ workhorse, Hannink 2000)**, **m↔t↔c HfO₂ (Wang/Li/Stevens 1992)**, **α↔β Si₃N₄ (Riley 2000)**, **β′-sialon formation (Jack 1976)**, **cristobalite ~230°C inversion (+2.8 vol%)** — 16 new rows + a 7-row reconcile pass that completes the 6 deferred legacy rows into the locked shape with sources. `python _author_polymorphs.py` prints the proposal; `--write` applies it (idempotent). **Do not apply until the human review signs off on the claim+source pairs.**
 
-**D.4 — ~~Data-driven transitions graph~~ → CANCELLED (page retired 2026-06-17).** The standalone `transitions-graph.html` is gone. Its replacement, if pursued, is a **Material view *inside the flagship*** (`index.html`): when a selected material carries `transitions[]`, render its transition chain on a temperature axis (hover notes + volume-change + reversibility) within the existing Firing-mode panel — no second page, no generic stoneware curve.
+**D.4 — Material view *inside the flagship*.** ✅ SHIPPED (2026-10-26, commit `ad31c25` + follow-up). The Firing-mode panel in `index.html` is now schema-agnostic: it renders window buckets and point events (structure → to @ T°C) with `transformType`, reversibility, `volume_change_pct` and the citation, merges an entry's own chain with sibling polymorph rows, snaps the viewer across window boundaries, and keeps point events as narration. This also **fixed a live regression** where α-Quartz/Tridymite/β-Cristobalite crashed the panel (D.2's mixed-schema rows hit `tempRange[0]` on an event row).
 
-**D.5 — Taichi handoff note (NOT built here).** The animated 3D polymorph morph (atoms migrating α→β at T) belongs in `ceramictransitions-taichi`. Record the schema + the target materials as the handoff spec so the Taichi work consumes the same `transitions[]` data.
+**D.5 — Taichi handoff note.** 📋 WRITTEN (2026-10-26) — the animated 3D polymorph morph (atoms migrating α→β at T) belongs in `ceramictransitions-taichi`:
 
-**Acceptance:** ≥8 materials carry cited `transitions[]`; validator enforces the shape; the flagship's Firing-mode **Material view** renders ZrO₂'s t↔m transformation with its volume change from data.
+> **Input:** `data/crystal_vr.json` — one `transitions[]` array per material (locked shape above; ~8 harvested + ~6–8 authored target materials). **Consume, don't duplicate:** the Taichi repo reads the web repo's JSON as the schema source of truth.
+>
+> **Target materials (highest-value morphs):** SiC (3C→6H), Si₃N₄ (α→β), ZrO₂ (m→t, with its ±4.5% volume dilation), HfO₂ (m→t→c), β′-sialon formation. For each: find the row with `to` + `temp_c`; the morph spans `temp_c` over the microstructure-relaxation timescale (solution-reprecipitation for Si₃N₄/sialon, displacive/martensitic impulse for quartz/cristobalite/ZrO₂/HfO₂).
+>
+> **Animation fields consumed per row:** `structure` (source cell), `to` (product cell), `temp_c` (crossing point on the firing ramp), `transformType` (morph kinematics: displacive = affine precession, martensitic = athermal shear impulse, reconstructive = diffusive re-nucleation), `reversible`, `volume_change_pct` (scale the lattice dilation explicitly — the ZrO₂ crack-arrest story depends on showing it).
+>
+> **Schema history guard:** D.1's shape is LOCKED; any future extension keeps old rows valid (`tempRange` OR `temp_c` minimum, all new fields optional) and must pass `validate_crystal_vr.py` + `crystal_vr.schema.json`.
+
+**Acceptance (status):** ~~≥8 materials carry cited `transitions[]`~~ → 8 harvested today + 7 authored-and-pending-review (14 with `_author_polymorphs.py --write`); validator + JSON Schema enforce the shape ✅; flagships Firing-mode **Material view** renders ZrO₂'s t↔m transformation with its −4.5% volume change from data ✅ (visible once D.3 lands).
 
 **Files:** `data/crystal_vr.json` (+ validator, + harvest script) and the Firing-mode panel in `index.html`. **Effort:** L (real domain authoring). **Risk:** medium — data-touching; gate on schema + validator + citations.
 

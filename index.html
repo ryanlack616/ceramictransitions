@@ -1646,16 +1646,21 @@ function updateTransitionsPanel() {
 }
 
 // Last row whose window/event temperature is at or below T (rows are sorted).
+// If T sits below the whole chain, clamp to the first row: the material is in
+// its low-temperature form (for a point event that means the source phase).
 function _activeRowAt(rows, T) {
-  let last = rows[rows.length - 1];
+  let last = null;
   for (const x of rows) { if (T >= x.w[0]) last = x; else break; }
-  return last;
+  return last || rows[0];
 }
 
 function _transCurrentText(match, T) {
   const r = match.r;
   if (r.to && !Array.isArray(r.tempRange)) {
-    let s = `At ${T}°C → ${r.to} (${r.transformType || 'transition'})`;
+    // Point events: below the event temperature the material is still in the
+    // source phase; at/above it, it has become the product phase.
+    const phase = T < match.w[0] ? r.structure : r.to;
+    let s = `At ${T}°C → ${phase} (${r.transformType || 'transition'})`;
     if (r.volume_change_pct != null) s += ` — ${r.volume_change_pct >= 0 ? '+' : ''}${r.volume_change_pct}% volume change`;
     return s;
   }
