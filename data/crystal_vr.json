@@ -49912,7 +49912,12 @@
             20,
             573
           ],
-          "transformType": "displacive"
+          "transformType": "displacive",
+          "to": "β-Quartz",
+          "reversible": true,
+          "volume_change_pct": 0.86,
+          "note": "The classic quartz inversion: ~0.86 vol% sudden expansion on heating (α→β).",
+          "source": "SiO2 polymorph data - Deer, Howie & Zussman, Rock-Forming Minerals v4 (1963); R.B. Sosman, The Phases of Silica (1965)"
         },
         {
           "structure": "Tridymite",
@@ -49921,7 +49926,11 @@
             573,
             1470
           ],
-          "transformType": "reconstructive"
+          "transformType": "reconstructive",
+          "to": "β-Cristobalite",
+          "reversible": false,
+          "note": "Reconstructive rearrangement of the SiO2 framework at 1470°C; sluggish and hysteretic.",
+          "source": "SiO2 polymorph data - Deer, Howie & Zussman, Rock-Forming Minerals v4 (1963); R.B. Sosman, The Phases of Silica (1965)"
         },
         {
           "structure": "β-Cristobalite",
@@ -49930,7 +49939,11 @@
             1470,
             1713
           ],
-          "transformType": "reconstructive"
+          "transformType": "reconstructive",
+          "to": "SiO2 liquid",
+          "reversible": false,
+          "note": "β-cristobalite melts incongruently ~1713°C (the silica melting corner).",
+          "source": "SiO2 polymorph data - Deer, Howie & Zussman, Rock-Forming Minerals v4 (1963); R.B. Sosman, The Phases of Silica (1965)"
         },
         {
           "structure": "α-Quartz",
@@ -49938,7 +49951,9 @@
           "transformType": "displacive",
           "reversible": true,
           "source": "tag:transforms-to:β-Quartz@573C",
-          "temp_c": 573
+          "temp_c": 573,
+          "volume_change_pct": 0.86,
+          "note": "~0.86 vol% expansion on heating at the α→β inversion (573°C)."
         }
       ],
       "material_class": "polymorph_silica",
@@ -52614,7 +52629,20 @@
         "polymorph-of:SiO2",
         "high-temp-SiO2-form"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "transitions": [
+        {
+          "structure": "α-Cristobalite",
+          "to": "β-Cristobalite",
+          "temp_c": 230,
+          "temp_qualifier": "at",
+          "transformType": "displacive",
+          "reversible": true,
+          "volume_change_pct": 2.8,
+          "note": "α→β cristobalite inversion (~200–270°C): ≈2.8 vol% expansion on heating, the largest of the SiO2 framework inversions — the reason cristobalite-bearing refractory linings spall if fire-cycled through it.",
+          "source": "SiO2 polymorph data - Deer, Howie & Zussman, Rock-Forming Minerals v4 (1963); R.B. Sosman, The Phases of Silica (1965)"
+        }
+      ]
     },
     {
       "name": "Tridymite",
@@ -134647,7 +134675,12 @@
             20,
             1170
           ],
-          "transformType": "displacive"
+          "transformType": "displacive",
+          "to": "Tetragonal Zirconia",
+          "reversible": true,
+          "volume_change_pct": -4.5,
+          "note": "m→t contracts ≈4.5 vol% on heating; the reverse t→m EXPANSION on cooling is what transformation-toughened zirconia (PSZ/TZP) exploits to arrest cracks.",
+          "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
         },
         {
           "structure": "Tetragonal Zirconia",
@@ -134656,7 +134689,11 @@
             1170,
             2370
           ],
-          "transformType": "displacive"
+          "transformType": "displacive",
+          "to": "Cubic Zirconia",
+          "reversible": true,
+          "note": "t→c displacive step near 2370°C; small volume change (not cited to 1 decimal).",
+          "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
         },
         {
           "structure": "Cubic Zirconia",
@@ -134665,7 +134702,32 @@
             2370,
             2715
           ],
-          "transformType": "reconstructive"
+          "transformType": "reconstructive",
+          "to": "ZrO2 liquid",
+          "reversible": false,
+          "note": "Cubic (fluorite) ZrO2 is the stable form up to the 2715°C melting point.",
+          "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
+        },
+        {
+          "structure": "Baddeleyite",
+          "to": "Tetragonal Zirconia",
+          "temp_c": 1170,
+          "temp_qualifier": "at",
+          "transformType": "martensitic",
+          "reversible": true,
+          "volume_change_pct": -4.5,
+          "note": "The transformation-toughening event: athermal martensitic m→t at ~1170°C on heating, t→m at ~950°C on cooling, ≈4–5 vol% dilation.",
+          "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
+        },
+        {
+          "structure": "Tetragonal Zirconia",
+          "to": "Cubic Zirconia",
+          "temp_c": 2370,
+          "temp_qualifier": "at",
+          "transformType": "displacive",
+          "reversible": true,
+          "note": "t→c displacive step near 2370°C.",
+          "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
         }
       ],
       "material_class": "refractory_oxide",
@@ -159407,7 +159469,40 @@
         "kiln-shelf",
         "armor"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "transitions": [
+        {
+          "structure": "Silicon Carbide",
+          "phaseName": "β-SiC (3C, cubic zincblende)",
+          "tempRange": [
+            20,
+            2000
+          ],
+          "transformType": "polymorphic",
+          "source": "N.W. Jepps & T.F. Page, Polytypic transformations in silicon carbide, Prog. Cryst. Growth Charact. 7 (1983) 259"
+        },
+        {
+          "structure": "Silicon Carbide",
+          "to": "α-SiC (6H)",
+          "temp_c": 2000,
+          "temp_qualifier": "above",
+          "transformType": "reconstructive",
+          "reversible": false,
+          "volume_change_pct": 0.1,
+          "note": "β-SiC (3C) is the low-temperature polytype (the entry's DFT ground state). Slow reconstructive 3C→6H recrystallization only proceeds on extended heating above ~2000°C; effectively irreversible in service.",
+          "source": "N.W. Jepps & T.F. Page (1983); Snead et al., Handbook of SiC properties for fuel performance modeling, J. Nucl. Mater. 371 (2007) 329"
+        },
+        {
+          "structure": "α-SiC (6H)",
+          "phaseName": "α-SiC (6H, hexagonal)",
+          "tempRange": [
+            2000,
+            2730
+          ],
+          "transformType": "reconstructive",
+          "source": "N.W. Jepps & T.F. Page (1983)"
+        }
+      ]
     },
     {
       "system": "Hexagonal P6₃/m (β-Si₃N₄)",
@@ -159868,7 +159963,41 @@
         "bearing",
         "cutting-tool"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "transitions": [
+        {
+          "structure": "α-Si₃N₄",
+          "phaseName": "α-Si₃N₄ (trigonal)",
+          "tempRange": [
+            20,
+            1500
+          ],
+          "transformType": "polymorphic",
+          "source": "F.L. Riley, Silicon Nitride and Related Materials, J. Am. Ceram. Soc. 83 (2000) 245"
+        },
+        {
+          "structure": "α-Si₃N₄",
+          "to": "β-Si₃N₄",
+          "temp_c": 1500,
+          "temp_qualifier": "above",
+          "transformType": "reconstructive",
+          "reversible": false,
+          "volume_change_pct": -0.5,
+          "note": "α→β proceeds by solution-reprecipitation through the liquid phase during sintering (~1400–1800°C); β is the thermodynamically stable high-temperature form (this entry). Not reversible on cooling under service conditions.",
+          "source": "F.L. Riley (2000); Ziegler, Heinrich & Wötting, J. Mater. Sci. 22 (1987) 3041"
+        },
+        {
+          "structure": "β-Si₃N₄",
+          "phaseName": "β-Si₃N₄ (hexagonal, P6₃)",
+          "tempRange": [
+            1500,
+            1900
+          ],
+          "transformType": "reconstructive",
+          "note": "β-Si₃N₄ decomposes before melting (~1900°C at 1 atm N₂).",
+          "source": "F.L. Riley (2000)"
+        }
+      ]
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -162348,7 +162477,60 @@
         "TBC-next-gen",
         "high-k-dielectric"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "transitions": [
+        {
+          "structure": "Hafnium Oxide",
+          "phaseName": "monoclinic (m)",
+          "tempRange": [
+            20,
+            1700
+          ],
+          "transformType": "polymorphic",
+          "source": "J. Wang, H.P. Li & R. Stevens, Hafnia and hafnia-based materials, J. Mater. Sci. 27 (1992) 5397"
+        },
+        {
+          "structure": "Hafnium Oxide",
+          "to": "HfO₂ (t)",
+          "temp_c": 1700,
+          "temp_qualifier": "at",
+          "transformType": "martensitic",
+          "reversible": true,
+          "volume_change_pct": -3.4,
+          "note": "m→t contracts ≈3.4 vol% on heating (slightly less than ZrO₂'s) — among the largest framework inversions in ceramics; hafnia's m↔t history is why HfO₂ is both a TBC candidate and a ferroelectric/memory material.",
+          "source": "J. Wang, H.P. Li & R. Stevens (1992)"
+        },
+        {
+          "structure": "HfO₂ (t)",
+          "phaseName": "tetragonal (t)",
+          "tempRange": [
+            1700,
+            2600
+          ],
+          "transformType": "displacive",
+          "source": "J. Wang, H.P. Li & R. Stevens (1992)"
+        },
+        {
+          "structure": "HfO₂ (t)",
+          "to": "HfO₂ (c)",
+          "temp_c": 2600,
+          "temp_qualifier": "at",
+          "transformType": "displacive",
+          "reversible": true,
+          "note": "t→c near 2600°C completes the m→t→c sequence before melting at 2758°C.",
+          "source": "J. Wang, H.P. Li & R. Stevens (1992)"
+        },
+        {
+          "structure": "HfO₂ (c)",
+          "phaseName": "cubic (c, fluorite)",
+          "tempRange": [
+            2600,
+            2758
+          ],
+          "transformType": "displacive",
+          "source": "J. Wang, H.P. Li & R. Stevens (1992)"
+        }
+      ]
     },
     {
       "system": "Cubic Fd-3m (pyrochlore A₂B₂O₇)",
@@ -165555,7 +165737,30 @@
         "cutting-tool",
         "molten-metal-handling"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "transitions": [
+        {
+          "structure": "Sialon",
+          "phaseName": "β′-Sialon (Si₆₋zAlzOzN₈₋z)",
+          "tempRange": [
+            20,
+            1900
+          ],
+          "transformType": "polymorphic",
+          "source": "K.H. Jack, Sialons and related nitrogen ceramics, J. Mater. Sci. 11 (1976) 1135"
+        },
+        {
+          "structure": "Si₃N₄ + Al₂O₃/AlN",
+          "to": "β′-Sialon",
+          "temp_c": 1600,
+          "temp_qualifier": "above",
+          "transformType": "reconstructive",
+          "reversible": false,
+          "volume_change_pct": 0.0,
+          "note": "β′-sialon (z≈0–4.2) forms by solid-state reaction of Si₃N₄ with Al₂O₃+AlN at ~1500–1750°C; aluminium/oxygen substitute into the β-Si₃N₄ lattice keeping the structure isostructural.",
+          "source": "K.H. Jack (1976); Ekström & Nygren, SiAlON ceramics, J. Am. Ceram. Soc. 75 (1992) 259"
+        }
+      ]
     },
     {
       "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",

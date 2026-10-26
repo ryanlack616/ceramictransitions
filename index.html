@@ -1590,7 +1590,6 @@ function collectTransitionContext(s) {
       if (r.structure === s.name || r.to === s.name || (r.phaseName && r.phaseName === s.name)) {
         parents.add(other);
         referencing.push(r);
-        break;
       }
     }
   }
