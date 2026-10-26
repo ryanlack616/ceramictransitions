@@ -51,6 +51,8 @@ RADIUS = {
     "Cr": 1.40, "Fe": 1.40, "Ni": 1.35, "Mo": 1.45, "W": 1.50, "Nb": 1.45,
     # 2026-10-26: framework-silicate / hydroxyl chemistry
     "K": 1.60, "Zn": 1.35, "H": 0.50,
+    # 2026-10-26: deferred additions element radii
+    "Ba": 1.75, "V": 1.35,
 }
 
 # Bond cutoffs (Å) — covalent/ionic upper bounds for renderable bonds.
@@ -99,6 +101,10 @@ BOND_CUTOFFS = {
     frozenset(("K",  "O")): 3.30,
     frozenset(("Zn", "O")): 2.35,
     frozenset(("H",  "O")): 1.35,
+    # 2026-10-26: deferred additions (Y2O3, YAG, HfSiO4, Celsian, VC, Mo2C, 6H-SiC)
+    frozenset(("Ba", "O")): 3.25,
+    frozenset(("V",  "C")): 2.35,
+    frozenset(("Mo", "C")): 2.55,
     # MAX-phase
     frozenset(("Cr", "Al")): 2.80,
     frozenset(("Al", "C")): 2.30,

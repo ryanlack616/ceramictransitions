@@ -801,6 +801,9 @@ const FALLBACK_ELEMENT_META = {
   Mo: { color: [0.44, 0.48, 0.60], radius: 1.45, mass: 95.95,  name: 'Molybdenum' },
   W:  { color: [0.60, 0.60, 0.60], radius: 1.45, mass: 183.84, name: 'Tungsten' },
   Nb: { color: [0.47, 0.65, 0.80], radius: 1.45, mass: 92.91,  name: 'Niobium' },
+  // 2026-10-26 deferred additions: celsian (Ba), VC (V)
+  Ba: { color: [0.63, 0.77, 0.55], radius: 1.95, mass: 137.33, name: 'Barium' },
+  V:  { color: [0.65, 0.65, 0.70], radius: 1.40, mass: 50.94,  name: 'Vanadium' },
 };
 
 // Prototype basis sets (fractional coords in conventional unit cell).
@@ -1091,6 +1094,10 @@ const FALLBACK_BOND_COLORS = {
   'Hf-N':  [0.55, 0.63, 0.92],
   'C-Ti':  [0.65, 0.68, 0.75],
   'C-Nb':  [0.60, 0.70, 0.82],
+  // deferred additions: YAG/Ba-O, VC/V-C, Mo2C/Mo-C
+  'Ba-O':  [0.62, 0.75, 0.52],
+  'V-C':   [0.58, 0.62, 0.68],
+  'Mo-C':  [0.55, 0.62, 0.75],
 };
 
 function ensureBondColorsCoverage(bondColorsMap) {
