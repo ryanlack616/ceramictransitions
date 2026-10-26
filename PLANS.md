@@ -1,5 +1,5 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Phase 3.3 COMPLETE | Updated: June 17, 2026  
+**Status:** Tier D + Structure Audit COMPLETE (Oct 26, 2026) | Updated: October 26, 2026  
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
 
 ---
@@ -26,6 +26,8 @@
 **Deploy mechanism:** **GitHub Pages** is the live host — `ceramictransitions.com` (CNAME) is served from `master` and auto-deployed by `.github/workflows/pages.yml` on every push, after `.github/workflows/validate.yml` gates any `data/**`/HTML change (validator + JSON Schema + 240-check smoke). So **`git push origin master` deploys live** (verified 2026-06-17: `server: GitHub.com`). The FTP path (`python _deploy.py --tls --force`, requires `$CERAMICTRANSITIONS_FTP_PASS`) is a legacy/secondary Porkbun mirror, not the live host.
 
 ## Open Operational Threads
+- 🔴 **1. Rebuild the 7 stoichiometry-deviant pedagogical models (REAL atom-count errors).** Zircon renders at **half its oxygens** (ZrSiO₂-scale), Leucite has **doubled K**, and Willemite / Enstatite / Anorthite / Kaolinite / Talc carry ratio slips (formula vs atoms). Since the 2026-10-26 audit they each carry an honest info[] structural model-note (below). **Rule: do NOT hand-invent coordinates blind** — rebuild from a cited crystallographic source (Materials Project / ICSD; note `MP_API_KEY` is absent from `.env` today). Acceptance = exact formula stoichiometry **and** recomputed bond distances in expected ranges (Zr-O 2.1–2.3 Å, Si-O ~1.62 Å…). The `_audit_correct_add.py --check` stoichiometry audit is the regression gate.
+- 🔴 **2. Add the deferred-but-real materials (same MP/ICSD path):** **Y₂O₃** (yttria — zirconia's own stabilizer, the most conspicuous absence), **YAG (Y₃Al₅O₁₂)**, **HfSiO₄** (hafnon, zircon-analog), **Tridymite** (the missing SiO₂ polymorph — in the transitions chain but not selectable), **Celsian (BaAl₂Si₂O₈)**, **VC**, **Mo₂C**, **6H-SiC** polytype.
 
 - ✅ **Live deploy = GitHub Pages (Phases 3.1–3.3 current)** — verified 2026-06-17: `ceramictransitions.com` is served by GitHub Pages (`server: GitHub.com`, `CNAME`), auto-deployed by `.github/workflows/pages.yml` on every push to `master` (gated by `validate.yml`). Live `data/crystal_vr.json` is byte-identical to the repo (83 structures). To ship: commit + `git push origin master`. The FTP `_deploy.py` path (Porkbun) is a legacy/secondary mirror — `CERAMICTRANSITIONS_FTP_PASS=… python _deploy.py --tls --force` (`--tls` required; plain PASV times out).
 - 📋 **Phase 3.3 (carry-forward)** — Migrate procedural-fallback path into Taichi repo so the web JSON ships simulation-derived structures and the client-side prototype renderer becomes a graceful-degradation fallback only.
@@ -34,6 +36,25 @@
 **Roadmap constraint (effective now):** All remaining heavy implementation work for Phase 3+ is Taichi-only in `C:\rje\dev\ceramictransitions-taichi`. The current `ceramictransitions` repo is retained as the completed Phase 1–2.5.1 web delivery track; small UX polish (filter, mobile, error states, cross-links) is in scope here.
 
 ---
+
+## 2026-10-26 STRUCTURE AUDIT & DATA CORRECTIONS (CH-261026-6) — all 87 structures verified
+
+**Why.** Ryan: "verify all the structures and correct, then look for more." Ran a systematic audit no existing tool covered — per-structure completeness, formula-vs-atoms stoichiometry (Unicode-subscript aware), cell sanity, temp sanity, element/bond-color coverage, prototype promotion, MP-cache exhaustion.
+
+**Verified clean:** all **35 DFT/Materials-Project-backed entries stoichiometrically exact**; every atom-bearing entry's cell sane; `service_temp_c ≤ melting_point_c` everywhere; no duplicate names; the 32-entry `.mp_cache` is fully consumed (no offline-untapped sources).
+
+**Corrections:**
+1. **7 hand-built pedagogical models have REAL atom-count deviations** (see Open Operational Threads #1 — the top follow-up): **Zircon** renders at half its oxygens (ZrSiO₂-scale), **Leucite** has doubled K, **Willemite / Enstatite / Anorthite / Kaolinite / Talc** carry ratio slips. All carry an honest info[] **structural model-note** (2026-10 audit). **Rebuild deliberately deferred** — corrected coordinates must come from a cited crystallographic source, not invented (no `MP_API_KEY` in `.env`).
+2. **Fixed a hidden live crash (root cause found during the audit):** the legend reads `data.elements[sym].color` unguarded, and `FALLBACK_ELEMENT_META` never covered the DFT-ingested elements **Cr, Gd, Lu, Mo, W, Nb** — selecting Chromium Carbide / Gadolinium Zirconate / Lutetium silicates / Molybdenum Disilicide / Tungsten Carbide / Niobium Carbide **crashed the live viewer**. Fixed: fallback element meta added, legend hardened to skip unknowns, and a new **element-coverage invariant** in the smoke test so this class can never ship again (385 checks, was 240/304).
+
+**Additions (83 → 87 structures; renderable 79 → 84):** **CaO** (rock-salt, calcite's decomposition product), **BeO** (wurtzite — highest-TC oxide), **TaB₂** (AlB₂ — completes the ZrB₂/HfB₂/**TaB₂** UHTC trio), **HfN** (rock-salt — completes TiN/ZrN/**HfN**), and **High-Entropy Carbide (Hf,Zr,Ti,Ta,Nb)C** promoted off "Coming Soon" via a new **mixed-cation `rocksalt_mix` prototype** (5 cations cycled over rock-salt sites, a=4.46). Only the three multilayer **system** architectures (TBC/EBC/CMC) remain stubs — they are stacks, not crystals.
+
+**Commits:** `b3c76a4` (audit + additions) and `908e81b` (legend/element-meta fix + coverage guard), both pushed; live-verified in headless chromium (0 page errors across 15 structures including every previously-broken entry). **Tooling kept in repo:** `_audit_correct_add.py` (dry-run/`--write`; `--check` re-runs the stoichiometry audit).
+
+**Deferred additions (Open Operational Threads #2):** Y₂O₃, YAG, HfSiO₄ (hafnon), Tridymite, Celsian, VC, Mo₂C, 6H-SiC.
+
+---
+
 
 ## INTERFACE & DISCOVERY ROADMAP (2026-06-17, CH-260617-1)
 
@@ -186,7 +207,7 @@ Three findings from inspecting the live data (`data/crystal_vr.json`), each of w
 
 **D.2 — Harvest existing hints.** ✅ DONE (2026-06-18, commits `1dfcca4` + `2a8047c`). `_harvest_transitions.py` mined the structural `application_tags` (`transforms-to:…@T`, `decomp-to:…@T`, `polymorph-of:…`); validator gained the `transitions[]` shape rule (structure + `tempRange` OR `temp_c`, enum `transformType`). **Result: 8/83 entries carry transitions[]** (α-Quartz, Baddeleyite, Hematite, Kaolinite, Calcite, Andalusite, Kyanite, Sillimanite). 6 hand-authored window rows were left in the legacy shape pending D.3's reconcile pass.
 
-**D.3 — Author the key polymorph set (cited).** ✍️ PROPOSED, NOT APPLIED (report-only per the 2026-06-17 decision). `_author_polymorphs.py` holds the authored set — **α↔β SiC**, **t↔m ZrO₂ (martensitic; the −4.5 vol% PSZ workhorse, Hannink 2000)**, **m↔t↔c HfO₂ (Wang/Li/Stevens 1992)**, **α↔β Si₃N₄ (Riley 2000)**, **β′-sialon formation (Jack 1976)**, **cristobalite ~230°C inversion (+2.8 vol%)** — 16 new rows + a 7-row reconcile pass that completes the 6 deferred legacy rows into the locked shape with sources. `python _author_polymorphs.py` prints the proposal; `--write` applies it (idempotent). **Do not apply until the human review signs off on the claim+source pairs.**
+**D.3 — Author the key polymorph set (cited).** ✅ APPLIED (2026-10-26, commit `6daeb0a`, pushed, live; report-only review per the 2026-06-17 decision — Ryan approved same-session). `_author_polymorphs.py` holds the authored set — **α↔β SiC**, **t↔m ZrO₂ (martensitic; the −4.5 vol% PSZ workhorse, Hannink 2000)**, **m↔t↔c HfO₂ (Wang/Li/Stevens 1992)**, **α↔β Si₃N₄ (Riley 2000)**, **β′-sialon formation (Jack 1976)**, **cristobalite ~230°C inversion (+2.8 vol%)** — 16 new rows + a 7-row reconcile pass that completed the 6 deferred legacy rows into the locked shape with sources. Transitions coverage: **8 → 13 materials (29 rows)**; the flagship's Firing-mode panel renders them from data. `python _author_polymorphs.py --dry-run` prints any pending proposal; `--write` applies it (idempotent).
 
 **D.4 — Material view *inside the flagship*.** ✅ SHIPPED (2026-10-26, commit `ad31c25` + follow-up). The Firing-mode panel in `index.html` is now schema-agnostic: it renders window buckets and point events (structure → to @ T°C) with `transformType`, reversibility, `volume_change_pct` and the citation, merges an entry's own chain with sibling polymorph rows, snaps the viewer across window boundaries, and keeps point events as narration. This also **fixed a live regression** where α-Quartz/Tridymite/β-Cristobalite crashed the panel (D.2's mixed-schema rows hit `tempRange[0]` on an event row).
 
