@@ -81,6 +81,7 @@ BOND_CUTOFFS = {
     frozenset(("B", "N")):  1.90,
     frozenset(("Ti", "N")): 2.40,
     frozenset(("Zr", "N")): 2.50,
+    frozenset(("Hf", "N")): 2.45,
     # borides
     frozenset(("Zr", "B")): 2.80,
     frozenset(("Hf", "B")): 2.75,
@@ -119,6 +120,7 @@ BOND_CUTOFFS = {
     frozenset(("Li", "O")): 2.55,
     frozenset(("Na", "O")): 3.05,
     frozenset(("C",  "O")): 1.75,
+    frozenset(("Be", "O")): 2.05,
     frozenset(("Sr", "O")): 3.05,
     # MAX-phase
     frozenset(("Cr", "Al")): 2.80,
