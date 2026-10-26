@@ -174,6 +174,35 @@ for (const pair of expectedPairs) {
   check(FALLBACK_BOND_COLORS && FALLBACK_BOND_COLORS[pair], `bond color fallback for ${pair}`);
 }
 
+// Element coverage guard (2026-10): the viewer's loader calls
+// ensureElementsCoverage(data.elements) before rendering, so every element in
+// crystal_vr.json atoms must be present in data.elements OR FALLBACK_ELEMENT_META.
+// Without this, buildLegend() reads data.elements[sym].color and throws for
+// unknown elements (this bit Cr/Gd/Lu/Mo/W/Nb after the Phase 3.3/3.4 ingests).
+console.log('\n▶ Data element coverage');
+const fsd = require('fs');
+const dataDoc = JSON.parse(fsd.readFileSync(path.join(__dirname, 'data', 'crystal_vr.json'), 'utf8'));
+const usedEls = new Set();
+for (const st of dataDoc.structures) {
+  for (const a of st.atoms || []) usedEls.add(a.e);
+}
+// Mirror the loader exactly: seed from data.elements, then fill gaps from the fallback.
+const probeMap = Object.assign({}, dataDoc.elements || {});
+ensureElementsCoverage(probeMap);
+for (const el of usedEls) {
+  const meta = probeMap[el];
+  check(meta && meta.color, `element coverage for ${el} (in data.elements or FALLBACK_ELEMENT_META)`);
+}
+// Table cations/anions must likewise resolve a color after coverage fill.
+for (const [formula, entry] of Object.entries(PROTOTYPE_TABLE)) {
+  const cations = Array.isArray(entry.cations) ? entry.cations : [entry.cation];
+  if (entry.cation === undefined && !Array.isArray(entry.cations)) { /* multi-cation rows handled above */ }
+  for (const c of cations.concat([entry.anion])) {
+    const meta = probeMap[c];
+    check(meta && meta.color, `element coverage for ${c} (${formula} table)`);
+  }
+}
+
 function cellVolume(cv) {
   const [a, b, c] = cv;
   // |a · (b × c)|

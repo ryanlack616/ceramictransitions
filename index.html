@@ -793,6 +793,14 @@ const FALLBACK_ELEMENT_META = {
   B:  { color: [1.00, 0.71, 0.71], radius: 0.85, mass: 10.81,  name: 'Boron' },
   N:  { color: [0.19, 0.31, 0.97], radius: 0.65, mass: 14.01,  name: 'Nitrogen' },
   Be: { color: [0.76, 0.85, 0.60], radius: 0.90, mass: 9.01,   name: 'Beryllium' },
+  // DFT-ingested elements (Phase 3.3/3.4) had no element meta — the legend
+  // reads data.elements[sym].color unguarded, so selecting these crashed.
+  Cr: { color: [0.54, 0.60, 0.78], radius: 1.30, mass: 52.00,  name: 'Chromium' },
+  Gd: { color: [0.72, 0.80, 0.85], radius: 1.80, mass: 157.25, name: 'Gadolinium' },
+  Lu: { color: [0.25, 0.58, 0.60], radius: 1.75, mass: 174.97, name: 'Lutetium' },
+  Mo: { color: [0.44, 0.48, 0.60], radius: 1.45, mass: 95.95,  name: 'Molybdenum' },
+  W:  { color: [0.60, 0.60, 0.60], radius: 1.45, mass: 183.84, name: 'Tungsten' },
+  Nb: { color: [0.47, 0.65, 0.80], radius: 1.45, mass: 92.91,  name: 'Niobium' },
 };
 
 // Prototype basis sets (fractional coords in conventional unit cell).
@@ -1741,6 +1749,7 @@ function buildLegend() {
       html += '<div style="font-size:9px;color:var(--text-dim);margin-top:4px">Other</div>';
       unlabeled.forEach(sym => {
         const info = data.elements[sym];
+        if (!info || !info.color) return; // no meta yet — skip instead of crashing the legend
         const c = info.color;
         const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
         html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
@@ -1760,6 +1769,7 @@ function buildLegend() {
   let html = '<h3>Elements</h3>';
   elems.forEach(sym => {
     const info = data.elements[sym];
+    if (!info || !info.color) return; // no meta yet — skip instead of crashing the legend
     const c = info.color;
     const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
     html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
