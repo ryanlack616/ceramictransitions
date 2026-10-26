@@ -49,6 +49,8 @@ RADIUS = {
     "Mg": 1.50, "Ca": 1.80, "Ti": 1.40, "Zr": 1.55, "Hf": 1.55, "Ta": 1.45,
     "Yb": 1.75, "Lu": 1.75, "Y": 1.80, "La": 1.95, "Ce": 1.85, "Gd": 1.80,
     "Cr": 1.40, "Fe": 1.40, "Ni": 1.35, "Mo": 1.45, "W": 1.50, "Nb": 1.45,
+    # 2026-10-26: framework-silicate / hydroxyl chemistry
+    "K": 1.60, "Zn": 1.35, "H": 0.50,
 }
 
 # Bond cutoffs (Å) — covalent/ionic upper bounds for renderable bonds.
@@ -91,6 +93,12 @@ BOND_CUTOFFS = {
     frozenset(("Ti", "O")): 2.40,
     frozenset(("Al", "O")): 2.20,
     frozenset(("Mg", "O")): 2.45,
+    # 2026-10-26: framework-silicate / hydroxyl chemistry (Zircon, Leucite,
+    # Willemite, Enstatite, Anorthite, Kaolinite, Talc rebuilds)
+    frozenset(("Ca", "O")): 2.85,
+    frozenset(("K",  "O")): 3.30,
+    frozenset(("Zn", "O")): 2.35,
+    frozenset(("H",  "O")): 1.35,
     # MAX-phase
     frozenset(("Cr", "Al")): 2.80,
     frozenset(("Al", "C")): 2.30,
