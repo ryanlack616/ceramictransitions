@@ -3,10 +3,11 @@
   const STORAGE_KEY = 'ct_panel_layout_v2';
   const style = document.createElement('style');
   style.textContent = `
-    .panel-grip{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px;padding:4px 2px;border-bottom:1px solid var(--border);cursor:grab;touch-action:none;user-select:none;color:var(--text-dim);font:9px var(--mono);text-transform:uppercase;letter-spacing:.7px;}
-    .panel-grip.dragging{cursor:grabbing;color:var(--accent);}
+    .panel-grip{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px;padding:4px 2px;border-bottom:1px solid var(--border);user-select:none;color:var(--text-dim);font:9px var(--mono);text-transform:uppercase;letter-spacing:.7px;}
+    .panel-grip.dragging{color:var(--accent);}
     .panel-grip-label{display:flex;align-items:center;gap:6px;min-width:0;}
-    .panel-drag-icon{color:var(--accent);font-size:13px;letter-spacing:-2px;}
+    .panel-drag-icon{display:inline-flex;align-items:center;justify-content:center;width:26px;height:24px;color:var(--accent);font-size:15px;letter-spacing:-2px;border:1px solid var(--border);border-radius:3px;cursor:grab;touch-action:none;}
+    .panel-grip.dragging .panel-drag-icon{cursor:grabbing;background:rgba(196,130,110,.12);}
     .panel-grip-actions{display:flex;gap:3px;flex:0 0 auto;}
     .panel-grip button{background:none;border:1px solid var(--border);color:var(--text-dim);width:22px;height:20px;padding:0;border-radius:3px;cursor:pointer;font:12px var(--mono);line-height:14px;}
     .panel-grip button:hover,.panel-grip button:focus-visible{border-color:var(--accent);color:var(--accent);outline:none;}
@@ -80,8 +81,8 @@
     });
 
     let drag = null;
-    grip.addEventListener('pointerdown', event => {
-      if (event.target.closest('button')) return;
+    const dragHandle = grip.querySelector('.panel-drag-icon');
+    dragHandle.addEventListener('pointerdown', event => {
       const rect = panel.getBoundingClientRect();
       drag = { pointerId: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
       panel.setPointerCapture(event.pointerId);
