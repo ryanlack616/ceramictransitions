@@ -31,6 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   #panel{width:calc(100vw - 24px);max-width:280px;max-height:48vh;left:12px;top:12px;padding:10px 12px;}
   #panel h2{font-size:13px;}
   #info-panel,#right-panel{right:12px !important;left:auto;max-width:calc(100vw - 24px);}
+  #materials-panel{top:300px;right:12px;width:calc(100vw - 24px);max-height:38vh;}
   .struct-btn{font-size:10px;}
   #btn-share,#btn-qr{display:none;}
   #qr-overlay{right:12px;left:12px;}
@@ -49,8 +50,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 #panel{position:absolute;top:16px;left:16px;width:220px;max-height:calc(100vh - 32px);overflow-y:auto;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);}
 #panel h2{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:-.3px;}
 #panel .subtitle{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;}
-#panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:10px 0 5px;}
-#panel h3:first-of-type{margin-top:4px;}
+#panel h3,#materials-panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:10px 0 5px;}
+#panel h3:first-of-type,#materials-panel h3:first-of-type{margin-top:4px;}
 
 /* ── Tier (Pinch / Pro) ────────────────────────────────────── */
 body.mode-pinch [data-tier="pro"]{display:none !important;}
@@ -125,6 +126,7 @@ label.opt input{accent-color:var(--accent);}
 .slider-row .val{min-width:28px;text-align:right;color:var(--text);}
 
 #info-panel{position:absolute;top:16px;right:16px;width:260px;background:rgba(10,10,12,.92);border:1px solid var(--border);border-radius:8px;padding:12px 14px;pointer-events:all;backdrop-filter:blur(8px);display:none;}
+#materials-panel{position:absolute;top:300px;right:16px;width:300px;max-height:calc(100vh - 316px);overflow-y:auto;background:rgba(10,10,12,.94);border:1px solid var(--border);border-radius:8px;padding:10px 12px;pointer-events:all;backdrop-filter:blur(8px);}
 #info-panel h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:0 0 6px;}
 #info-name{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px;}
 #info-formula{font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-bottom:6px;}
@@ -472,6 +474,8 @@ label.opt input{accent-color:var(--accent);}
     </div>
   </div>
 
+  <div id="materials-panel" aria-label="Material browser"></div>
+
   <div id="legend"></div>
 
   <div id="temp-panel" style="display:none">
@@ -514,6 +518,7 @@ if (location.protocol === 'file:') {
 </script>
 <script src="viewer-core.js"></script>
 <script src="prototype-runtime.js"></script>
+<script src="panel-manager.js"></script>
 <script type="importmap">
 {
   "imports": {
@@ -758,8 +763,29 @@ function updateOxidationInfo() {
 }
 
 // ── Init ────────────────────────────────────────────────────
+function moveMaterialBrowser() {
+  const source = document.getElementById('panel');
+  const target = document.getElementById('materials-panel');
+  if (!source || !target || target.dataset.materialsMoved) return;
+  const children = [...source.children];
+  const start = children.findIndex(node => node.tagName === 'H3' && node.textContent.trim() === 'Filter');
+  const end = children.findIndex((node, index) => index > start && node.tagName === 'H3' && node.textContent.trim() === 'Display');
+  if (start < 0 || end < 0) return;
+  children.slice(start, end).forEach(node => target.appendChild(node));
+  target.dataset.materialsMoved = 'true';
+}
+
 async function init() {
   clock = new THREE.Clock();
+  moveMaterialBrowser();
+  PanelManager.init([
+    { id: 'panel', title: 'Viewer controls' },
+    { id: 'materials-panel', title: 'Materials' },
+    { id: 'info-panel', title: 'Selected material' },
+    { id: 'compare-panel', title: 'Compare' },
+    { id: 'temp-panel', title: 'Firing temperature' },
+    { id: 'legend', title: 'Elements' },
+  ]);
 
   // Scene
   scene = new THREE.Scene();

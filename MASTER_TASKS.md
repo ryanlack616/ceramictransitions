@@ -419,6 +419,15 @@ complete because a UI control exists; verify the behavior and its failure state.
 - [ ] `P3` Do not add a backend unless external consumers need programmatic access or collaboration state.
 - [ ] `P3` Acceptance: release validation, artifact staging, public verification, performance budget, and current catalog manifest all pass from a clean checkout.
 
+### EP1-J: Movable And Collapsible Panels
+
+- [x] `P0` Move the flagship material browser into its own right-side panel below the selected-material panel.
+- [x] `P0` Add a shared panel manager consumed by both viewers.
+- [x] `P1` Make viewer controls, material browser, selected material, compare, firing temperature, filters, legend, and structure strip collapsible.
+- [x] `P1` Make the panel grip areas draggable with pointer and touch-compatible pointer events.
+- [x] `P1` Persist panel positions and collapsed state locally, with double-click reset behavior.
+- [~] `P1` Verify panel placement on real phone browsers and portrait compare mode; automated narrow-mobile smoke passes, device-specific verification remains.
+
 ## Recommended Execution Order
 
 1. `M0`: establish host, artifact, count, and source-of-truth decisions.

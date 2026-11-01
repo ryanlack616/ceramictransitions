@@ -15,6 +15,7 @@ REQUIRED = {
     "data/crystal_vr.js",
     "viewer-core.js",
     "prototype-runtime.js",
+    "panel-manager.js",
 }
 
 

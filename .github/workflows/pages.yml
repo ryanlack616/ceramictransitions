@@ -72,7 +72,7 @@ jobs:
         run: |
           rm -rf release
           mkdir -p release/data
-          cp index.html lattice.html viewer-core.js prototype-runtime.js CNAME release/
+          cp index.html lattice.html viewer-core.js prototype-runtime.js panel-manager.js CNAME release/
           cp data/crystal_vr.json data/crystal_vr.schema.json release/data/
           python _build_crystal_vr_js.py
           cp data/crystal_vr.js release/data/

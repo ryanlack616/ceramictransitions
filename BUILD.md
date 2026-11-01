@@ -21,6 +21,7 @@ the current release contract.
 - `MASTER_TASKS.md` - current prioritized execution backlog and interface direction
 - `data/crystal_vr.json` - crystal structure library (113 entries: 99 baked + 9 procedural candidates + 5 system entries)
 - `data/crystal_vr.js` - generated file:// fallback bundle, regenerated from the JSON catalog
+- `panel-manager.js` - shared draggable/collapsible panel runtime for both viewers
 - `build_release_manifest.py` - generated public catalog/deployment manifest
 - `DEPENDENCIES.md` - runtime and CI dependency inventory
 - `CHANGELOG.md` - current release/change history

@@ -184,6 +184,7 @@ if (location.protocol === 'file:') {
 </script>
 <script src="viewer-core.js"></script>
 <script src="prototype-runtime.js"></script>
+<script src="panel-manager.js"></script>
 <script type="importmap">
 {
   "imports": {
@@ -258,6 +259,13 @@ function getGeo(r) {
 /* ── Init ──────────────────────────────────────────────────── */
 async function init() {
   clock = new THREE.Clock();
+  PanelManager.init([
+    { id: 'controls', title: 'Lattice controls' },
+    { id: 'info', title: 'Selected material' },
+    { id: 'filter-bar', title: 'Material filters', className: 'panel-filter' },
+    { id: 'legend', title: 'Elements' },
+    { id: 'strip', title: 'Structures', className: 'panel-strip' },
+  ]);
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x060608);
   scene.fog = new THREE.FogExp2(0x060608, 0.008);
@@ -395,6 +403,7 @@ async function loadData() {
 function setupUI() {
   // Strip buttons
   const strip = document.getElementById('strip');
+  const stripContent = strip.querySelector(':scope > .panel-body') || strip;
   // Only renderable structures get strip buttons — stubs would crash the tile pipeline.
   const renderList = data.renderableStructures || data.structures;
   // Remap currentIdx to the renderable subset.
@@ -413,7 +422,7 @@ function setupUI() {
     btn.dataset.servicetemp = (typeof s.service_temp_c === 'number') ? String(s.service_temp_c) : '';
     btn.innerHTML = `<span class="strip-dot" style="background:${provDotColor(s)}"></span><span class="strip-name">${escapeHtml(s.name)}</span><span class="strip-formula">${escapeHtml(s.formula)}</span>`;
     btn.onclick = () => selectStructure(i);
-    strip.appendChild(btn);
+    stripContent.appendChild(btn);
   });
 
   // Filter / search
