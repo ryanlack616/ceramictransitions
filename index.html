@@ -1012,7 +1012,10 @@ async function runTransitionBrowserScenario() {
 }
 
 function readFilterState() {
-  try { return JSON.parse(localStorage.getItem('ct_filters') || '{}'); }
+  try {
+    const state = JSON.parse(localStorage.getItem('ct_filters') || '{}');
+    return state.version === 2 ? state : {};
+  }
   catch (_) { return {}; }
 }
 
@@ -1042,6 +1045,7 @@ function restoreFilterState() {
 function persistFilterState() {
   try {
     localStorage.setItem('ct_filters', JSON.stringify({
+      version: 2,
       query: document.getElementById('filter-name')?.value || '',
       class: document.getElementById('filter-class')?.value || '',
       source: document.getElementById('filter-source')?.value || '',
