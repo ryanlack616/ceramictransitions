@@ -68,6 +68,83 @@
         "system": {
           "type": "string"
         },
+        "entry_type": {
+          "type": "string",
+          "enum": ["crystal", "system"]
+        },
+        "material_class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "service_temp_c": {
+          "type": ["number", "null"]
+        },
+        "melting_point_c": {
+          "type": ["number", "null"]
+        },
+        "bound_type": {
+          "type": ["string", "null"],
+          "enum": ["melts", "decomposes", "transforms", "sublimes", null]
+        },
+        "application_tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "layers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["role", "material"],
+            "properties": {
+              "role": {"type": "string", "minLength": 1},
+              "material": {"type": "string", "minLength": 1},
+              "thickness_um": {"type": ["number", "null"], "minimum": 0},
+              "purpose": {"type": "string"},
+              "xref": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "mp_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_status": {
+          "type": "string",
+          "enum": [
+            "mp-exact",
+            "mp-analogue",
+            "literature-reference",
+            "procedural-prototype",
+            "illustrative-system",
+            "metadata-only"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {"type": "string"},
+              "id": {"type": "string"},
+              "title": {"type": "string"},
+              "url": {"type": "string", "format": "uri"},
+              "doi": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "measurement_conditions": {
+          "type": "object",
+          "properties": {
+            "atmosphere": {"type": "string"},
+            "pressure_kpa": {"type": "number"},
+            "time_scale": {"type": "string"},
+            "temperature_basis": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
         "info": {
           "type": "array",
           "items": {
@@ -259,7 +336,8 @@
                 "type": "string"
               },
               "temp_qualifier": {
-                "type": "string"
+                "type": "string",
+                "enum": ["at", "above", "below"]
               }
             },
             "additionalProperties": true,
@@ -278,7 +356,15 @@
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "required": ["entry_type", "layers"],
+          "properties": {"entry_type": {"const": "system"}}
+        },
+        {"not": {"required": ["entry_type"]}},
+        {"properties": {"entry_type": {"const": "crystal"}}}
+      ]
     }
   }
 }

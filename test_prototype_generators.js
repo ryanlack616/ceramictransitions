@@ -2,10 +2,9 @@
 /**
  * Smoke test for Phase 2.5.1 procedural prototype renderer.
  *
- * Extracts the procedural module from index.html and asserts per-prototype
- * invariants (atom count, bond count, coordination numbers, homoatomic policy,
- * finite coordinates). Catches regressions in the generator without needing a
- * browser or the full WebGL viewer.
+ * Loads the shared procedural runtime and asserts per-prototype invariants
+ * (atom count, bond count, coordination numbers, homoatomic policy, finite
+ * coordinates). Catches regressions without needing a browser or WebGL viewer.
  *
  * Run: node test_prototype_generators.js
  * Exits non-zero on failure.
@@ -16,46 +15,19 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const HTML_PATH = path.join(__dirname, 'index.html');
-const html = fs.readFileSync(HTML_PATH, 'utf8');
-
-// Extract the procedural module between its header comment and the data-loading
-// section. Slightly forgiving so future cosmetic edits to the comment don't
-// break extraction.
-const startMarker = /\/\/ ── Procedural Prototype Renderer/;
-const endMarker = /\/\/ ── Data Loading/;
-const startIdx = html.search(startMarker);
-const endIdx = html.search(endMarker);
-if (startIdx < 0 || endIdx < 0 || endIdx <= startIdx) {
-  console.error('FAIL: could not locate procedural module markers in index.html');
-  process.exit(2);
-}
-const src = html.slice(startIdx, endIdx);
+const RUNTIME_PATH = path.join(__dirname, 'prototype-runtime.js');
+const runtime = fs.readFileSync(RUNTIME_PATH, 'utf8');
 
 // Provide a no-op THREE shim — the prototype module doesn't use THREE itself,
 // but keep this here in case future helpers reach for it.
-const ctx = { console, THREE: { Color: function () {}, Vector3: function () {} } };
+const ctx = { console, window: null, THREE: { Color: function () {}, Vector3: function () {} } };
+ctx.window = ctx;
 vm.createContext(ctx);
-
-// Wrap the extracted (const/let) source in a function so we can return the
-// names we care about — top-level `const` doesn't attach to the vm context.
-const wrapped = `(function () {
-${src}
-  return {
-    PROTOTYPE_TABLE,
-    PROTOTYPE_DEFS,
-    FALLBACK_ELEMENT_META,
-    FALLBACK_BOND_COLORS,
-    generateAtomsFromPrototype,
-    ensureElementsCoverage,
-    ensureBondColorsCoverage,
-    promoteStubsWithPrototypes,
-  };
-})()`;
 
 let mod;
 try {
-  mod = vm.runInContext(wrapped, ctx, { filename: 'index.html:procedural' }); // pragma: allowlist secret — filename pattern, not a credential
+  vm.runInContext(runtime, ctx, { filename: 'prototype-runtime.js' });
+  mod = ctx.ViewerPrototypes;
 } catch (e) {
   console.error('FAIL: error evaluating procedural module:', e.message);
   process.exit(2);

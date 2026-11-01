@@ -11,6 +11,8 @@ Checks:
 Exits non-zero on any check failure (suitable for CI / pre-deploy gate).
 """
 import json
+import math
+import re
 import sys
 from pathlib import Path
 
@@ -39,6 +41,16 @@ TRANSFORM_TYPES = {
     "displacive", "reconstructive", "martensitic",
     "decomposition", "polymorphic", "oxidation",
 }
+TEMP_QUALIFIERS = {"at", "above", "below"}
+
+# The browser fills these symbols from FALLBACK_ELEMENT_META when older catalog
+# entries do not carry a complete element table. Keep the validator aligned with
+# that deliberate runtime fallback instead of rejecting known renderable data.
+FALLBACK_ELEMENT_SYMBOLS = {
+    "Hf", "Ta", "Y", "La", "Yb", "Ce", "B", "N", "Be", "Cr", "Gd",
+    "Lu", "Mo", "W", "Nb", "Ba", "V", "Sr",
+}
+FORMULA_TOKEN = re.compile(r"([A-Z][a-z]?)(\d*)")
 
 # Phase 2.5.1: stub formulas the viewer can synthesize procedurally at load
 # time from canonical structure prototypes (kept in sync with PROTOTYPE_TABLE
@@ -65,6 +77,29 @@ _SUBSCRIPT_MAP = str.maketrans(
 
 def _normalize_formula(f: str) -> str:
     return (f or "").translate(_SUBSCRIPT_MAP)
+
+
+def _simple_formula_counts(formula: str) -> dict[str, int] | None:
+    """Parse ordinary element-count formulas; return None for solid solutions."""
+    normalized = _normalize_formula(formula).replace(" ", "")
+    if not normalized or any(ch in normalized for ch in "()[]{}xX/-"):
+        return None
+    counts: dict[str, int] = {}
+    position = 0
+    for match in FORMULA_TOKEN.finditer(normalized):
+        if match.start() != position:
+            return None
+        element, number = match.groups()
+        counts[element] = counts.get(element, 0) + (int(number) if number else 1)
+        position = match.end()
+    return counts if position == len(normalized) else None
+
+
+def _reduced_counts(counts: dict[str, int]) -> dict[str, int]:
+    divisor = 0
+    for value in counts.values():
+        divisor = math.gcd(divisor, value)
+    return {key: value // divisor for key, value in counts.items()}
 
 
 def main() -> int:
@@ -116,6 +151,71 @@ def main() -> int:
                 f"(cellVectors len={len(cv)}, atoms len={len(atoms)})"
             )
 
+        if renderable:
+            # Baked geometry must meet the same basic integrity guarantees as
+            # procedural geometry. The browser cannot safely recover from an
+            # invalid bond endpoint or degenerate unit cell.
+            used_elements: set[str] = set()
+            for j, atom in enumerate(atoms):
+                if not isinstance(atom, dict) or not all(k in atom for k in ("e", "x", "y", "z")):
+                    errors.append(f"[{i}] {s.get('name', '?')}: atoms[{j}] missing element/coordinates")
+                    continue
+                used_elements.add(atom["e"])
+                coords = (atom.get("x"), atom.get("y"), atom.get("z"))
+                if not all(isinstance(v, (int, float)) and math.isfinite(v) for v in coords):
+                    errors.append(f"[{i}] {s.get('name', '?')}: atoms[{j}] has non-finite coordinates")
+                if "r" in atom and (not isinstance(atom["r"], (int, float)) or not math.isfinite(atom["r"]) or atom["r"] <= 0):
+                    errors.append(f"[{i}] {s.get('name', '?')}: atoms[{j}] has invalid radius")
+                if "cn" in atom and (not isinstance(atom["cn"], (int, float)) or atom["cn"] < 0):
+                    errors.append(f"[{i}] {s.get('name', '?')}: atoms[{j}] has invalid coordination")
+
+            known_elements = set((root.get("elements") or {}).keys()) | FALLBACK_ELEMENT_SYMBOLS
+            for element in used_elements - known_elements:
+                errors.append(f"[{i}] {s.get('name', '?')}: element {element!r} has no viewer metadata")
+
+            seen_bonds: set[tuple[int, int]] = set()
+            for j, bond in enumerate(s.get("bonds") or []):
+                if not isinstance(bond, list) or len(bond) != 2 or not all(isinstance(v, int) for v in bond):
+                    errors.append(f"[{i}] {s.get('name', '?')}: bonds[{j}] is not a pair of integer indices")
+                    continue
+                a, b = bond
+                if a == b or a < 0 or b < 0 or a >= len(atoms) or b >= len(atoms):
+                    errors.append(f"[{i}] {s.get('name', '?')}: bonds[{j}] references invalid atoms {bond}")
+                key = (min(a, b), max(a, b))
+                if key in seen_bonds:
+                    errors.append(f"[{i}] {s.get('name', '?')}: duplicate bond {bond}")
+                seen_bonds.add(key)
+
+            bond_types = s.get("bondTypes")
+            if bond_types is not None and len(bond_types) != len(s.get("bonds") or []):
+                errors.append(f"[{i}] {s.get('name', '?')}: bondTypes length does not match bonds")
+
+            supercell = s.get("supercell")
+            if not isinstance(supercell, list) or len(supercell) != 3 or not all(isinstance(v, int) and v > 0 for v in supercell):
+                errors.append(f"[{i}] {s.get('name', '?')}: supercell must contain three positive integers")
+
+            a, b, c = cv
+            cross = (
+                b[1] * c[2] - b[2] * c[1],
+                b[2] * c[0] - b[0] * c[2],
+                b[0] * c[1] - b[1] * c[0],
+            )
+            volume = abs(a[0] * cross[0] + a[1] * cross[1] + a[2] * cross[2])
+            if not math.isfinite(volume) or volume <= 1e-6:
+                errors.append(f"[{i}] {s.get('name', '?')}: cell volume is degenerate ({volume})")
+
+            expected = _simple_formula_counts(s.get("formula", ""))
+            if expected:
+                actual: dict[str, int] = {}
+                for atom in atoms:
+                    if isinstance(atom, dict) and isinstance(atom.get("e"), str):
+                        actual[atom["e"]] = actual.get(atom["e"], 0) + 1
+                if _reduced_counts(expected) != _reduced_counts(actual):
+                    errors.append(
+                        f"[{i}] {s.get('name', '?')}: formula/atom stoichiometry mismatch "
+                        f"(formula={_reduced_counts(expected)}, atoms={_reduced_counts(actual)})"
+                    )
+
         # Phase 3.3 HT-classification rule.
         if HT_CLASSIFICATION_REQUIRED:
             mc = s.get("material_class")
@@ -156,6 +256,32 @@ def main() -> int:
                             f"[{i}] {s.get('name', '?')}: transitions[{j}] transformType={tt!r} "
                             f"not in {sorted(TRANSFORM_TYPES)}"
                         )
+                    if "tempRange" in row:
+                        trange = row.get("tempRange")
+                        if (
+                            not isinstance(trange, list)
+                            or len(trange) != 2
+                            or not all(isinstance(v, (int, float)) and math.isfinite(v) for v in trange)
+                            or trange[0] > trange[1]
+                        ):
+                            errors.append(f"[{i}] {s.get('name', '?')}: transitions[{j}] invalid tempRange")
+                    if "temp_c" in row and (
+                        not isinstance(row.get("temp_c"), (int, float))
+                        or not math.isfinite(row["temp_c"])
+                    ):
+                        errors.append(f"[{i}] {s.get('name', '?')}: transitions[{j}] invalid temp_c")
+                    if row.get("temp_qualifier") is not None and row["temp_qualifier"] not in TEMP_QUALIFIERS:
+                        errors.append(
+                            f"[{i}] {s.get('name', '?')}: transitions[{j}] temp_qualifier={row['temp_qualifier']!r} "
+                            f"not in {sorted(TEMP_QUALIFIERS)}"
+                        )
+                    if row.get("volume_change_pct") is not None and (
+                        not isinstance(row["volume_change_pct"], (int, float))
+                        or not math.isfinite(row["volume_change_pct"])
+                    ):
+                        errors.append(f"[{i}] {s.get('name', '?')}: transitions[{j}] invalid volume_change_pct")
+                    if not isinstance(row.get("source"), str) or not row["source"].strip():
+                        errors.append(f"[{i}] {s.get('name', '?')}: transitions[{j}] missing source citation")
 
     # Header count consistency (Phase 3.3 drift guard, added 2026-06-17).
     # The top-level header counts must mirror the array exactly, matching how the

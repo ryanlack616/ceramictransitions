@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>High-Temperature Ceramics — Structure + Transitions Explorer</title>
-<meta name="description" content="Interactive 3D viewer for high-temperature ceramics: UHTCs, thermal barrier coatings (TBC), environmental barrier coatings (EBC), ceramic matrix composites (CMC), refractory oxides, nitrides, carbides, borides. 83 structures with atomic coordinates, phase transitions, and service-temperature filtering.">
+<meta name="description" content="Interactive 3D viewer for high-temperature ceramics: UHTCs, thermal barrier coatings (TBC), environmental barrier coatings (EBC), ceramic matrix composites (CMC), refractory oxides, nitrides, carbides, borides. Explore atomic structures, phase transitions, provenance, and service-temperature filtering.">
 <style>
 :root {
   --bg:#0a0a0c; --surface:#131316; --border:#2a2a35; --text:#c8c8d0;
@@ -13,6 +13,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden;width:100%;height:100%;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
 /* ── Fatal error overlay ─────────────────────────────────────────────────── */
 #fatal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(10,10,12,.96);z-index:300;padding:24px;text-align:center;}
@@ -21,6 +22,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 #fatal p{color:var(--text-dim);font-family:var(--mono);font-size:11px;max-width:480px;line-height:1.5;}
 #fatal button{margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;}
 #fatal button:hover{border-color:var(--accent);color:var(--accent);}
+.skip-link{position:fixed;top:-40px;left:12px;z-index:500;background:var(--accent);color:#fff;padding:7px 10px;border-radius:4px;font:11px var(--mono);}
+.skip-link:focus{top:12px;}
 
 /* ── Mobile reflow ───────────────────────────────────────────────────────── */
 @media (max-width:720px){
@@ -32,6 +35,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   #btn-share,#btn-qr{display:none;}
   #qr-overlay{right:12px;left:12px;}
   #loading-bar{width:200px;}
+  #temp-panel{min-width:0;width:calc(100vw - 24px);padding:8px 10px;gap:7px;}
+  #temp-readout{font-size:18px;min-width:58px;}
+  #phase-badge{min-width:0;font-size:9px;padding:3px 5px;}
+  #phase-narrative{left:12px;right:12px;top:auto;bottom:118px;transform:none;max-width:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto !important;transition-duration:0.01ms !important;animation-duration:0.01ms !important;animation-iteration-count:1 !important;}
 }
 
 #hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
@@ -70,15 +80,40 @@ body.mode-pinch [data-tier="pro"]{display:none !important;}
 .prov-badge a:hover{opacity:1;}
 .prov-note{font-size:9.5px;color:var(--text-dim);font-family:var(--mono);line-height:1.45;margin:-4px 0 8px;}
 .prov-verified{color:#7fd49a;border-color:rgba(127,212,154,.4);background:rgba(127,212,154,.08);}
+.prov-analogue{color:#d4b06e;border-color:rgba(212,176,110,.4);background:rgba(212,176,110,.08);}
 .prov-reference{color:#7fb4d4;border-color:rgba(127,180,212,.4);background:rgba(127,180,212,.08);}
 .prov-procedural{color:#d4b06e;border-color:rgba(212,176,110,.4);background:rgba(212,176,110,.08);}
 .prov-stub{color:#9aa0ad;border-color:rgba(154,160,173,.4);background:rgba(154,160,173,.08);}
+.prov-system{color:#c59bd8;border-color:rgba(197,155,216,.4);background:rgba(197,155,216,.08);}
 .struct-btn .pdot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:4px;vertical-align:middle;}
 
 .struct-list{display:flex;flex-direction:column;gap:2px;}
 .struct-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--mono);text-align:left;transition:all .15s;}
 .struct-btn:hover{border-color:var(--accent);color:var(--text);}
+.struct-btn:focus-visible,.btn-mode:focus-visible,.job-chip:focus-visible,#filter-clear-all:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .struct-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(196,130,110,.1);}
+.filter-actions{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:2px 0 6px;}
+#filter-clear-all{background:none;border:0;color:var(--text-dim);font:9px var(--mono);cursor:pointer;padding:2px 0;text-decoration:underline;}
+#filter-clear-all:hover{color:var(--accent);}
+#no-results{display:none;color:var(--text-dim);font:10px var(--mono);padding:8px 4px;line-height:1.5;}
+#catalog-summary{font:9px var(--mono);color:var(--text-dim);line-height:1.4;margin:2px 0 7px;}
+#provenance-legend{font:8px var(--mono);color:var(--text-dim);line-height:1.4;margin:0 0 7px;}
+#active-filters{font:9px var(--mono);color:var(--accent);line-height:1.4;min-height:12px;margin:0 0 4px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.section-head h3{margin:0;}
+.catalog-toggle{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:3px;padding:2px 5px;font:9px var(--mono);cursor:pointer;}
+.catalog-actions{display:flex;gap:3px;align-items:center;}
+.catalog-toggle:hover,.catalog-toggle.active{border-color:var(--accent);color:var(--accent);}
+.catalog-table{display:none;max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:4px;}
+.catalog-row{display:grid;grid-template-columns:minmax(100px,1.5fr) 70px 68px 62px;gap:5px;width:100%;padding:6px 5px;background:var(--surface);border:0;border-bottom:1px solid var(--border);color:var(--text-dim);font:9px var(--mono);text-align:left;cursor:pointer;}
+.catalog-row:last-child{border-bottom:0;}
+.catalog-row:hover,.catalog-row:focus-visible{background:rgba(196,130,110,.1);color:var(--text);outline:none;}
+.catalog-row.active{background:rgba(196,130,110,.16);color:var(--accent);}
+.catalog-row .name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.catalog-row .muted{color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.catalog-head{display:grid;grid-template-columns:minmax(100px,1.5fr) 70px 68px 62px;gap:5px;padding:4px 5px;background:#1a1a20;color:var(--accent);font:8px var(--mono);position:sticky;top:0;z-index:1;}
+body.catalog-mode #struct-list,body.catalog-mode #no-results{display:none !important;}
+body.catalog-mode #catalog-table{display:block;}
 .struct-btn .formula{font-size:9px;color:var(--text-dim);margin-left:4px;}
 
 label.opt{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px 0;}
@@ -98,6 +133,29 @@ label.opt input{accent-color:var(--accent);}
 #info-details .row{display:flex;justify-content:space-between;}
 #info-details .label{color:var(--text-dim);}
 #info-details .value{color:var(--text);font-weight:600;}
+.info-metadata{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0;padding:6px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font:10px var(--mono);}
+.info-metadata .label{color:var(--text-dim);}
+.info-metadata .value{color:var(--text);text-align:right;}
+.info-caveat{color:#d4b06e;font:9.5px var(--mono);line-height:1.45;margin:6px 0;}
+.info-section-title{color:var(--accent);font:8px var(--mono);text-transform:uppercase;letter-spacing:.8px;margin:8px 0 3px;}
+.info-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
+.info-actions button{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:3px 6px;border-radius:3px;font:9px var(--mono);cursor:pointer;}
+.info-actions button:hover,.info-actions button:focus-visible{border-color:var(--accent);color:var(--text);outline:none;}
+.info-note{width:100%;min-height:42px;resize:vertical;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:5px;font:9px var(--mono);margin-top:5px;}
+.info-actions button.bookmarked{border-color:#d4b06e;color:#d4b06e;}
+.system-stack{margin:8px 0;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.system-layer{display:grid;grid-template-columns:64px 1fr auto;gap:5px;align-items:center;padding:5px 6px;border-bottom:1px solid var(--border);font:9px var(--mono);}
+.system-layer:last-child{border-bottom:0;}
+.system-layer .role{color:var(--accent);text-transform:uppercase;font-size:8px;}
+.system-layer .material{color:var(--text);}
+.system-layer .thickness{color:var(--text-dim);white-space:nowrap;}
+.system-layer a{color:var(--accent);text-decoration:none;}
+.system-meta{font:9px var(--mono);color:var(--text-dim);line-height:1.45;margin:5px 0 0;}
+.transition-timeline{position:relative;height:30px;margin:8px 2px 6px;border-bottom:1px solid #3a4a60;background:rgba(88,166,255,.04);}
+.transition-track{position:absolute;top:5px;height:13px;border-radius:2px;background:rgba(88,166,255,.35);border:1px solid rgba(88,166,255,.65);min-width:4px;}
+.transition-track.event{width:5px !important;border-radius:50%;background:#8acfd9;border-color:#8acfd9;}
+.transition-track span{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#8fa6bc;font:8px var(--mono);}
+.transition-axis{position:absolute;bottom:-14px;left:0;right:0;display:flex;justify-content:space-between;color:#66788c;font:8px var(--mono);}
 #atom-info{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);display:none;}
 #atom-info h3{margin-bottom:4px;}
 #atom-info .atom-detail{font-size:11px;font-family:var(--mono);color:var(--text);line-height:1.6;}
@@ -171,6 +229,8 @@ label.opt input{accent-color:var(--accent);}
 #tour-controls button:hover{border-color:var(--accent);color:var(--text);}
 #btn-screenshot{position:absolute;top:16px;right:16px;background:rgba(10,10,12,.85);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .15s;pointer-events:all;z-index:50;}
 #btn-screenshot:hover{border-color:var(--accent);color:var(--text);}
+#btn-reset-camera{position:absolute;top:16px;right:142px;background:rgba(10,10,12,.85);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .15s;pointer-events:all;z-index:50;}
+#btn-reset-camera:hover{border-color:var(--accent);color:var(--text);}
 /* changelog */
 .cl-entry{padding:4px 0;border-bottom:1px solid var(--border);}
 .cl-entry:last-child{border-bottom:none;}
@@ -195,6 +255,7 @@ label.opt input{accent-color:var(--accent);}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#viewer-canvas">Skip to 3D viewer</a>
 
 <div id="loading">
   <div id="loading-text">Loading crystal data…</div>
@@ -207,10 +268,15 @@ label.opt input{accent-color:var(--accent);}
   <button onclick="location.reload()">Retry</button>
 </div>
 
+<div id="structure-announcer" class="sr-only" aria-live="polite"></div>
+<div id="test-status" class="sr-only"></div>
+
 <div id="hud">
   <div id="panel">
     <h2>High-Temp Ceramics</h2>
     <div class="subtitle">UHTC · TBC · EBC · CMC · refractories</div>
+    <div id="catalog-summary">Loading catalog…</div>
+    <div id="provenance-legend">MP-sourced · analogue · reference · procedural · system</div>
     <div class="tier-toggle" role="group" aria-label="View mode">
       <button id="tier-pinch" type="button" aria-pressed="true" title="Simple view — browse structures + basic display">Pinch</button>
       <button id="tier-pro" type="button" aria-pressed="false" title="Pro view — all spatial + chemistry tools">Pro</button>
@@ -237,6 +303,14 @@ label.opt input{accent-color:var(--accent);}
       <option value="hydroxide">Hydroxide</option>
       <option value="oxide">Other oxide</option>
     </select>
+    <select id="filter-source" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;" aria-label="Structure provenance">
+      <option value="">All provenance</option>
+      <option value="mp-exact">MP-sourced</option>
+      <option value="mp-analogue">MP analogue</option>
+      <option value="literature-reference">Reference</option>
+      <option value="procedural-prototype">Procedural</option>
+      <option value="illustrative-system">System architecture</option>
+    </select>
     <div class="job-chips-head">
       <span style="font-size:9px;color:var(--text-dim);font-family:var(--mono);">Used for…</span>
       <button class="job-clear" id="job-clear" style="display:none">× clear job</button>
@@ -248,7 +322,12 @@ label.opt input{accent-color:var(--accent);}
       <span class="val" id="filter-temp-val">0°C</span>
     </div>
     <label class="opt" style="font-size:10px;"><input type="checkbox" id="filter-hide-precursors"> Hide precursors</label>
-    <div id="filter-count" style="font-size:9px;color:var(--text-dim);font-family:var(--mono);margin:2px 0 6px;">—</div>
+    <label class="opt" style="font-size:10px;"><input type="checkbox" id="filter-hide-systems"> Hide system architectures</label>
+    <div class="filter-actions">
+      <div id="filter-count" style="font-size:9px;color:var(--text-dim);font-family:var(--mono);">—</div>
+      <button id="filter-clear-all" type="button" aria-label="Clear all structure filters">Clear filters</button>
+    </div>
+    <div id="active-filters" aria-live="polite"></div>
     <div class="slider-row" style="margin-bottom:4px;">
       <span style="font-size:9px;">Sort</span>
       <select id="sort-by" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:3px 5px;font-family:var(--mono);font-size:10px;" aria-label="Sort structures">
@@ -258,8 +337,10 @@ label.opt input{accent-color:var(--accent);}
         <option value="name">Name A–Z</option>
       </select>
     </div>
-    <h3>Structures</h3>
+    <div class="section-head"><h3>Structures</h3><div class="catalog-actions"><button id="btn-export-catalog" class="catalog-toggle" type="button">Export</button><button id="btn-catalog-mode" class="catalog-toggle" type="button" aria-pressed="false">Catalog</button></div></div>
     <div id="struct-list" class="struct-list"></div>
+    <div id="no-results" role="status">No structures match the current filters.</div>
+    <div id="catalog-table" class="catalog-table" role="table" aria-label="Material catalog"></div>
     <h3>Display</h3>
     <label class="opt"><input type="checkbox" id="chk-bonds" checked> Show bonds</label>
     <label class="opt"><input type="checkbox" id="chk-cell" checked> Show unit cell</label>
@@ -351,6 +432,7 @@ label.opt input{accent-color:var(--accent);}
     </div><!-- /data-tier=pro (What's New) -->
   </div>
 
+  <button id="btn-reset-camera" title="Reset camera" aria-label="Reset camera">⌂</button>
   <button id="btn-screenshot" title="Screenshot (PNG)">📷</button>
   <button id="btn-share" title="Copy share link">🔗</button>
   <button id="btn-qr" title="QR code">⊞</button>
@@ -374,6 +456,7 @@ label.opt input{accent-color:var(--accent);}
       <button id="btn-transitions" class="btn-mode" style="width:100%;margin:0 0 6px">View transitions ▾</button>
       <div id="transitions-body" style="display:none">
         <div style="font-size:10px;color:#999;margin-bottom:4px">Schematic — not simulation-derived. Window rows snap between polymorphs; event rows carry cited transitions (type, reversibility, volume change).</div>
+        <div id="transitions-timeline" class="transition-timeline" aria-label="Transition temperature timeline"></div>
         <div id="transitions-list" style="font-size:11px;line-height:1.5;margin-bottom:6px"></div>
         <div class="slider-row" style="display:flex;align-items:center;gap:6px">
           <span style="font-size:10px">T</span>
@@ -420,6 +503,17 @@ label.opt input{accent-color:var(--accent);}
   </div>
 </div>
 
+<script>
+// file:// support: fetch() is CORS-blocked for local files, so when this page is
+// opened directly from disk (double-click) the dataset is loaded through a plain
+// <script> tag (CORS-exempt) instead. Bundle: data/crystal_vr.js
+// (regenerate with _build_crystal_vr_js.py after data/crystal_vr.json changes).
+if (location.protocol === 'file:') {
+  document.write('<script src="data/crystal_vr.js"><\/script>');
+}
+</script>
+<script src="viewer-core.js"></script>
+<script src="prototype-runtime.js"></script>
 <script type="importmap">
 {
   "imports": {
@@ -435,6 +529,8 @@ import { OrbitControls }            from 'three/addons/controls/OrbitControls.js
 import { VRButton }                 from 'three/addons/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import { ConvexGeometry }            from 'three/addons/geometries/ConvexGeometry.js';
+const { TAG_GROUPS, findStructureIndexByKey, jobsForStructure, matchesTag, normalizeCatalog, searchTextForStructure, structureKey } = window.ViewerCore;
+const { FALLBACK_ELEMENT_META, FALLBACK_BOND_COLORS, ensureBondColorsCoverage, ensureElementsCoverage, generateAtomsFromPrototype, promoteStubsWithPrototypes, PROTOTYPE_TABLE } = window.ViewerPrototypes;
 
 // ── Constants ───────────────────────────────────────────────
 const DATA_URL = "data/crystal_vr.json";
@@ -449,48 +545,6 @@ let crystalGroup;   // holds all crystal geometry — transform target
 let data = null;    // loaded JSON
 let currentIdx = 0;
 let activeTag = null;   // Tier A: active application-tag job filter (null = all)
-
-// ── Application-tag browse (Tier A) ─────────────────────────────
-// Curated "what is this material used FOR?" jobs. Maps the 133 raw
-// application_tags (many near-duplicates: tbc / TBC-topcoat / TBC-topcoat-
-// standard …) onto ~15 canonical jobs, each with >=2 member materials
-// (verified against the dataset). Generic 'high-temperature-ceramic' and the
-// structural transforms-to:/decomp-to:/polymorph-of: tags are deliberately
-// excluded — the latter are reserved for the Transitions work. Order =
-// display order. Each value is the set of raw tags (lowercased) that map in.
-const TAG_GROUPS = {
-  "Thermal barrier coating": ["tbc","tbc-topcoat","tbc-topcoat-standard","tbc-topcoat-legacy","tbc-topcoat-pyrochlore","tbc-topcoat-research","tbc-next-gen","next-gen-tbc","tbc-research","next-gen-thermal-protection","low-thermal-conductivity","lower-thermal-conductivity"],
-  "Environmental barrier coating": ["ebc","ebc-topcoat","ebc-intermediate","cmc-protection","sic-cmc-protection","steam-water-vapor-protection","steam-resistant"],
-  "Cutting & tooling": ["cutting-tool","tool-coating","cemented-carbide","machinable-ceramic"],
-  "Armor": ["armor","transparent-armor"],
-  "Abrasive & wear-resistant": ["abrasive","wear-resistant","wear-coating","superhard","hvof-thermal-spray"],
-  "Refractory & kiln furniture": ["refractory","refractory-brick","refractory-component","kiln-furniture","kiln-shelf","crucible","molten-metal-handling","foundry-mold"],
-  "Hypersonic leading edge": ["hypersonic-leading-edge","atmospheric-reentry"],
-  "Rocket nozzle": ["rocket-nozzle"],
-  "Gas-turbine hot section": ["turbine-blade","turbine-rotor","turbine-shroud","turbine-hot-section","engine-hot-section","combustor-liner"],
-  "MAX phase & damage-tolerant": ["max-phase","damage-tolerant"],
-  "Oxidation & CMAS resistant": ["oxidation-resistant","cmas-resistant"],
-  "Bearings & seals": ["bearing","bearing-ball","pump-seal","turbocharger-rotor"],
-  "Glaze precursor (feldspar/flux)": ["feldspar","flux","feldspathoid","refractory-precursor"],
-  "Pigment & ore": ["pigment","white-pigment","iron-ore","tin-ore"],
-  "Electronic & thermal management": ["thermal-management","conductive-ceramic","electronic-substrate","breakdown-insulator","high-k-dielectric","low-loss-microwave"],
-};
-// Reverse index raw-tag -> canonical job (built once).
-const RAW_TAG_TO_JOB = (() => {
-  const m = {};
-  for (const [job, raws] of Object.entries(TAG_GROUPS)) for (const r of raws) m[r] = job;
-  return m;
-})();
-// Canonical jobs a structure belongs to (resolved through TAG_GROUPS).
-function jobsForStructure(s) {
-  const jobs = new Set();
-  for (const t of (s.application_tags || [])) {
-    const j = RAW_TAG_TO_JOB[String(t).toLowerCase()];
-    if (j) jobs.add(j);
-  }
-  return jobs;
-}
-function matchesTag(s, job) { return !job || jobsForStructure(s).has(job); }
 
 let atomScale = 0.6;
 let worldScale = 1.0;
@@ -723,6 +777,7 @@ async function init() {
   renderer.xr.enabled = true;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
+  renderer.domElement.id = 'viewer-canvas';
   document.body.appendChild(renderer.domElement);
 
   // Controls
@@ -765,6 +820,19 @@ async function init() {
   // Load data
   await loadData();
 
+  if (new URLSearchParams(location.search).get('ct_test') === 'sort') {
+    runSortBrowserScenario();
+  }
+  if (new URLSearchParams(location.search).get('ct_test') === 'catalog') {
+    runCatalogBrowserScenario();
+  }
+  if (new URLSearchParams(location.search).get('ct_test') === 'system') {
+    runSystemBrowserScenario();
+  }
+  if (new URLSearchParams(location.search).get('ct_test') === 'transitions') {
+    runTransitionBrowserScenario();
+  }
+
   // Restore state from URL hash (share link)
   applyShareState();
 
@@ -778,393 +846,7 @@ async function init() {
   renderer.setAnimationLoop(animate);
 }
 
-// ── Procedural Prototype Renderer (Phase 2.5.1 · May 15 2026) ───────────
-// Generates atoms/bonds/cellVectors for metadata-only stubs from a small
-// catalog of canonical structure prototypes. The Taichi repo
-// (ceramictransitions-taichi) will eventually ship per-material
-// simulation-derived structures that override these procedural approximations.
-const FALLBACK_ELEMENT_META = {
-  Hf: { color: [0.55, 0.65, 0.78], radius: 1.55, mass: 178.49, name: 'Hafnium' },
-  Ta: { color: [0.46, 0.50, 0.55], radius: 1.45, mass: 180.95, name: 'Tantalum' },
-  Y:  { color: [0.55, 0.85, 0.55], radius: 1.80, mass: 88.91,  name: 'Yttrium' },
-  La: { color: [0.45, 0.85, 0.95], radius: 1.95, mass: 138.91, name: 'Lanthanum' },
-  Yb: { color: [0.30, 0.85, 0.70], radius: 1.75, mass: 173.05, name: 'Ytterbium' },
-  Ce: { color: [1.00, 0.85, 0.30], radius: 1.85, mass: 140.12, name: 'Cerium' },
-  B:  { color: [1.00, 0.71, 0.71], radius: 0.85, mass: 10.81,  name: 'Boron' },
-  N:  { color: [0.19, 0.31, 0.97], radius: 0.65, mass: 14.01,  name: 'Nitrogen' },
-  Be: { color: [0.76, 0.85, 0.60], radius: 0.90, mass: 9.01,   name: 'Beryllium' },
-  // DFT-ingested elements (Phase 3.3/3.4) had no element meta — the legend
-  // reads data.elements[sym].color unguarded, so selecting these crashed.
-  Cr: { color: [0.54, 0.60, 0.78], radius: 1.30, mass: 52.00,  name: 'Chromium' },
-  Gd: { color: [0.72, 0.80, 0.85], radius: 1.80, mass: 157.25, name: 'Gadolinium' },
-  Lu: { color: [0.25, 0.58, 0.60], radius: 1.75, mass: 174.97, name: 'Lutetium' },
-  Mo: { color: [0.44, 0.48, 0.60], radius: 1.45, mass: 95.95,  name: 'Molybdenum' },
-  W:  { color: [0.60, 0.60, 0.60], radius: 1.45, mass: 183.84, name: 'Tungsten' },
-  Nb: { color: [0.47, 0.65, 0.80], radius: 1.45, mass: 92.91,  name: 'Niobium' },
-  // 2026-10-26 deferred additions: celsian (Ba), VC (V)
-  Ba: { color: [0.63, 0.77, 0.55], radius: 1.95, mass: 137.33, name: 'Barium' },
-  V:  { color: [0.65, 0.65, 0.70], radius: 1.40, mass: 50.94,  name: 'Vanadium' },
-  // extras: SrZrO3 / CaZrO3
-  Sr: { color: [0.88, 0.82, 0.55], radius: 1.60, mass: 87.62,  name: 'Strontium' },
-};
-
-// Prototype basis sets (fractional coords in conventional unit cell).
-// role: 'C' (cation/metal) or 'A' (anion/non-metal) — resolved at tile time.
-const PROTOTYPE_DEFS = {
-  rocksalt: {
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'C', fx:0,   fy:0.5, fz:0.5},
-      {role:'C', fx:0.5, fy:0,   fz:0.5},
-      {role:'C', fx:0.5, fy:0.5, fz:0  },
-      {role:'A', fx:0.5, fy:0,   fz:0  },
-      {role:'A', fx:0,   fy:0.5, fz:0  },
-      {role:'A', fx:0,   fy:0,   fz:0.5},
-      {role:'A', fx:0.5, fy:0.5, fz:0.5},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3],
-    bondCutoff: ({a}) => 0.55 * a,
-    homoatomicBonds: false,
-  },
-  // Multi-cation rock-salt: the `cations[]` are cycled over cation sites
-  // (used for high-entropy carbides like (Hf,Zr,Ti,Ta,Nb)C solid solutions).
-  rocksalt_mix: {
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'C', fx:0,   fy:0.5, fz:0.5},
-      {role:'C', fx:0.5, fy:0,   fz:0.5},
-      {role:'C', fx:0.5, fy:0.5, fz:0  },
-      {role:'A', fx:0.5, fy:0,   fz:0  },
-      {role:'A', fx:0,   fy:0.5, fz:0  },
-      {role:'A', fx:0,   fy:0,   fz:0.5},
-      {role:'A', fx:0.5, fy:0.5, fz:0.5},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3],
-    bondCutoff: ({a}) => 0.55 * a,
-    homoatomicBonds: false,
-  },
-  fluorite: {
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'C', fx:0,   fy:0.5, fz:0.5},
-      {role:'C', fx:0.5, fy:0,   fz:0.5},
-      {role:'C', fx:0.5, fy:0.5, fz:0  },
-      {role:'A', fx:0.25,fy:0.25,fz:0.25},
-      {role:'A', fx:0.25,fy:0.25,fz:0.75},
-      {role:'A', fx:0.25,fy:0.75,fz:0.25},
-      {role:'A', fx:0.25,fy:0.75,fz:0.75},
-      {role:'A', fx:0.75,fy:0.25,fz:0.25},
-      {role:'A', fx:0.75,fy:0.25,fz:0.75},
-      {role:'A', fx:0.75,fy:0.75,fz:0.25},
-      {role:'A', fx:0.75,fy:0.75,fz:0.75},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3],
-    bondCutoff: ({a}) => 0.48 * a,
-    homoatomicBonds: false,
-  },
-  zincblende: {
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'C', fx:0,   fy:0.5, fz:0.5},
-      {role:'C', fx:0.5, fy:0,   fz:0.5},
-      {role:'C', fx:0.5, fy:0.5, fz:0  },
-      {role:'A', fx:0.25,fy:0.25,fz:0.25},
-      {role:'A', fx:0.25,fy:0.75,fz:0.75},
-      {role:'A', fx:0.75,fy:0.25,fz:0.75},
-      {role:'A', fx:0.75,fy:0.75,fz:0.25},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3],
-    bondCutoff: ({a}) => 0.50 * a,
-    homoatomicBonds: false,
-  },
-  AlB2: {
-    // P6/mmm. Cation at origin, anion (B) honeycomb at z=1/2.
-    // B-B in-plane bonds are real (covalent honeycomb), so allow homoatomic.
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'A', fx:1/3, fy:2/3, fz:0.5},
-      {role:'A', fx:2/3, fy:1/3, fz:0.5},
-    ],
-    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
-    supercell: [4,4,3],
-    bondCutoff: ({a, c}) => 0.85 * a, // captures B-B (a/√3) and Zr-B (~√((a/√3)²+(c/2)²))
-    homoatomicBonds: true,
-  },
-  // Multi-cation AlB2 (high-entropy diborides): cations[] cycled on the metal
-  // site, B honeycomb shared. Schematic solid solution, like rocksalt_mix.
-  AlB2_mix: {
-    basis: [
-      {role:'C', fx:0,   fy:0,   fz:0  },
-      {role:'A', fx:1/3, fy:2/3, fz:0.5},
-      {role:'A', fx:2/3, fy:1/3, fz:0.5},
-    ],
-    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
-    supercell: [3,3,2],
-    bondCutoff: ({a, c}) => 0.85 * a,
-    homoatomicBonds: true,
-  },
-  wurtzite: {
-    // P63mc — AlN. u ≈ 0.382 for ideal c/a.
-    basis: [
-      {role:'C', fx:1/3, fy:2/3, fz:0     },
-      {role:'C', fx:2/3, fy:1/3, fz:0.5   },
-      {role:'A', fx:1/3, fy:2/3, fz:0.382 },
-      {role:'A', fx:2/3, fy:1/3, fz:0.882 },
-    ],
-    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
-    supercell: [3,3,2],
-    bondCutoff: ({a, c}) => Math.max(a*0.70, c*0.45),
-    homoatomicBonds: false,
-  },
-  hBN: {
-    // P63/mmc — boron and nitrogen in alternating honeycomb sheets.
-    basis: [
-      {role:'C', fx:1/3, fy:2/3, fz:0.25 },
-      {role:'A', fx:2/3, fy:1/3, fz:0.25 },
-      {role:'C', fx:2/3, fy:1/3, fz:0.75 },
-      {role:'A', fx:1/3, fy:2/3, fz:0.75 },
-    ],
-    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
-    supercell: [4,4,1],
-    bondCutoff: ({a, c}) => 0.65 * a,
-    homoatomicBonds: false,
-  },
-  si3n4: {
-    // β-Si3N4 — hexagonal P6₃ (also reported P6₃/m). 14 atoms / unit cell:
-    // 6 Si on 6h, 2 N on 2c, 6 N on 6h. Source: ICDD 41-360 / Hardie & Jack 1957.
-    // Si at (0.174, 0.766, 1/4); N(1) at (1/3, 2/3, 1/4); N(2) at (0.330, 0.030, 1/4).
-    // Equivalent positions expanded explicitly below.
-    basis: [
-      // Si — 6h orbit of (0.174, 0.766, 1/4)
-      {role:'C', fx:0.174, fy:0.766, fz:0.25},
-      {role:'C', fx:0.234, fy:0.408, fz:0.25},
-      {role:'C', fx:0.592, fy:0.826, fz:0.25},
-      {role:'C', fx:0.826, fy:0.234, fz:0.75},
-      {role:'C', fx:0.766, fy:0.592, fz:0.75},
-      {role:'C', fx:0.408, fy:0.174, fz:0.75},
-      // N(1) — 2c at (1/3, 2/3, 1/4) and 6₃-screw image
-      {role:'A', fx:1/3,   fy:2/3,   fz:0.25},
-      {role:'A', fx:2/3,   fy:1/3,   fz:0.75},
-      // N(2) — 6h orbit of (0.330, 0.030, 1/4)
-      {role:'A', fx:0.330, fy:0.030, fz:0.25},
-      {role:'A', fx:0.970, fy:0.300, fz:0.25},
-      {role:'A', fx:0.700, fy:0.670, fz:0.25},
-      {role:'A', fx:0.670, fy:0.970, fz:0.75},
-      {role:'A', fx:0.030, fy:0.700, fz:0.75},
-      {role:'A', fx:0.300, fy:0.330, fz:0.75},
-    ],
-    lattice: ({a, c}) => [[a, 0, 0], [-a/2, a*Math.sqrt(3)/2, 0], [0, 0, c]],
-    supercell: [2,2,3],
-    // Si-N ≈ 1.74 Å; with a≈7.6 Å this is ~0.23·a. Use 0.30·a to catch all
-    // tetrahedral first neighbors without picking up second-shell pairs.
-    bondCutoff: ({a, c}) => 0.30 * a,
-    homoatomicBonds: false,
-  },
-};
-
-// Formula → prototype + lattice constants (Å). Sources: standard crystallography refs.
-const PROTOTYPE_TABLE = {
-  'ZrC':       { proto:'rocksalt',   params:{a:4.693}, cation:'Zr', anion:'C' },
-  'HfC':       { proto:'rocksalt',   params:{a:4.638}, cation:'Hf', anion:'C' },
-  'TaC':       { proto:'rocksalt',   params:{a:4.456}, cation:'Ta', anion:'C' },
-  'HfO2':      { proto:'fluorite',   params:{a:5.080}, cation:'Hf', anion:'O' },
-  'ZrO2':      { proto:'fluorite',   params:{a:5.070}, cation:'Zr', anion:'O' },
-  'ZrO2-3Y2O3':{ proto:'fluorite',   params:{a:5.139}, cation:'Zr', anion:'O' },
-  'ZrO2-8Y2O3':{ proto:'fluorite',   params:{a:5.140}, cation:'Zr', anion:'O' },
-  'ZrO2-CeO2': { proto:'fluorite',   params:{a:5.145}, cation:'Zr', anion:'O' },
-  'La2Zr2O7':  { proto:'fluorite',   params:{a:5.400}, cation:'Zr', anion:'O' }, // pyrochlore approximated as disordered fluorite
-  'ZrB2':      { proto:'AlB2',       params:{a:3.169, c:3.530}, cation:'Zr', anion:'B' },
-  'HfB2':      { proto:'AlB2',       params:{a:3.142, c:3.476}, cation:'Hf', anion:'B' },
-  'AlN':       { proto:'wurtzite',   params:{a:3.112, c:4.982}, cation:'Al', anion:'N' },
-  'BN':        { proto:'hBN',        params:{a:2.504, c:6.661}, cation:'B',  anion:'N' },
-  'SiC':       { proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
-  'SiC (fiber-reinforced)':{ proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
-  'SiC (reaction-bonded)': { proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
-  'SiC (sintered)':        { proto:'zincblende', params:{a:4.359}, cation:'Si', anion:'C' },
-  // β-Si3N4 — silicon nitride family
-  'Si3N4':     { proto:'si3n4', params:{a:7.602, c:2.907}, cation:'Si', anion:'N' },
-  // β-Sialon (Si6-xAlxOxN8-x) — isostructural with β-Si3N4; we approximate as
-  // pure β-Si3N4 with proceduralFallback note (Si→Al, N→O substitution disorder unmodeled).
-  'Si6-xAlxOxN8-x': { proto:'si3n4', params:{a:7.659, c:2.929}, cation:'Si', anion:'N' },
-  // 2026-10 audit additions — complete canonical high-temp sets:
-  'CaO':     { proto:'rocksalt', params:{a:4.811}, cation:'Ca', anion:'O' },  // lime (calcite's decomposition product)
-  'BeO':     { proto:'wurtzite', params:{a:2.698, c:4.377}, cation:'Be', anion:'O' }, // beryllia
-  'TaB2':    { proto:'AlB2', params:{a:3.098, c:3.227}, cation:'Ta', anion:'B' }, // completes the ZrB2/HfB2/TaB2 trio
-  'HfN':     { proto:'rocksalt', params:{a:4.525}, cation:'Hf', anion:'N' },
-  '(HfZrTiTaNb)C': { proto:'rocksalt_mix', params:{a:4.460}, cations:['Hf','Zr','Ti','Ta','Nb'], anion:'C' },
-  // 2026-10-26 extras: high-entropy nitride (rocksalt) + diboride (AlB2)
-  '(HfZrTiTaNb)N':  { proto:'rocksalt_mix', params:{a:4.550}, cations:['Hf','Zr','Ti','Ta','Nb'], anion:'N' },
-  '(HfZrTiTaNb)B2': { proto:'AlB2_mix', params:{a:3.110, c:3.360}, cations:['Hf','Zr','Ti','Ta','Nb'], anion:'B' },
-};
-
-// Unicode subscript → ASCII digit (₂₃₄₅₆₇₈ etc).
-// Also normalizes subscript x (\u2093) and subscript minus (\u208B) so Sialon's
-// Si₆₋ₓAlₓOₓN₈₋ₓ formula maps to the 'Si6-xAlxOxN8-x' table key.
-function _normalizeFormula(f) {
-  if (!f) return f;
-  return f
-    .replace(/[\u2080-\u2089]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x2080 + 0x30))
-    .replace(/\u2093/g, 'x')
-    .replace(/\u208B/g, '-');
-}
-
-function _radiusFor(el, elementsMap) {
-  return (elementsMap[el] && elementsMap[el].radius) || 0.8;
-}
-
-function generateAtomsFromPrototype(s, elementsMap) {
-  const entry = PROTOTYPE_TABLE[_normalizeFormula(s.formula)];
-  if (!entry) return null;
-  const def = PROTOTYPE_DEFS[entry.proto];
-  if (!def) return null;
-
-  const { params, cation, anion, cations } = entry;
-  const lat = def.lattice(params);
-  const [Nx, Ny, Nz] = def.supercell;
-  const cutoff = def.bondCutoff(params);
-  const cutoff2 = cutoff * cutoff;
-
-  // Multi-cation prototypes (rocksalt_mix) cycle a `cations[]` list over the
-  // cation sites — a schematic for solid solutions like (Hf,Zr,Ti,Ta,Nb)C.
-  let cationCount = 0;
-  const cationFor = () => cations ? cations[cationCount++ % cations.length] : cation;
-
-  // Tile basis across supercell.
-  const atoms = [];
-  for (let i = 0; i < Nx; i++) {
-    for (let j = 0; j < Ny; j++) {
-      for (let k = 0; k < Nz; k++) {
-        for (const b of def.basis) {
-          const u = b.fx + i, v = b.fy + j, w = b.fz + k;
-          const x = u*lat[0][0] + v*lat[1][0] + w*lat[2][0];
-          const y = u*lat[0][1] + v*lat[1][1] + w*lat[2][1];
-          const z = u*lat[0][2] + v*lat[1][2] + w*lat[2][2];
-          const el = (b.role === 'C') ? cationFor() : anion;
-          atoms.push({ e: el, x, y, z, r: _radiusFor(el, elementsMap), cn: 0 });
-        }
-      }
-    }
-  }
-  // Center at origin.
-  let cx = 0, cy = 0, cz = 0;
-  for (const a of atoms) { cx += a.x; cy += a.y; cz += a.z; }
-  cx /= atoms.length; cy /= atoms.length; cz /= atoms.length;
-  for (const a of atoms) { a.x -= cx; a.y -= cy; a.z -= cz; }
-
-  // Build bonds via distance cutoff. Skip homoatomic pairs unless the
-  // prototype explicitly opts in (e.g. AlB2 boron honeycomb).
-  const bonds = [];
-  const bondTypes = [];
-  const cn = new Array(atoms.length).fill(0);
-  const allowHomo = !!def.homoatomicBonds;
-  for (let i = 0; i < atoms.length; i++) {
-    for (let j = i+1; j < atoms.length; j++) {
-      if (!allowHomo && atoms[i].e === atoms[j].e) continue;
-      const dx = atoms[i].x - atoms[j].x;
-      const dy = atoms[i].y - atoms[j].y;
-      const dz = atoms[i].z - atoms[j].z;
-      const d2 = dx*dx + dy*dy + dz*dz;
-      if (d2 < cutoff2 && d2 > 1e-6) {
-        bonds.push([i, j]);
-        bondTypes.push([atoms[i].e, atoms[j].e].sort().join('-'));
-        cn[i]++; cn[j]++;
-      }
-    }
-  }
-  for (let i = 0; i < atoms.length; i++) atoms[i].cn = cn[i];
-
-  return {
-    atoms, bonds, bondTypes,
-    cellVectors: lat,
-    supercell: def.supercell.slice(),
-    prototype: entry.proto,
-  };
-}
-
-function ensureElementsCoverage(elementsMap) {
-  for (const [sym, meta] of Object.entries(FALLBACK_ELEMENT_META)) {
-    if (!elementsMap[sym]) elementsMap[sym] = meta;
-  }
-}
-
-// Bond colors keyed by alphabetically-sorted pair (matches generator output).
-const FALLBACK_BOND_COLORS = {
-  'C-Hf':  [0.62, 0.70, 0.78],
-  'C-Ta':  [0.55, 0.58, 0.62],
-  'C-Zr':  [0.60, 0.72, 0.80],
-  'C-Si':  [0.70, 0.70, 0.55],
-  'Hf-O':  [0.85, 0.55, 0.45],
-  'O-Zr':  [0.85, 0.60, 0.45],
-  'B-Hf':  [0.85, 0.65, 0.55],
-  'B-Zr':  [0.90, 0.70, 0.55],
-  'Al-N':  [0.55, 0.65, 0.95],
-  'B-N':   [0.75, 0.78, 0.95],
-  'B-B':   [1.00, 0.71, 0.71],
-  'N-Si':  [0.45, 0.60, 0.92],
-  // 2026-10 audit additions
-  'Ca-O':  [0.85, 0.70, 0.55],
-  'Be-O':  [0.75, 0.85, 0.60],
-  'B-Ta':  [0.95, 0.68, 0.68],
-  'Hf-N':  [0.55, 0.63, 0.92],
-  'C-Ti':  [0.65, 0.68, 0.75],
-  'C-Nb':  [0.60, 0.70, 0.82],
-  // deferred additions: YAG/Ba-O, VC/V-C, Mo2C/Mo-C
-  'Ba-O':  [0.62, 0.75, 0.52],
-  'V-C':   [0.58, 0.62, 0.68],
-  'Mo-C':  [0.55, 0.62, 0.75],
-  // deep-audit additions: CeO2, LaB6, VN, Ti2AlC
-  'Ce-O':  [0.90, 0.78, 0.40],
-  'La-B':  [0.72, 0.80, 0.68],
-  'V-N':   [0.55, 0.60, 0.90],
-  'Ti-Al': [0.68, 0.72, 0.82],
-  // native-tier rebuild: Cuprite, Hematite, Cassiterite, Albite, Calcite...
-  'Cu-O':  [0.75, 0.58, 0.45],
-  'Fe-O':  [0.85, 0.55, 0.42],
-  'O-Sn':  [0.82, 0.68, 0.50],
-  'Li-O':  [0.60, 0.75, 0.55],
-  'Na-O':  [0.55, 0.62, 0.85],
-  'C-O':   [0.75, 0.75, 0.55],
-  // extras: high-entropy nitride/diboride + SrCa-zirconates
-  'N-Ti':  [0.55, 0.63, 0.90],
-  'N-Ta':  [0.52, 0.60, 0.88],
-  'N-Nb':  [0.55, 0.65, 0.92],
-  'N-Zr':  [0.58, 0.66, 0.90],
-  'B-Ti':  [0.90, 0.72, 0.72],
-  'B-Nb':  [0.88, 0.72, 0.72],
-  'Sr-O':  [0.78, 0.80, 0.60],
-};
-
-function ensureBondColorsCoverage(bondColorsMap) {
-  if (!bondColorsMap || typeof bondColorsMap !== 'object') return;
-  for (const [pair, c] of Object.entries(FALLBACK_BOND_COLORS)) {
-    if (!bondColorsMap[pair]) bondColorsMap[pair] = c;
-  }
-}
-
-function promoteStubsWithPrototypes(structures, elementsMap) {
-  let promoted = 0;
-  for (const s of structures) {
-    if (!s.isStub) continue;
-    const gen = generateAtomsFromPrototype(s, elementsMap);
-    if (!gen) continue;
-    s.atoms       = gen.atoms;
-    s.bonds       = gen.bonds;
-    s.bondTypes   = gen.bondTypes;
-    s.cellVectors = gen.cellVectors;
-    s.supercell   = gen.supercell;
-    s.prototype   = gen.prototype;
-    s.proceduralFallback = true;
-    s.isStub      = false;
-    if (!Array.isArray(s.info)) s.info = [];
-    s.info.unshift('Procedural approximation · ' + gen.prototype + ' prototype · Phase 3 (Taichi) will replace with simulation-derived coordinates');
-    promoted++;
-  }
-  return promoted;
-}
+// Shared prototype runtime: prototype-runtime.js
 
 // ── Data Loading ────────────────────────────────────────────
 function showFatal(msg) {
@@ -1179,53 +861,33 @@ async function loadData() {
   const loadingFill = document.getElementById('loading-fill');
   loadingFill.style.width = '30%';
 
-  let resp;
-  try {
-    resp = await fetch(DATA_URL, { cache: 'default' });
-  } catch (e) {
-    showFatal('Network error: ' + (e && e.message ? e.message : 'request failed') + ' · ' + DATA_URL);
-    throw e;
-  }
-  if (!resp.ok) {
-    showFatal('HTTP ' + resp.status + ' loading ' + DATA_URL);
-    throw new Error('fetch failed: ' + resp.status);
-  }
-  try {
-    data = await resp.json();
-  } catch (e) {
-    showFatal('Dataset is not valid JSON: ' + (e && e.message ? e.message : 'parse failed'));
-    throw e;
+  // file:// fallback — fetch() is CORS-blocked on file://; when the dataset was
+  // injected via the head <script> tag (data/crystal_vr.js), use it directly.
+  if (window.CRYSTAL_VR_DATA) {
+    data = window.CRYSTAL_VR_DATA;
+  } else {
+    let resp;
+    try {
+      resp = await fetch(DATA_URL, { cache: 'default' });
+    } catch (e) {
+      showFatal('Network error: ' + (e && e.message ? e.message : 'request failed') + ' · ' + DATA_URL);
+      throw e;
+    }
+    if (!resp.ok) {
+      showFatal('HTTP ' + resp.status + ' loading ' + DATA_URL);
+      throw new Error('fetch failed: ' + resp.status);
+    }
+    try {
+      data = await resp.json();
+    } catch (e) {
+      showFatal('Dataset is not valid JSON: ' + (e && e.message ? e.message : 'parse failed'));
+      throw e;
+    }
   }
   loadingFill.style.width = '70%';
 
-  // ── Normalize structures ─────────────────────────────────
-  // (a) Dedupe by (name + formula). The aerospace import (Phase 2) appended
-  //     a handful of materials that were already present in the baseline
-  //     expansion, producing duplicate buttons. Keep the entry with the most
-  //     atoms (i.e. a real model wins over a metadata-only stub).
-  // (b) Flag stubs so the rest of the UI can render a friendly placeholder
-  //     instead of crashing on empty cellVectors / atoms.
-  if (Array.isArray(data.structures)) {
-    const seen = new Map();
-    for (const s of data.structures) {
-      const key = `${(s.name||'').trim()}|${(s.formula||'').trim()}`;
-      const prev = seen.get(key);
-      const aCount = (s.atoms && s.atoms.length) || 0;
-      const pCount = prev ? ((prev.atoms && prev.atoms.length) || 0) : -1;
-      if (!prev || aCount > pCount) seen.set(key, s);
-    }
-    data.structures = Array.from(seen.values());
-    data.structures.forEach(s => {
-      const cv = s.cellVectors;
-      const hasCell = Array.isArray(cv) && cv.length >= 3 && Array.isArray(cv[0]) && cv[0].length >= 3;
-      const hasAtoms = Array.isArray(s.atoms) && s.atoms.length > 0;
-      s.isStub = !(hasCell && hasAtoms);
-      if (!Array.isArray(s.atoms)) s.atoms = [];
-      if (!Array.isArray(s.bonds)) s.bonds = [];
-      if (!Array.isArray(s.supercell) || s.supercell.length !== 3) s.supercell = [1,1,1];
-    });
-    data.structureCount = data.structures.length;
-  }
+  // Normalize once so both viewers use the same identity and stub rules.
+  normalizeCatalog(data);
 
   // ── Phase 2.5.1: procedural promotion of stubs ──────────────
   // Fill missing element metadata first so legend/colors don't crash, then
@@ -1237,6 +899,10 @@ async function loadData() {
     console.log('[procedural] promoted ' + _promotedCount + ' stub(s) using prototype catalog');
   }
   data.renderableCount = data.structures.filter(s => !s.isStub).length;
+  document.getElementById('loading-text').textContent =
+    `Loaded ${data.structures.length} entries · ${data.renderableCount} baked structures`;
+  document.getElementById('catalog-summary').textContent =
+    `${data.structures.length} entries · ${data.renderableCount} renderable · ${data.structures.filter(s => s.entry_type === 'system').length} system architectures`;
 
   // Parse element metadata
   for (const [sym, info] of Object.entries(data.elements)) {
@@ -1267,33 +933,184 @@ async function loadData() {
 }
 
 // ── UI ──────────────────────────────────────────────────────
+async function runSortBrowserScenario() {
+  const status = document.getElementById('test-status');
+  const targetIdx = data.structures.findIndex(s => s.name === 'Hafnium Carbide');
+  const modes = ['data', 'temp', 'melt', 'name'];
+  try {
+    if (targetIdx < 0) throw new Error('Hafnium Carbide fixture is missing');
+    for (const mode of modes) {
+      const sort = document.getElementById('sort-by');
+      sort.value = mode;
+      applySort();
+      applyFilter();
+      const button = document.querySelector(`#struct-list .struct-btn[data-idx="${targetIdx}"]`);
+      if (!button) throw new Error(`sorted button missing for ${mode}`);
+      button.click();
+      await new Promise(resolve => setTimeout(resolve, DISSOLVE_MS + 80));
+      if (currentIdx !== targetIdx) throw new Error(`selection drift after ${mode} sort`);
+    }
+    status.textContent = 'PASS: all sort modes preserve button-to-structure selection';
+  } catch (error) {
+    status.textContent = `FAIL: ${error.message}`;
+    console.error('[browser smoke]', error);
+  }
+}
+
+async function runCatalogBrowserScenario() {
+  const status = document.getElementById('test-status');
+  try {
+    setCatalogMode(true);
+    const rows = document.querySelectorAll('#catalog-table .catalog-row');
+    if (rows.length !== data.structures.length) throw new Error('catalog table count mismatch');
+    const targetIdx = data.structures.findIndex(s => s.name === 'Hafnium Carbide');
+    const target = document.querySelector(`#catalog-table .catalog-row[data-idx="${targetIdx}"]`);
+    if (!target) throw new Error('catalog target row missing');
+    target.click();
+    await new Promise(resolve => setTimeout(resolve, DISSOLVE_MS + 80));
+    if (currentIdx !== targetIdx) throw new Error('catalog row did not select its material');
+    status.textContent = 'PASS: catalog mode count, selection, and shared material state';
+  } catch (error) {
+    status.textContent = `FAIL: ${error.message}`;
+    console.error('[browser smoke]', error);
+  }
+}
+
+async function runSystemBrowserScenario() {
+  const status = document.getElementById('test-status');
+  try {
+    const targetIdx = data.structures.findIndex(s => s.entry_type === 'system');
+    if (targetIdx < 0) throw new Error('system fixture is missing');
+    switchStructure(targetIdx);
+    await new Promise(resolve => setTimeout(resolve, DISSOLVE_MS + 80));
+    if (currentIdx !== targetIdx || !document.querySelector('.system-stack')) {
+      throw new Error('system record did not render its layer stack');
+    }
+    status.textContent = 'PASS: system record layer stack and material context';
+  } catch (error) {
+    status.textContent = `FAIL: ${error.message}`;
+    console.error('[browser smoke]', error);
+  }
+}
+
+async function runTransitionBrowserScenario() {
+  const status = document.getElementById('test-status');
+  try {
+    const targetIdx = data.structures.findIndex(s => Array.isArray(s.transitions) && s.transitions.length);
+    if (targetIdx < 0) throw new Error('transition fixture is missing');
+    switchStructure(targetIdx);
+    await new Promise(resolve => setTimeout(resolve, DISSOLVE_MS + 80));
+    const panel = document.getElementById('transitions-panel');
+    if (currentIdx !== targetIdx || panel.style.display === 'none' || !document.querySelector('.transition-track')) {
+      throw new Error('transition timeline did not render');
+    }
+    status.textContent = 'PASS: transition timeline and selected material context';
+  } catch (error) {
+    status.textContent = `FAIL: ${error.message}`;
+    console.error('[browser smoke]', error);
+  }
+}
+
+function readFilterState() {
+  try { return JSON.parse(localStorage.getItem('ct_filters') || '{}'); }
+  catch (_) { return {}; }
+}
+
+function restoreFilterState() {
+  const state = readFilterState();
+  const values = {
+    'filter-name': state.query || '',
+    'filter-class': state.class || '',
+    'filter-source': state.source || '',
+    'filter-temp': state.minTemp ?? '0',
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  });
+  const precursor = document.getElementById('filter-hide-precursors');
+  const systems = document.getElementById('filter-hide-systems');
+  if (precursor) precursor.checked = !!state.hidePrecursors;
+  if (systems) systems.checked = !!state.hideSystems;
+  if (state.sort) {
+    const sort = document.getElementById('sort-by');
+    if (sort) sort.value = state.sort;
+  }
+  if (state.activeTag && TAG_GROUPS[state.activeTag]) activeTag = state.activeTag;
+}
+
+function persistFilterState() {
+  try {
+    localStorage.setItem('ct_filters', JSON.stringify({
+      query: document.getElementById('filter-name')?.value || '',
+      class: document.getElementById('filter-class')?.value || '',
+      source: document.getElementById('filter-source')?.value || '',
+      minTemp: document.getElementById('filter-temp')?.value || '0',
+      hidePrecursors: !!document.getElementById('filter-hide-precursors')?.checked,
+      hideSystems: !!document.getElementById('filter-hide-systems')?.checked,
+      sort: document.getElementById('sort-by')?.value || 'data',
+      activeTag,
+    }));
+  } catch (_) { /* private mode */ }
+}
+
+function readMaterialNote(structure) {
+  try { return JSON.parse(localStorage.getItem('ct_notes') || '{}')[structureKey(structure)] || ''; }
+  catch (_) { return ''; }
+}
+
+function saveMaterialNote(structure, note) {
+  try {
+    const notes = JSON.parse(localStorage.getItem('ct_notes') || '{}');
+    if (note.trim()) notes[structureKey(structure)] = note;
+    else delete notes[structureKey(structure)];
+    localStorage.setItem('ct_notes', JSON.stringify(notes));
+  } catch (_) { /* private mode */ }
+}
+
 function applyFilter() {
   const cls = document.getElementById('filter-class')?.value || '';
+  const source = document.getElementById('filter-source')?.value || '';
   const minT = parseInt(document.getElementById('filter-temp')?.value || '0', 10);
   const hidePre = document.getElementById('filter-hide-precursors')?.checked;
+  const hideSystems = document.getElementById('filter-hide-systems')?.checked;
   const q = (document.getElementById('filter-name')?.value || '').trim().toLowerCase();
   const tempLabel = document.getElementById('filter-temp-val');
   if (tempLabel) tempLabel.textContent = minT + '°C';
-  const btns = document.querySelectorAll('#struct-list .struct-btn');
   let shown = 0;
-  btns.forEach((btn) => {
-    const s = data.structures[+btn.dataset.idx];
+  data.structures.forEach((s, idx) => {
     const mc = s.material_class || '';
+    const status = s.source_status || (s.entry_type === 'system' ? 'illustrative-system' : '');
     const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : 9999;
     let ok = true;
     if (cls && mc !== cls) ok = false;
+    if (source && status !== source) ok = false;
     if (st < minT) ok = false;
     if (hidePre && (mc === 'precursor' || mc === 'carbonate' || mc === 'hydroxide')) ok = false;
+    if (hideSystems && s.entry_type === 'system') ok = false;
     if (activeTag && !matchesTag(s, activeTag)) ok = false;
     if (q) {
-      const hay = (s.name + ' ' + s.formula + ' ' + [...jobsForStructure(s)].join(' ')).toLowerCase();
+      const hay = searchTextForStructure(s);
       if (!hay.includes(q)) ok = false;
     }
-    btn.style.display = ok ? '' : 'none';
+    document.querySelectorAll(`#struct-list [data-idx="${idx}"], #catalog-table .catalog-row[data-idx="${idx}"]`).forEach(row => { row.style.display = ok ? '' : 'none'; });
     if (ok) shown++;
   });
   const cnt = document.getElementById('filter-count');
   if (cnt) cnt.textContent = `${shown} / ${data.structures.length} shown`;
+  const empty = document.getElementById('no-results');
+  if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
+  const activeFilters = [];
+  if (q) activeFilters.push(`search:${q}`);
+  if (cls) activeFilters.push(cls);
+  if (source) activeFilters.push(source.replaceAll('-', ' '));
+  if (minT) activeFilters.push(`service >= ${minT}°C`);
+  if (hidePre) activeFilters.push('precursors hidden');
+  if (hideSystems) activeFilters.push('systems hidden');
+  if (activeTag) activeFilters.push(activeTag);
+  const filterSummary = document.getElementById('active-filters');
+  if (filterSummary) filterSummary.textContent = activeFilters.length ? `Active: ${activeFilters.join(' · ')}` : '';
+  persistFilterState();
   // keep the job-clear control in sync
   const jc = document.getElementById('job-clear');
   if (jc) jc.style.display = activeTag ? '' : 'none';
@@ -1339,9 +1156,6 @@ function setActiveTag(job) {
 // the active highlight, or click selection (all read dataset.idx, not position).
 function applySort() {
   const mode = document.getElementById('sort-by')?.value || 'data';
-  const container = document.getElementById('struct-list');
-  if (!container) return;
-  const btns = [...container.querySelectorAll('.struct-btn')];
   const key = (btn) => {
     const s = data.structures[+btn.dataset.idx];
     if (mode === 'temp') return -(typeof s.service_temp_c === 'number' ? s.service_temp_c : -Infinity);
@@ -1349,10 +1163,48 @@ function applySort() {
     if (mode === 'name') return s.name.toLowerCase();
     return +btn.dataset.idx; // data order
   };
-  btns
-    .map((btn, i) => ({ btn, i, k: key(btn) }))
-    .sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i)) // stable
-    .forEach(({ btn }) => container.appendChild(btn));
+  ['struct-list', 'catalog-table'].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    const rows = [...container.querySelectorAll('[data-idx]')];
+    rows
+      .map((row, i) => ({ row, i, k: key(row) }))
+      .sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i))
+      .forEach(({ row }) => container.appendChild(row));
+  });
+}
+
+function buildCatalogTable() {
+  const table = document.getElementById('catalog-table');
+  if (!table) return;
+  table.innerHTML = `<div class="catalog-head" role="row"><span>Material</span><span>Class</span><span>Service</span><span>Source</span></div>`;
+  data.structures.forEach((s, i) => {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'catalog-row';
+    row.dataset.idx = i;
+    row.setAttribute('role', 'row');
+    const source = s.source_status === 'mp-exact' ? 'MP'
+      : s.source_status === 'mp-analogue' ? 'analogue'
+      : s.source_status === 'procedural-prototype' ? 'prototype'
+      : s.source_status === 'illustrative-system' ? 'system' : 'reference';
+    row.innerHTML = `<span class="name">${escapeHtml(s.name)} <span class="muted">${escapeHtml(s.formula)}</span></span>`
+      + `<span class="muted">${escapeHtml(s.material_class || '—')}</span>`
+      + `<span class="muted">${typeof s.service_temp_c === 'number' ? s.service_temp_c + '°C' : '—'}</span>`
+      + `<span class="muted">${source}</span>`;
+    row.addEventListener('click', () => switchStructure(i));
+    table.appendChild(row);
+  });
+}
+
+function setCatalogMode(enabled) {
+  document.body.classList.toggle('catalog-mode', enabled);
+  const button = document.getElementById('btn-catalog-mode');
+  if (button) {
+    button.classList.toggle('active', enabled);
+    button.setAttribute('aria-pressed', String(enabled));
+    button.textContent = enabled ? '3D view' : 'Catalog';
+  }
 }
 
 function buildStructureList() {
@@ -1364,14 +1216,15 @@ function buildStructureList() {
     btn.dataset.idx = i;   // data index (survives DOM reordering by sort)
     const mc = s.material_class || '';
     const st = (typeof s.service_temp_c === 'number') ? s.service_temp_c : null;
-    const badge = mc ? `<span class="formula" style="opacity:.7">[${mc}${st !== null ? ' · ' + st + '°C' : ''}]</span>` : '';
+    const badge = mc ? `<span class="formula" style="opacity:.7">[${escapeHtml(mc)}${st !== null ? ' · ' + st + '°C' : ''}]</span>` : '';
     const pdot = `<span class="pdot" style="background:${provenanceOf(s).dot}" title="${provenanceOf(s).label}"></span>`;
-    btn.innerHTML = `${pdot}${s.name} <span class="formula">${s.formula}</span><br>${badge}`;
-    btn.addEventListener('click', () => switchStructure(i));
+    btn.innerHTML = `${pdot}${escapeHtml(s.name)} <span class="formula">${escapeHtml(s.formula)}</span><br>${badge}`;
+    btn.addEventListener('click', () => switchStructure(+btn.dataset.idx));
     container.appendChild(btn);
   });
+  buildCatalogTable();
   // Wire filter controls
-  ['filter-class', 'filter-temp', 'filter-hide-precursors'].forEach(id => {
+  ['filter-class', 'filter-source', 'filter-temp', 'filter-hide-precursors', 'filter-hide-systems'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', applyFilter);
     if (el) el.addEventListener('change', applyFilter);
@@ -1384,7 +1237,30 @@ function buildStructureList() {
   }
   const sortEl = document.getElementById('sort-by');
   if (sortEl) sortEl.addEventListener('change', () => { applySort(); applyFilter(); });
+  const clearAll = document.getElementById('filter-clear-all');
+  if (clearAll) clearAll.addEventListener('click', () => {
+    ['filter-name', 'filter-class', 'filter-source'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const temp = document.getElementById('filter-temp');
+    if (temp) temp.value = '0';
+    const hide = document.getElementById('filter-hide-precursors');
+    if (hide) hide.checked = false;
+    const hideSystems = document.getElementById('filter-hide-systems');
+    if (hideSystems) hideSystems.checked = false;
+    const sort = document.getElementById('sort-by');
+    if (sort) sort.value = 'data';
+    activeTag = null;
+    applySort();
+    applyFilter();
+  });
+  const catalogMode = document.getElementById('btn-catalog-mode');
+  if (catalogMode) catalogMode.addEventListener('click', () => setCatalogMode(!document.body.classList.contains('catalog-mode')));
+  document.getElementById('btn-export-catalog')?.addEventListener('click', downloadFilteredCatalog);
+  restoreFilterState();
   buildJobChips();
+  applySort();
   applyFilter();
 
   // Wire up controls
@@ -1571,30 +1447,35 @@ function buildStructureList() {
   document.getElementById('tour-pause').addEventListener('click', tourTogglePause);
   document.getElementById('tour-stop').addEventListener('click', stopTour);
   document.getElementById('btn-screenshot').addEventListener('click', takeScreenshot);
+  document.getElementById('btn-reset-camera').addEventListener('click', resetCamera);
   document.getElementById('btn-share').addEventListener('click', copyShareLink);
   document.getElementById('btn-qr').addEventListener('click', toggleQR);
   document.getElementById('qr-close').addEventListener('click', () => { document.getElementById('qr-overlay').style.display = 'none'; });
 }
 
 // ── Tier C: provenance (the Ground= "verify everything" thesis, made visible) ──
-// Evaluate in order: stub (no lattice) -> procedural (prototype approx) ->
-// verified (DFT-relaxed Materials Project entry) -> reference (literature coords).
+// Evaluate in order: system -> metadata-only -> procedural -> MP-sourced or
+// MP analogue -> literature/reference coordinates.
 const PROV = {
-  verified:   { key:'verified',   label:'Verified · DFT',   cls:'prov-verified',   dot:'#7fd49a' },
+  verified:   { key:'verified',   label:'MP-sourced',         cls:'prov-verified',   dot:'#7fd49a' },
+  analogue:   { key:'analogue',   label:'MP analogue',        cls:'prov-analogue',   dot:'#d4b06e' },
   reference:  { key:'reference',  label:'Reference',        cls:'prov-reference',  dot:'#7fb4d4' },
   procedural: { key:'procedural', label:'Procedural',       cls:'prov-procedural', dot:'#d4b06e' },
   stub:       { key:'stub',       label:'Metadata only',    cls:'prov-stub',       dot:'#9aa0ad' },
+  system:     { key:'system',     label:'System architecture', cls:'prov-system', dot:'#c59bd8' },
 };
 function provenanceOf(s) {
+  if (s.entry_type === 'system' || s.source_status === 'illustrative-system') return PROV.system;
   if (s.isStub) return PROV.stub;
   if (s.proceduralFallback) return PROV.procedural;
+  if (s.source_status === 'mp-analogue') return PROV.analogue;
   if (s.mp_id) return PROV.verified;
   return PROV.reference;
 }
 function renderProvenanceBadge(s) {
   const p = provenanceOf(s);
   let inner = `<span class="dot" style="background:${p.dot}"></span>`;
-  if (p.key === 'verified') {
+  if (p.key === 'verified' || p.key === 'analogue') {
     const mp = escapeHtml(String(s.mp_id));
     inner += `${p.label} · <a href="https://materialsproject.org/materials/${mp}" target="_blank" rel="noopener" title="Open this structure on Materials Project">${mp}</a>`;
   } else {
@@ -1606,6 +1487,24 @@ function renderProvenanceBadge(s) {
   return html;
 }
 
+function renderSystemStack(s) {
+  if (!Array.isArray(s.layers) || !s.layers.length) return '';
+  const rows = s.layers.map(layer => {
+    const target = data.structures.find(candidate => candidate.name === layer.xref);
+    const targetIndex = target ? data.structures.indexOf(target) : -1;
+    const material = target
+      ? `<a href="#id=${encodeURIComponent(structureKey(target))}" data-structure-idx="${targetIndex}">${escapeHtml(layer.material || layer.xref)}</a>`
+      : escapeHtml(layer.material || '—');
+    const thickness = layer.thickness_um === null || layer.thickness_um === undefined
+      ? 'representative' : `${layer.thickness_um} μm (rep.)`;
+    return `<div class="system-layer"><span class="role">${escapeHtml(layer.role || 'layer')}</span><span class="material">${material}</span><span class="thickness">${thickness}</span></div>`;
+  }).join('');
+  const failures = (s.info || []).filter(line => /failure|CMAS|recession|oxid|stress/i.test(line)).join(' ');
+  const meta = `<div class="system-meta"><b>Service envelope:</b> ${s.service_temp_c ?? '—'}${typeof s.service_temp_c === 'number' ? '°C' : ''}`
+    + `${failures ? `<br><b>Known limits/failures:</b> ${escapeHtml(failures)}` : ''}</div>`;
+  return `<div class="info-section-title">Layered architecture</div><div class="system-stack">${rows}</div>${meta}`;
+}
+
 function updateInfoPanel() {
   const s = data.structures[currentIdx];
   document.getElementById('info-panel').style.display = 'block';
@@ -1613,7 +1512,21 @@ function updateInfoPanel() {
   document.getElementById('info-formula').textContent = s.formula;
   document.getElementById('info-system').textContent = `Crystal system: ${s.system || '—'}`;
 
-  let html = renderProvenanceBadge(s);
+  let html = `<div class="info-section-title">Provenance</div>` + renderProvenanceBadge(s);
+  const valueOrDash = value => value === null || value === undefined || value === '' ? '—' : escapeHtml(String(value));
+  const boundLabel = s.bound_type === 'decomposes' ? 'Decomposition bound'
+    : s.bound_type === 'transforms' ? 'Transformation bound'
+    : s.bound_type === 'sublimes' ? 'Sublimation bound' : 'Melting point';
+  html += `<div class="info-section-title">Operating envelope</div><div class="info-metadata">`
+    + `<span class="label">Class</span><span class="value">${valueOrDash(s.material_class)}</span>`
+    + `<span class="label">Service in air</span><span class="value">${valueOrDash(s.service_temp_c)}${typeof s.service_temp_c === 'number' ? '°C' : ''}</span>`
+    + `<span class="label">${boundLabel}</span><span class="value">${valueOrDash(s.melting_point_c)}${typeof s.melting_point_c === 'number' ? '°C' : ''}</span>`
+    + `<span class="label">Thermal shock</span><span class="value">${valueOrDash(s.thermal_shock_risk)}</span>`
+    + `<span class="label">Oxidation onset</span><span class="value">${valueOrDash(s.oxidation_temp_c)}${typeof s.oxidation_temp_c === 'number' ? '°C' : ''}</span>`
+    + `<span class="label">Source quality</span><span class="value">${valueOrDash(s.source_quality)}</span>`
+    + `</div>`;
+  if (s.uncertainty_notes) html += `<div class="info-caveat">Caveat: ${escapeHtml(s.uncertainty_notes)}</div>`;
+  if (s.entry_type === 'system') html += renderSystemStack(s);
   if (!s.isStub) {
     document.getElementById("stub-overlay").style.display = "none";
   } else {
@@ -1630,22 +1543,58 @@ function updateInfoPanel() {
   // Tier A: clickable "used for" job chips — cross-navigate to peers doing the same job.
   const jobs = [...jobsForStructure(s)];
   if (jobs.length) {
+    html += `<div class="info-section-title">Use</div>`;
     html += `<div class="info-jobs"><span class="lbl">Used for</span>`;
     jobs.forEach(j => { html += `<button class="job-chip" type="button" data-job="${escapeHtml(j)}">${escapeHtml(j)}</button>`; });
     html += `</div>`;
   }
-  // Cross-page: open this material in the visual tiling gallery (renderable only).
+  // Cross-page: open renderable crystals in the visual tiling gallery. System
+  // entries are architecture records, not crystal lattices, so explain that
+  // distinction instead of linking to an empty gallery result.
   if (!s.isStub) {
-    document.getElementById("stub-overlay").style.display = "none";
-  } else {
-    document.getElementById("stub-overlay").style.display = "flex";
-    html += `<div style="margin-top:8px"><a href="lattice.html?s=${encodeURIComponent(s.name)}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="See this lattice tiled large in the visual gallery">⧫ View tiled →</a></div>`;
+    html += `<div style="margin-top:8px"><a href="lattice.html?id=${encodeURIComponent(structureKey(s))}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="See this lattice tiled large in the visual gallery">⧫ View tiled →</a></div>`;
+  } else if (s.entry_type === 'system') {
+    html += `<div style="margin-top:8px;color:var(--text-dim);font-size:10px">Layered architecture record — no single-crystal lattice to tile.</div>`;
   }
+  html += `<div class="info-actions">`
+    + `<button id="info-copy-link" type="button">Copy stable link</button>`
+    + `<button id="info-bookmark" type="button">Bookmark</button>`
+    + `<button id="info-compare" type="button">Compare</button>`
+    + `<button id="info-citation" type="button">Copy citation</button>`
+    + `<button id="info-download" type="button">Download metadata</button>`
+    + `<button id="info-atoms-csv" type="button">Atoms CSV</button>`
+    + `<button id="info-bonds-csv" type="button">Bonds CSV</button>`
+    + `</div>`;
+  html += `<div class="info-section-title">Local note</div><textarea id="info-note" class="info-note" placeholder="Private browser-local note for this material"></textarea>`;
   const detailsEl = document.getElementById('info-details');
   detailsEl.innerHTML = html;
   // Wire info-panel job chips (event delegation each render).
   detailsEl.querySelectorAll('.info-jobs .job-chip').forEach(ch => {
     ch.addEventListener('click', () => setActiveTag(ch.dataset.job));
+  });
+  document.getElementById('info-copy-link')?.addEventListener('click', copyMaterialLink);
+  const bookmark = document.getElementById('info-bookmark');
+  if (bookmark) {
+    const saved = readBookmarks();
+    bookmark.classList.toggle('bookmarked', saved.includes(structureKey(s)));
+    bookmark.textContent = saved.includes(structureKey(s)) ? 'Bookmarked' : 'Bookmark';
+    bookmark.addEventListener('click', () => toggleBookmark(s));
+  }
+  document.getElementById('info-citation')?.addEventListener('click', copyCitation);
+  document.getElementById('info-compare')?.addEventListener('click', openCompareFromInfo);
+  document.getElementById('info-download')?.addEventListener('click', downloadCurrentMetadata);
+  document.getElementById('info-atoms-csv')?.addEventListener('click', downloadAtomsCsv);
+  document.getElementById('info-bonds-csv')?.addEventListener('click', downloadBondsCsv);
+  const note = document.getElementById('info-note');
+  if (note) {
+    note.value = readMaterialNote(s);
+    note.addEventListener('input', () => saveMaterialNote(s, note.value));
+  }
+  detailsEl.querySelectorAll('.system-layer a[data-structure-idx]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      switchStructure(Number(link.dataset.structureIdx));
+    });
   });
   document.getElementById('atom-info').style.display = 'none';
   updateTransitionsPanel();
@@ -1699,6 +1648,19 @@ function updateTransitionsPanel() {
   document.getElementById('btn-transitions').textContent = transitionsExpanded ? 'Hide transitions ▴' : 'View transitions ▾';
   // Order by temperature so the chain reads top-down
   trans.sort((a, b) => (a.w[0] - b.w[0]) || (a.w[1] - b.w[1]) || (a.i - b.i));
+  const timelineLo = trans[0].w[0];
+  const timelineHi = Math.max(trans[trans.length - 1].w[1], timelineLo + 1);
+  const timelineSpan = timelineHi - timelineLo;
+  const timeline = document.getElementById('transitions-timeline');
+  if (timeline) {
+    timeline.innerHTML = trans.map(({ r, w }) => {
+      const event = !Array.isArray(r.tempRange);
+      const left = Math.max(0, ((w[0] - timelineLo) / timelineSpan) * 100);
+      const width = event ? 0 : Math.max(4, ((w[1] - w[0]) / timelineSpan) * 100);
+      const label = escapeHtml(r.phaseName || r.structure || r.to || 'transition');
+      return `<div class="transition-track${event ? ' event' : ''}" style="left:${left}%;width:${width}%" title="${label}"><span>${label}</span></div>`;
+    }).join('') + `<div class="transition-axis"><span>${Math.round(timelineLo)}°C</span><span>${Math.round(timelineHi)}°C</span></div>`;
+  }
   // List: window rows show the phase bucket; event rows show structure→to @ T
   // with type, reversibility, volume change and the citation when present.
   const list = trans.map(({ r, w }) => {
@@ -1723,7 +1685,7 @@ function updateTransitionsPanel() {
   document.getElementById('transitions-list').innerHTML = list;
   // Slider spans the whole context (windows and point events)
   const sl = document.getElementById('sl-trans-t');
-  const lo = trans[0].w[0], hi = trans[trans.length - 1].w[1];
+   const lo = timelineLo, hi = timelineHi;
   sl.min = Math.floor(lo);
   sl.max = Math.ceil(Math.max(hi, lo + 50));
   const curRow = trans.find(x => x.r.structure === s.name || (x.r.phaseName && x.r.phaseName === s.name));
@@ -1797,7 +1759,7 @@ function buildLegend() {
         if (!info || !info.color) return; // no meta yet — skip instead of crashing the legend
         const c = info.color;
         const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
-        html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
+        html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${escapeHtml(sym)} — ${escapeHtml(info.name)}</div>`;
       });
     }
     // Always show O
@@ -1817,7 +1779,7 @@ function buildLegend() {
     if (!info || !info.color) return; // no meta yet — skip instead of crashing the legend
     const c = info.color;
     const hex = '#' + new THREE.Color(c[0], c[1], c[2]).getHexString();
-    html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${sym} — ${info.name}</div>`;
+    html += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${escapeHtml(sym)} — ${escapeHtml(info.name)}</div>`;
   });
   legendDiv.innerHTML = html;
 }
@@ -1846,6 +1808,10 @@ function buildCrystal(idx) {
   clearCrystal();
   const s = data.structures[idx];
   currentIdx = idx;
+  recordRecentMaterial(s);
+  renderer.domElement.setAttribute('aria-label', `3D viewer: ${s.name}, ${s.system || 'structure'}, ${s.atoms.length} atoms`);
+  const announcer = document.getElementById('structure-announcer');
+  if (announcer) announcer.textContent = `${s.name}, ${s.formula}. ${s.atoms.length} atoms.`;
 
   // Stub structures (Phase 2 aerospace imports without 3D models yet) skip
   // geometry generation — the info panel surfaces a placeholder instead.
@@ -1864,6 +1830,9 @@ function buildCrystal(idx) {
   // Button active state
   document.querySelectorAll('#struct-list .struct-btn').forEach((btn) => {
     btn.classList.toggle('active', +btn.dataset.idx === idx);
+  });
+  document.querySelectorAll('#catalog-table .catalog-row').forEach((row) => {
+    row.classList.toggle('active', +row.dataset.idx === idx);
   });
 }
 
@@ -2707,6 +2676,7 @@ function buildCompareList() {
 function switchCompare(idx) {
   if (idx === compareIdx) return;
   compareIdx = idx;
+  recordComparison(data.structures[currentIdx], data.structures[idx]);
 
   // Update compare list button states
   document.querySelectorAll('#compare-list .struct-btn').forEach((btn, i) => {
@@ -2728,6 +2698,16 @@ function switchCompare(idx) {
   buildCompareBonds(data.structures[idx]);
   buildCompareCellWireframe(data.structures[idx]);
   updateCompareTable();
+}
+
+function recordComparison(left, right) {
+  try {
+    const pair = [structureKey(left), structureKey(right)].sort();
+    const comparisons = JSON.parse(localStorage.getItem('ct_comparisons') || '[]');
+    const key = pair.join('::');
+    const next = [key, ...comparisons.filter(item => item !== key)].slice(0, 12);
+    localStorage.setItem('ct_comparisons', JSON.stringify(next));
+  } catch (_) { /* private mode */ }
 }
 
 // Tier B.3: side-by-side property table for compare mode (current vs compare).
@@ -3220,7 +3200,7 @@ function tourTogglePause() {
 
 function encodeShareState() {
   const p = new URLSearchParams();
-  p.set('s', currentIdx);
+  p.set('id', structureKey(data.structures[currentIdx]));
   if (!showBonds) p.set('b', '0');
   if (!showCell) p.set('c', '0');
   if (showLabels) p.set('l', '1');
@@ -3234,7 +3214,10 @@ function encodeShareState() {
   if (showSymmetry) p.set('sy', '1');
   if (highlightLayers) p.set('ly', '1');
   if (showScaleRef) p.set('sr', '1');
-  if (compareMode && compareIdx >= 0) { p.set('cmp', '1'); p.set('ci', compareIdx); }
+  if (compareMode && compareIdx >= 0) {
+    p.set('cmp', '1');
+    p.set('cid', structureKey(data.structures[compareIdx]));
+  }
   if (dualTrackMode) p.set('dt', '1');
   if (showBridges) p.set('br', '1');
   if (meltMode) { p.set('mt', '1'); p.set('mp', meltProgress.toFixed(2)); }
@@ -3244,54 +3227,64 @@ function encodeShareState() {
   return p.toString();
 }
 
+function boundedNumber(value, min, max, fallback) {
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+}
+
 function applyShareState() {
   const hash = location.hash.slice(1);
   if (!hash) return;
   const p = new URLSearchParams(hash);
 
-  // Structure
-  if (p.has('s')) {
-    const idx = parseInt(p.get('s'));
-    if (idx >= 0 && idx < data.structures.length && idx !== currentIdx) switchStructure(idx);
+  // Structure. `s` remains a legacy index fallback for old shared links.
+  let requestedIdx = p.has('id') ? findStructureIndexByKey(data, p.get('id')) : -1;
+  if (requestedIdx < 0 && p.has('s')) {
+    const legacyIdx = Number.parseInt(p.get('s'), 10);
+    if (Number.isInteger(legacyIdx) && legacyIdx >= 0 && legacyIdx < data.structures.length) requestedIdx = legacyIdx;
   }
+  if (requestedIdx >= 0 && requestedIdx !== currentIdx) switchStructure(requestedIdx);
   // Display
   if (p.get('b') === '0') { showBonds = false; document.getElementById('chk-bonds').checked = false; if (bondMesh) bondMesh.visible = false; }
   if (p.get('c') === '0') { showCell = false; document.getElementById('chk-cell').checked = false; if (cellLine) cellLine.visible = false; }
   if (p.get('l') === '1') { showLabels = true; document.getElementById('chk-labels').checked = true; buildLabels(data.structures[currentIdx]); }
-  if (p.has('sc')) { worldScale = parseFloat(p.get('sc')); document.getElementById('sl-scale').value = worldScale; document.getElementById('sl-scale-val').textContent = worldScale.toFixed(1); crystalGroup.scale.setScalar(worldScale); }
-  if (p.has('as')) { atomScale = parseFloat(p.get('as')); document.getElementById('sl-atom').value = atomScale; document.getElementById('sl-atom-val').textContent = atomScale.toFixed(1); updateAtomScales(); }
+  if (p.has('sc')) { worldScale = boundedNumber(p.get('sc'), 0.3, 3, 1); document.getElementById('sl-scale').value = worldScale; document.getElementById('sl-scale-val').textContent = worldScale.toFixed(1); crystalGroup.scale.setScalar(worldScale); }
+  if (p.has('as')) { atomScale = boundedNumber(p.get('as'), 0.1, 2, 0.6); document.getElementById('sl-atom').value = atomScale; document.getElementById('sl-atom-val').textContent = atomScale.toFixed(1); updateAtomScales(); }
   if (p.get('cm') === 's') { colorMode = 'stull-roles'; document.getElementById('btn-color-mode').textContent = 'Color: Stull Roles ✓'; document.getElementById('btn-color-mode').classList.add('active'); applyColorMode(); }
   // Firing
   if (p.get('f') === '1') {
     firingMode = true; document.getElementById('chk-firing').checked = true;
     document.getElementById('temp-panel').style.display = 'flex'; document.getElementById('milestone-bar').style.display = 'block';
     document.getElementById('phase-narrative').style.display = 'block'; buildMilestoneBar();
-    if (p.has('t')) { const t = parseInt(p.get('t')); document.getElementById('temp-slider').value = t; setTemperature(t); }
+    if (p.has('t')) { const t = Math.round(boundedNumber(p.get('t'), 20, 4000, 20)); document.getElementById('temp-slider').value = t; setTemperature(t); }
   }
   if (p.get('v') === '0') { thermalVibration = false; document.getElementById('chk-vibration').checked = false; }
   // Spatial
   if (p.get('p') === '1') { showPolyhedra = true; document.getElementById('chk-polyhedra').checked = true; buildPolyhedra(); }
   if (p.get('sl') === '1') {
     sliceEnabled = true; document.getElementById('chk-slice').checked = true; document.getElementById('slice-controls').style.display = 'block';
-    if (p.has('sa')) { sliceAxis = p.get('sa'); document.getElementById('sl-slice-axis').value = sliceAxis; }
-    if (p.has('sp')) { slicePosition = parseFloat(p.get('sp')); document.getElementById('sl-slice').value = slicePosition; }
+    if (p.has('sa') && ['x', 'y', 'z'].includes(p.get('sa'))) { sliceAxis = p.get('sa'); document.getElementById('sl-slice-axis').value = sliceAxis; }
+    if (p.has('sp')) { slicePosition = boundedNumber(p.get('sp'), 0, 1, 1); document.getElementById('sl-slice').value = slicePosition; }
     updateSlicePlane();
   }
   if (p.get('sy') === '1') { showSymmetry = true; document.getElementById('chk-symmetry').checked = true; buildSymmetry(); }
   if (p.get('ly') === '1') { highlightLayers = true; document.getElementById('chk-layers').checked = true; }
   if (p.get('sr') === '1') { showScaleRef = true; document.getElementById('chk-scaleref').checked = true; buildScaleReference(); }
   // Phase 4
-  if (p.get('cmp') === '1' && p.has('ci')) {
+  if (p.get('cmp') === '1' && (p.has('cid') || p.has('ci'))) {
     compareMode = true; document.getElementById('chk-compare').checked = true;
     document.getElementById('compare-panel').style.display = 'block'; buildCompareList();
-    switchCompare(parseInt(p.get('ci')));
+    const compareTarget = p.has('cid')
+      ? findStructureIndexByKey(data, p.get('cid'))
+      : Number.parseInt(p.get('ci'), 10);
+    if (compareTarget >= 0 && compareTarget < data.structures.length) switchCompare(compareTarget);
   }
   if (p.get('dt') === '1') { dualTrackMode = true; document.getElementById('chk-dual-track').checked = true; document.getElementById('dual-tracks').style.display = 'flex'; updateDualTrack(); }
   if (p.get('br') === '1') { showBridges = true; document.getElementById('chk-bridges').checked = true; document.getElementById('bridge-legend').style.display = 'block'; buildBridgeVisualization(); }
   if (p.get('mt') === '1') {
     meltMode = true; document.getElementById('chk-melt').checked = true; document.getElementById('melt-controls').style.display = 'block';
     initMeltProgression();
-    if (p.has('mp')) { meltProgress = parseFloat(p.get('mp')); document.getElementById('sl-melt').value = meltProgress; document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%'; applyMeltProgression(); }
+    if (p.has('mp')) { meltProgress = boundedNumber(p.get('mp'), 0, 1, 0); document.getElementById('sl-melt').value = meltProgress; document.getElementById('sl-melt-val').textContent = Math.round(meltProgress * 100) + '%'; applyMeltProgression(); }
   }
   if (p.get('ox') === '1') {
     oxidationMode = true;
@@ -3356,6 +3349,110 @@ function copyShareLink() {
   const url = location.origin + location.pathname + '#' + hash;
   history.replaceState(null, '', '#' + hash);
   navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast(url));
+}
+
+function copyMaterialLink() {
+  const hash = 'id=' + encodeURIComponent(structureKey(data.structures[currentIdx]));
+  const url = location.origin + location.pathname + '#' + hash;
+  history.replaceState(null, '', '#' + hash);
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(() => showToast('Material link copied!')).catch(() => showToast(url));
+  else showToast(url);
+}
+
+function downloadCurrentMetadata() {
+  const s = data.structures[currentIdx];
+  const payload = JSON.stringify({ ...s, catalog_version: data.version, stable_id: structureKey(s) }, null, 2);
+  const href = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = href;
+  link.download = `${structureKey(s).replace(/[^a-z0-9]+/g, '-')}.json`;
+  link.click();
+  URL.revokeObjectURL(href);
+}
+
+function readBookmarks() {
+  try { return JSON.parse(localStorage.getItem('ct_bookmarks') || '[]'); }
+  catch (_) { return []; }
+}
+
+function recordRecentMaterial(structure) {
+  try {
+    const key = structureKey(structure);
+    const recent = JSON.parse(localStorage.getItem('ct_recent') || '[]').filter(item => item !== key);
+    recent.unshift(key);
+    localStorage.setItem('ct_recent', JSON.stringify(recent.slice(0, 12)));
+  } catch (_) { /* private mode */ }
+}
+
+function toggleBookmark(structure) {
+  const key = structureKey(structure);
+  const bookmarks = readBookmarks();
+  const next = bookmarks.includes(key) ? bookmarks.filter(item => item !== key) : [...bookmarks, key];
+  try { localStorage.setItem('ct_bookmarks', JSON.stringify(next)); } catch (_) { /* private mode */ }
+  updateInfoPanel();
+  showToast(next.includes(key) ? 'Material bookmarked' : 'Bookmark removed');
+}
+
+function copyCitation() {
+  const s = data.structures[currentIdx];
+  const sources = (s.sources || []).map(source => source.doi || source.url || source.id).filter(Boolean);
+  const citation = `${s.name} (${s.formula}), Ceramic Transitions catalog v${data.version}.${sources.length ? ` Sources: ${sources.join(', ')}` : ' Source details are available in the downloaded metadata.'}`;
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(citation).then(() => showToast('Citation copied!')).catch(() => showToast(citation));
+  else showToast(citation);
+}
+
+function openCompareFromInfo() {
+  const checkbox = document.getElementById('chk-compare');
+  if (!checkbox) return;
+  if (!compareMode) {
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change'));
+  }
+  document.getElementById('compare-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function downloadAtomsCsv() {
+  const s = data.structures[currentIdx];
+  const rows = ['index,element,x,y,z,radius,coordination'];
+  (s.atoms || []).forEach((atom, index) => rows.push([
+    index, atom.e, atom.x, atom.y, atom.z, atom.r ?? '', atom.cn ?? '',
+  ].join(',')));
+  const href = URL.createObjectURL(new Blob([rows.join('\n') + '\n'], { type: 'text/csv' }));
+  const link = document.createElement('a');
+  link.href = href;
+  link.download = `${structureKey(s).replace(/[^a-z0-9]+/g, '-')}-atoms.csv`;
+  link.click();
+  URL.revokeObjectURL(href);
+}
+
+function downloadBondsCsv() {
+  const s = data.structures[currentIdx];
+  const rows = ['bond_index,atom_a,element_a,atom_b,element_b,type'];
+  (s.bonds || []).forEach(([a, b], index) => rows.push([
+    index, a, s.atoms[a]?.e || '', b, s.atoms[b]?.e || '', s.bondTypes?.[index] || '',
+  ].join(',')));
+  const href = URL.createObjectURL(new Blob([rows.join('\n') + '\n'], { type: 'text/csv' }));
+  const link = document.createElement('a');
+  link.href = href;
+  link.download = `${structureKey(s).replace(/[^a-z0-9]+/g, '-')}-bonds.csv`;
+  link.click();
+  URL.revokeObjectURL(href);
+}
+
+function downloadFilteredCatalog() {
+  const rows = [['name', 'formula', 'material_class', 'service_temp_c', 'melting_point_c', 'source_status', 'renderable']];
+  document.querySelectorAll('#catalog-table .catalog-row').forEach(row => {
+    if (row.style.display === 'none') return;
+    const s = data.structures[Number(row.dataset.idx)];
+    rows.push([s.name, s.formula, s.material_class || '', s.service_temp_c ?? '', s.melting_point_c ?? '', s.source_status || '', !s.isStub ? 'yes' : 'no']);
+  });
+  const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n') + '\n';
+  const href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  const link = document.createElement('a');
+  link.href = href;
+  link.download = 'ceramictransitions-filtered-catalog.csv';
+  link.click();
+  URL.revokeObjectURL(href);
 }
 
 function showToast(msg) {
@@ -3441,6 +3538,21 @@ function takeScreenshot() {
   flash.className = 'screenshot-flash';
   document.body.appendChild(flash);
   flash.addEventListener('animationend', () => flash.remove());
+}
+
+function resetCamera() {
+  if (!camera || !controls) return;
+  camera.position.set(0, 8, 20);
+  controls.target.set(0, 0, 0);
+  controls.update();
+  crystalGroup.position.set(compareMode ? -COMPARE_OFFSET / 2 : 0, 0, 0);
+  crystalGroup.scale.setScalar(worldScale);
+  if (compareGroup) {
+    compareGroup.position.x = COMPARE_OFFSET / 2;
+    compareGroup.position.y = 0;
+    compareGroup.position.z = 0;
+    compareGroup.scale.setScalar(worldScale);
+  }
 }
 
 // ── Structure Switching ─────────────────────────────────────

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-FTP deploy for ceramictransitions.com (pixie-sh / Porkbun static hosting).
+Legacy FTP mirror deploy for ceramictransitions.com (pixie-sh / Porkbun).
+
+GitHub Pages is the authoritative production host as of 2026-10-31. This
+script is retained only for an explicitly requested secondary mirror.
 
 Mirrors the deploy pattern used for howell.help. The live site is served from
 pixie-sh (Server: openresty, X-Service: pixie-sh) — git push does NOT deploy
@@ -19,7 +22,8 @@ ENV:
 
 What gets uploaded:
     *.html in repo root
-    data/**/*.json
+    data/crystal_vr.json and data/crystal_vr.schema.json
+    generated viewer assets explicitly allowlisted by extension
     favicon / .ico / .png / .svg if present in root
 
 What gets skipped (never):
@@ -72,7 +76,7 @@ def _html_with_stamp(local: Path) -> tuple[bytes, int]:
 
 # Directories we never touch.
 SKIP_DIRS = {
-    'yfiles', 'yfiles-demo', '.git', '.github', '__pycache__',
+    'yfiles', 'yfiles-demo', '.git', '.github', '__pycache__', '.mp_cache',
     'node_modules', '.vscode', '.idea',
 }
 
@@ -95,6 +99,8 @@ def should_upload(path: Path) -> bool:
     rel = path.relative_to(ROOT)
     parts = rel.parts
     if any(p in SKIP_DIRS for p in parts):
+        return False
+    if parts[:2] == ('data', '.mp_cache'):
         return False
     if 'taichi' in str(rel).lower():
         return False

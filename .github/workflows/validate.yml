@@ -7,12 +7,38 @@ on:
       - 'lattice.html'
       - 'validate_crystal_vr.py'
       - 'test_prototype_generators.js'
+      - 'test_prototype_parity.py'
+      - 'test_deploy_artifact.py'
+      - 'test_accessibility_contract.py'
+      - 'test_viewer_smoke.py'
+      - '_build_crystal_vr_js.py'
+      - '_deploy.py'
+      - 'build_release_manifest.py'
+      - 'check_performance_budget.py'
+      - 'generate_catalog_audit.py'
+      - 'data/crystal_vr.schema.json'
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/pages.yml'
   push:
     branches: [master]
     paths:
       - 'data/**'
       - 'index.html'
       - 'lattice.html'
+      - 'validate_crystal_vr.py'
+      - 'test_prototype_generators.js'
+      - 'test_prototype_parity.py'
+      - 'test_deploy_artifact.py'
+      - 'test_accessibility_contract.py'
+      - 'test_viewer_smoke.py'
+      - '_build_crystal_vr_js.py'
+      - '_deploy.py'
+      - 'build_release_manifest.py'
+      - 'check_performance_budget.py'
+      - 'generate_catalog_audit.py'
+      - 'data/crystal_vr.schema.json'
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/pages.yml'
 
 jobs:
   validate:
@@ -24,7 +50,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: Install jsonschema
-        run: pip install jsonschema
+        run: pip install jsonschema==4.23.0
       - name: Validate data invariants
         run: python validate_crystal_vr.py
       - name: Validate against JSON Schema
@@ -43,3 +69,17 @@ jobs:
           "
       - name: Prototype generator smoke test
         run: node test_prototype_generators.js
+      - name: Prototype catalog parity
+        run: python test_prototype_parity.py
+      - name: Catalog performance budget
+        run: python check_performance_budget.py
+      - name: Deploy artifact allowlist
+        run: python test_deploy_artifact.py
+      - name: Accessibility contract
+        run: python test_accessibility_contract.py
+      - name: Generate catalog audit
+        run: python generate_catalog_audit.py --output /tmp/catalog-audit.json
+      - name: Install Chromium
+        run: sudo apt-get update && sudo apt-get install -y chromium
+      - name: Viewer browser smoke test
+        run: python test_viewer_smoke.py

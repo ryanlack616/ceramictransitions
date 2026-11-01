@@ -13,6 +13,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
 canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 
@@ -71,6 +72,9 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   #header .sub{display:none;}
   #legend{display:none;}
 }
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto !important;transition-duration:0.01ms !important;animation-duration:0.01ms !important;animation-iteration-count:1 !important;}
+}
 
 /* ── Filter bar ──────────────────────────────────────────────── */
 #filter-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:54px;z-index:21;display:flex;gap:6px;align-items:center;background:rgba(10,10,14,.92);border:1px solid var(--border);border-radius:18px;padding:5px 10px;backdrop-filter:blur(8px);}
@@ -80,6 +84,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 #filter-clear{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;}
 #filter-clear:hover{color:var(--accent);}
 .strip-btn.filtered-out{display:none !important;}
+#filter-empty{display:none;color:var(--text-dim);font:10px var(--mono);padding:6px 0;}
 
 /* ── Fatal error overlay ─────────────────────────────────────── */
 #fatal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(6,6,8,.96);z-index:300;padding:24px;text-align:center;}
@@ -129,6 +134,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
   <button id="filter-clear" title="Clear" aria-label="Clear filter">×</button>
   <span id="filter-count">—</span>
 </div>
+<div id="filter-empty" role="status">No lattices match the current filters.</div>
 
 <div id="header">
   <div style="display:flex;align-items:baseline;gap:4px">
@@ -164,8 +170,20 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 </div>
 
 <div id="legend" role="region" aria-label="Element legend"></div>
+<div id="lattice-announcer" class="sr-only" aria-live="polite"></div>
 <div id="strip" role="tablist" aria-label="Crystal structures"></div>
 
+<script>
+// file:// support: fetch() is CORS-blocked for local files, so when this page is
+// opened directly from disk (double-click) the dataset is loaded through a plain
+// <script> tag (CORS-exempt) instead. Bundle: data/crystal_vr.js
+// (regenerate with _build_crystal_vr_js.py after data/crystal_vr.json changes).
+if (location.protocol === 'file:') {
+  document.write('<script src="data/crystal_vr.js"><\/script>');
+}
+</script>
+<script src="viewer-core.js"></script>
+<script src="prototype-runtime.js"></script>
 <script type="importmap">
 {
   "imports": {
@@ -178,6 +196,8 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const { normalizeCatalog, searchTextForStructure, structureKey } = window.ViewerCore;
+const { FALLBACK_ELEMENT_META, FALLBACK_BOND_COLORS, ensureBondColorsCoverage, ensureElementsCoverage, generateAtomsFromPrototype, promoteStubsWithPrototypes, PROTOTYPE_TABLE } = window.ViewerPrototypes;
 
 /* ── Constants ─────────────────────────────────────────────── */
 const DATA_URL = 'data/crystal_vr.json';
@@ -284,214 +304,21 @@ async function init() {
   animate();
 }
 
-// Deep-link: lattice.html?s=<name|formula> opens that material tiled (the
-// flagship's "View tiled →" link targets this).
+// Deep-link: lattice.html?id=<stable-key> opens that material tiled. `s` is
+// retained as a backwards-compatible name/formula fallback.
 function selectFromUrl() {
-  const want = (new URLSearchParams(location.search).get('s') || '').trim().toLowerCase();
-  if (!want) return;
+  const params = new URLSearchParams(location.search);
+  const stableId = params.get('id') || '';
+  const legacy = (params.get('s') || '').trim().toLowerCase();
+  if (!stableId && !legacy) return;
   const list = data.renderableStructures || data.structures;
-  const i = list.findIndex(s =>
-    (s.name || '').toLowerCase() === want || (s.formula || '').toLowerCase() === want);
+  const i = stableId
+    ? list.findIndex(s => structureKey(s) === stableId)
+    : list.findIndex(s => (s.name || '').toLowerCase() === legacy || (s.formula || '').toLowerCase() === legacy);
   if (i >= 0) selectStructure(i);
 }
 
-/* ── Procedural Prototype Renderer (Phase 2.5.1 · May 15 2026) ──────────
-   Mirror of index.html generator. See index.html for full prototype catalog
-   docs. Promotes metadata-only stubs (rocksalt/fluorite/zincblende/AlB2/
-   wurtzite/hBN) into renderable structures so the lattice gallery can tile
-   them. Taichi-derived structures will override these procedural
-   approximations when available. */
-const FALLBACK_ELEMENT_META = {
-  Hf: { color: [0.55, 0.65, 0.78], radius: 1.55, mass: 178.49, name: 'Hafnium' },
-  Ta: { color: [0.46, 0.50, 0.55], radius: 1.45, mass: 180.95, name: 'Tantalum' },
-  Y:  { color: [0.55, 0.85, 0.55], radius: 1.80, mass: 88.91,  name: 'Yttrium' },
-  La: { color: [0.45, 0.85, 0.95], radius: 1.95, mass: 138.91, name: 'Lanthanum' },
-  Yb: { color: [0.30, 0.85, 0.70], radius: 1.75, mass: 173.05, name: 'Ytterbium' },
-  Ce: { color: [1.00, 0.85, 0.30], radius: 1.85, mass: 140.12, name: 'Cerium' },
-  B:  { color: [1.00, 0.71, 0.71], radius: 0.85, mass: 10.81,  name: 'Boron' },
-  N:  { color: [0.19, 0.31, 0.97], radius: 0.65, mass: 14.01,  name: 'Nitrogen' },
-};
-const PROTOTYPE_DEFS = {
-  rocksalt: {
-    basis: [
-      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
-      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
-      {role:'A',fx:0.5,fy:0,fz:0},{role:'A',fx:0,fy:0.5,fz:0},
-      {role:'A',fx:0,fy:0,fz:0.5},{role:'A',fx:0.5,fy:0.5,fz:0.5},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3], bondCutoff: ({a}) => 0.55*a, homoatomicBonds: false,
-  },
-  fluorite: {
-    basis: [
-      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
-      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
-      {role:'A',fx:0.25,fy:0.25,fz:0.25},{role:'A',fx:0.25,fy:0.25,fz:0.75},
-      {role:'A',fx:0.25,fy:0.75,fz:0.25},{role:'A',fx:0.25,fy:0.75,fz:0.75},
-      {role:'A',fx:0.75,fy:0.25,fz:0.25},{role:'A',fx:0.75,fy:0.25,fz:0.75},
-      {role:'A',fx:0.75,fy:0.75,fz:0.25},{role:'A',fx:0.75,fy:0.75,fz:0.75},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3], bondCutoff: ({a}) => 0.48*a, homoatomicBonds: false,
-  },
-  zincblende: {
-    basis: [
-      {role:'C',fx:0,fy:0,fz:0},{role:'C',fx:0,fy:0.5,fz:0.5},
-      {role:'C',fx:0.5,fy:0,fz:0.5},{role:'C',fx:0.5,fy:0.5,fz:0},
-      {role:'A',fx:0.25,fy:0.25,fz:0.25},{role:'A',fx:0.25,fy:0.75,fz:0.75},
-      {role:'A',fx:0.75,fy:0.25,fz:0.75},{role:'A',fx:0.75,fy:0.75,fz:0.25},
-    ],
-    lattice: ({a}) => [[a,0,0],[0,a,0],[0,0,a]],
-    supercell: [3,3,3], bondCutoff: ({a}) => 0.50*a, homoatomicBonds: false,
-  },
-  AlB2: {
-    basis: [
-      {role:'C',fx:0,fy:0,fz:0},
-      {role:'A',fx:1/3,fy:2/3,fz:0.5},{role:'A',fx:2/3,fy:1/3,fz:0.5},
-    ],
-    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
-    supercell: [4,4,3], bondCutoff: ({a,c}) => 0.85*a, homoatomicBonds: true,
-  },
-  wurtzite: {
-    basis: [
-      {role:'C',fx:1/3,fy:2/3,fz:0},{role:'C',fx:2/3,fy:1/3,fz:0.5},
-      {role:'A',fx:1/3,fy:2/3,fz:0.382},{role:'A',fx:2/3,fy:1/3,fz:0.882},
-    ],
-    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
-    supercell: [3,3,2], bondCutoff: ({a,c}) => Math.max(a*0.70, c*0.45), homoatomicBonds: false,
-  },
-  hBN: {
-    basis: [
-      {role:'C',fx:1/3,fy:2/3,fz:0.25},{role:'A',fx:2/3,fy:1/3,fz:0.25},
-      {role:'C',fx:2/3,fy:1/3,fz:0.75},{role:'A',fx:1/3,fy:2/3,fz:0.75},
-    ],
-    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
-    supercell: [4,4,1], bondCutoff: ({a,c}) => 0.65*a, homoatomicBonds: false,
-  },
-  si3n4: {
-    // β-Si3N4 P6₃ — 14 atoms (6 Si + 2 N + 6 N). See index.html for refs.
-    basis: [
-      {role:'C',fx:0.174,fy:0.766,fz:0.25},{role:'C',fx:0.234,fy:0.408,fz:0.25},
-      {role:'C',fx:0.592,fy:0.826,fz:0.25},{role:'C',fx:0.826,fy:0.234,fz:0.75},
-      {role:'C',fx:0.766,fy:0.592,fz:0.75},{role:'C',fx:0.408,fy:0.174,fz:0.75},
-      {role:'A',fx:1/3,  fy:2/3,  fz:0.25},{role:'A',fx:2/3,  fy:1/3,  fz:0.75},
-      {role:'A',fx:0.330,fy:0.030,fz:0.25},{role:'A',fx:0.970,fy:0.300,fz:0.25},
-      {role:'A',fx:0.700,fy:0.670,fz:0.25},{role:'A',fx:0.670,fy:0.970,fz:0.75},
-      {role:'A',fx:0.030,fy:0.700,fz:0.75},{role:'A',fx:0.300,fy:0.330,fz:0.75},
-    ],
-    lattice: ({a,c}) => [[a,0,0],[-a/2,a*Math.sqrt(3)/2,0],[0,0,c]],
-    supercell: [2,2,3], bondCutoff: ({a,c}) => 0.30*a, homoatomicBonds: false,
-  },
-};
-const PROTOTYPE_TABLE = {
-  'ZrC':{proto:'rocksalt',params:{a:4.693},cation:'Zr',anion:'C'},
-  'HfC':{proto:'rocksalt',params:{a:4.638},cation:'Hf',anion:'C'},
-  'TaC':{proto:'rocksalt',params:{a:4.456},cation:'Ta',anion:'C'},
-  'HfO2':{proto:'fluorite',params:{a:5.080},cation:'Hf',anion:'O'},
-  'ZrO2':{proto:'fluorite',params:{a:5.070},cation:'Zr',anion:'O'},
-  'ZrO2-3Y2O3':{proto:'fluorite',params:{a:5.139},cation:'Zr',anion:'O'},
-  'ZrO2-8Y2O3':{proto:'fluorite',params:{a:5.140},cation:'Zr',anion:'O'},
-  'ZrO2-CeO2':{proto:'fluorite',params:{a:5.145},cation:'Zr',anion:'O'},
-  'La2Zr2O7':{proto:'fluorite',params:{a:5.400},cation:'Zr',anion:'O'},
-  'ZrB2':{proto:'AlB2',params:{a:3.169,c:3.530},cation:'Zr',anion:'B'},
-  'HfB2':{proto:'AlB2',params:{a:3.142,c:3.476},cation:'Hf',anion:'B'},
-  'AlN':{proto:'wurtzite',params:{a:3.112,c:4.982},cation:'Al',anion:'N'},
-  'BN':{proto:'hBN',params:{a:2.504,c:6.661},cation:'B',anion:'N'},
-  'SiC':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
-  'SiC (fiber-reinforced)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
-  'SiC (reaction-bonded)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
-  'SiC (sintered)':{proto:'zincblende',params:{a:4.359},cation:'Si',anion:'C'},
-  'Si3N4':{proto:'si3n4',params:{a:7.602,c:2.907},cation:'Si',anion:'N'},
-  'Si6-xAlxOxN8-x':{proto:'si3n4',params:{a:7.659,c:2.929},cation:'Si',anion:'N'},
-};
-function _normalizeFormula(f) {
-  if (!f) return f;
-  return f
-    .replace(/[₀-₉]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x2080 + 0x30))
-    .replace(/\u2093/g, 'x')
-    .replace(/\u208B/g, '-');
-}
-function _radiusFor(el, elementsMap) {
-  return (elementsMap[el] && elementsMap[el].radius) || 0.8;
-}
-function generateAtomsFromPrototype(s, elementsMap) {
-  const entry = PROTOTYPE_TABLE[_normalizeFormula(s.formula)];
-  if (!entry) return null;
-  const def = PROTOTYPE_DEFS[entry.proto];
-  if (!def) return null;
-  const { params, cation, anion } = entry;
-  const lat = def.lattice(params);
-  const [Nx, Ny, Nz] = def.supercell;
-  const cutoff = def.bondCutoff(params);
-  const cutoff2 = cutoff * cutoff;
-  const atoms = [];
-  for (let i = 0; i < Nx; i++) for (let j = 0; j < Ny; j++) for (let k = 0; k < Nz; k++) {
-    for (const b of def.basis) {
-      const u = b.fx + i, v = b.fy + j, w = b.fz + k;
-      const x = u*lat[0][0] + v*lat[1][0] + w*lat[2][0];
-      const y = u*lat[0][1] + v*lat[1][1] + w*lat[2][1];
-      const z = u*lat[0][2] + v*lat[1][2] + w*lat[2][2];
-      const el = (b.role === 'C') ? cation : anion;
-      atoms.push({ e: el, x, y, z, r: _radiusFor(el, elementsMap), cn: 0 });
-    }
-  }
-  let cx=0,cy=0,cz=0;
-  for (const a of atoms) { cx+=a.x; cy+=a.y; cz+=a.z; }
-  cx/=atoms.length; cy/=atoms.length; cz/=atoms.length;
-  for (const a of atoms) { a.x-=cx; a.y-=cy; a.z-=cz; }
-  const bonds = [], bondTypes = [];
-  const cn = new Array(atoms.length).fill(0);
-  const allowHomo = !!def.homoatomicBonds;
-  for (let i = 0; i < atoms.length; i++) {
-    for (let j = i+1; j < atoms.length; j++) {
-      if (!allowHomo && atoms[i].e === atoms[j].e) continue;
-      const dx=atoms[i].x-atoms[j].x, dy=atoms[i].y-atoms[j].y, dz=atoms[i].z-atoms[j].z;
-      const d2 = dx*dx+dy*dy+dz*dz;
-      if (d2 < cutoff2 && d2 > 1e-6) {
-        bonds.push([i,j]);
-        bondTypes.push([atoms[i].e, atoms[j].e].sort().join('-'));
-        cn[i]++; cn[j]++;
-      }
-    }
-  }
-  for (let i = 0; i < atoms.length; i++) atoms[i].cn = cn[i];
-  return { atoms, bonds, bondTypes, cellVectors: lat, supercell: def.supercell.slice(), prototype: entry.proto };
-}
-function ensureElementsCoverage(elementsMap) {
-  for (const [sym, meta] of Object.entries(FALLBACK_ELEMENT_META)) {
-    if (!elementsMap[sym]) elementsMap[sym] = meta;
-  }
-}
-// Bond colors keyed by alphabetically-sorted pair (matches generator output).
-const FALLBACK_BOND_COLORS = {
-  'C-Hf':[0.62,0.70,0.78], 'C-Ta':[0.55,0.58,0.62], 'C-Zr':[0.60,0.72,0.80], 'C-Si':[0.70,0.70,0.55],
-  'Hf-O':[0.85,0.55,0.45], 'O-Zr':[0.85,0.60,0.45],
-  'B-Hf':[0.85,0.65,0.55], 'B-Zr':[0.90,0.70,0.55],
-  'Al-N':[0.55,0.65,0.95], 'B-N':[0.75,0.78,0.95], 'B-B':[1.00,0.71,0.71],
-  'N-Si':[0.45,0.60,0.92],
-};
-function ensureBondColorsCoverage(bondColorsMap) {
-  if (!bondColorsMap || typeof bondColorsMap !== 'object') return;
-  for (const [pair, c] of Object.entries(FALLBACK_BOND_COLORS)) {
-    if (!bondColorsMap[pair]) bondColorsMap[pair] = c;
-  }
-}
-function promoteStubsWithPrototypes(structures, elementsMap) {
-  let promoted = 0;
-  for (const s of structures) {
-    if (!s.isStub) continue;
-    const gen = generateAtomsFromPrototype(s, elementsMap);
-    if (!gen) continue;
-    s.atoms = gen.atoms; s.bonds = gen.bonds; s.bondTypes = gen.bondTypes;
-    s.cellVectors = gen.cellVectors; s.supercell = gen.supercell;
-    s.prototype = gen.prototype; s.proceduralFallback = true; s.isStub = false;
-    if (!Array.isArray(s.info)) s.info = [];
-    s.info.unshift('Procedural approximation · ' + gen.prototype + ' prototype · Phase 3 (Taichi) will replace with simulation-derived coordinates');
-    promoted++;
-  }
-  return promoted;
-}
-
+/* Shared prototype runtime: prototype-runtime.js */
 /* ── Data ──────────────────────────────────────────────────── */
 function showFatal(msg) {
   const f = document.getElementById('fatal');
@@ -504,47 +331,34 @@ function showFatal(msg) {
 async function loadData() {
   const fill = document.getElementById('loading-fill');
   fill.style.width = '30%';
-  let resp;
-  try {
-    resp = await fetch(DATA_URL, { cache: 'default' });
-  } catch (e) {
-    showFatal('Network error: ' + (e && e.message ? e.message : 'request failed') + ' · ' + DATA_URL);
-    throw e;
-  }
-  if (!resp.ok) {
-    showFatal('HTTP ' + resp.status + ' loading ' + DATA_URL);
-    throw new Error('fetch failed: ' + resp.status);
-  }
-  try {
-    data = await resp.json();
-  } catch (e) {
-    showFatal('Dataset is not valid JSON: ' + (e && e.message ? e.message : 'parse failed'));
-    throw e;
+
+  // file:// fallback — fetch() is CORS-blocked on file://; when the dataset was
+  // injected via the head <script> tag (data/crystal_vr.js), use it directly.
+  if (window.CRYSTAL_VR_DATA) {
+    data = window.CRYSTAL_VR_DATA;
+  } else {
+    let resp;
+    try {
+      resp = await fetch(DATA_URL, { cache: 'default' });
+    } catch (e) {
+      showFatal('Network error: ' + (e && e.message ? e.message : 'request failed') + ' · ' + DATA_URL);
+      throw e;
+    }
+    if (!resp.ok) {
+      showFatal('HTTP ' + resp.status + ' loading ' + DATA_URL);
+      throw new Error('fetch failed: ' + resp.status);
+    }
+    try {
+      data = await resp.json();
+    } catch (e) {
+      showFatal('Dataset is not valid JSON: ' + (e && e.message ? e.message : 'parse failed'));
+      throw e;
+    }
   }
 
-  // ── Dedupe + flag stubs (mirrors index.html normalization) ─────────────
-  if (Array.isArray(data.structures)) {
-    const seen = new Map();
-    for (const s of data.structures) {
-      const key = `${(s.name||'').trim()}|${(s.formula||'').trim()}`;
-      const prev = seen.get(key);
-      const aCount = (s.atoms && s.atoms.length) || 0;
-      const pCount = prev ? ((prev.atoms && prev.atoms.length) || 0) : -1;
-      if (!prev || aCount > pCount) seen.set(key, s);
-    }
-    data.structures = Array.from(seen.values());
-    data.structures.forEach(s => {
-      const cv = s.cellVectors;
-      const hasCell = Array.isArray(cv) && cv.length >= 3 && Array.isArray(cv[0]) && cv[0].length >= 3;
-      const hasAtoms = Array.isArray(s.atoms) && s.atoms.length > 0;
-      s.isStub = !(hasCell && hasAtoms);
-      if (!Array.isArray(s.atoms)) s.atoms = [];
-      if (!Array.isArray(s.bonds)) s.bonds = [];
-      if (!Array.isArray(s.supercell) || s.supercell.length !== 3) s.supercell = [1,1,1];
-    });
-    // Renderable structures are what this gallery can actually tile.
-    data.renderableStructures = data.structures.filter(s => !s.isStub);
-  }
+  // Normalize once so the gallery shares identity and stub rules with the
+  // flagship viewer.
+  normalizeCatalog(data);
 
   // ── Phase 2.5.1: procedural promotion of stubs ──────────────────────────
   ensureElementsCoverage(data.elements);
@@ -593,10 +407,11 @@ function setupUI() {
     btn.setAttribute('aria-label', `${s.name} (${s.formula})`);
     btn.dataset.name = (s.name||'').toLowerCase();
     btn.dataset.formula = (s.formula||'').toLowerCase();
+    btn.dataset.search = searchTextForStructure(s);
     btn.dataset.system = (s.system||'').toLowerCase();
     btn.dataset.matclass = (s.material_class||'').toLowerCase();
     btn.dataset.servicetemp = (typeof s.service_temp_c === 'number') ? String(s.service_temp_c) : '';
-    btn.innerHTML = `<span class="strip-dot" style="background:${provDotColor(s)}"></span><span class="strip-name">${s.name}</span><span class="strip-formula">${s.formula}</span>`;
+    btn.innerHTML = `<span class="strip-dot" style="background:${provDotColor(s)}"></span><span class="strip-name">${escapeHtml(s.name)}</span><span class="strip-formula">${escapeHtml(s.formula)}</span>`;
     btn.onclick = () => selectStructure(i);
     strip.appendChild(btn);
   });
@@ -617,13 +432,15 @@ function setupUI() {
     const tLabel = document.getElementById('filter-temp-val');
     if (tLabel) tLabel.textContent = 'T≥' + minT + '°C';
     strip.querySelectorAll('.strip-btn').forEach(b => {
-      const textHit = !q || b.dataset.name.includes(q) || b.dataset.formula.includes(q) || b.dataset.system.includes(q);
+      const textHit = !q || b.dataset.search.includes(q) || b.dataset.system.includes(q);
       const classHit = !cls || b.dataset.matclass === cls;
       const st = b.dataset.servicetemp ? parseInt(b.dataset.servicetemp, 10) : 9999;
       const tempHit = st >= minT;
       b.classList.toggle('filtered-out', !(textHit && classHit && tempHit));
     });
     updateFilterCount();
+    const empty = document.getElementById('filter-empty');
+    if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
   };
   fInput.addEventListener('input', applyFilter);
   document.getElementById('filter-class')?.addEventListener('change', applyFilter);
@@ -760,11 +577,14 @@ function updateInfo(idx) {
     html += `</div>`;
   }
   // Cross-page: jump to the analytical flagship view for this exact material.
-  const gIdx = (data._renderIndexMap && data._renderIndexMap[idx] != null) ? data._renderIndexMap[idx] : null;
-  if (gIdx != null) {
-    html += `<div style="margin-top:8px"><a href="index.html#s=${gIdx}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="Open this material in the analytical viewer (properties, chemistry, provenance)">⊕ Analyze this material →</a></div>`;
-  }
+  html += `<div style="margin-top:8px"><a href="index.html#id=${encodeURIComponent(structureKey(s))}" style="font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none" title="Open this material in the analytical viewer (properties, chemistry, provenance)">⊕ Analyze this material →</a></div>`;
   document.getElementById('info-stat').innerHTML = html;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 /* ── Build Crystal (Tiled) ─────────────────────────────────── */
@@ -786,6 +606,9 @@ function clearCrystal() {
 function buildCrystal(idx) {
   clearCrystal();
   const s = _currentStructure(idx);
+  renderer.domElement.setAttribute('aria-label', `Lattice viewer: ${s.name}, ${s.system || 'structure'}, ${s.atoms.length} atoms`);
+  const announcer = document.getElementById('lattice-announcer');
+  if (announcer) announcer.textContent = `${s.name}, ${s.formula}. ${s.atoms.length} atoms.`;
   const cv = s.cellVectors;
   const sc = s.supercell;
   const va = new THREE.Vector3(...cv[0]);
@@ -1078,7 +901,7 @@ function buildLegend(atoms) {
     const col = elemColors[e] || new THREE.Color(0xcccccc);
     const hex = '#' + col.getHexString();
     const info = data.elements[e];
-    const label = info ? `${e} — ${info.name}` : e;
+    const label = info ? `${escapeHtml(e)} — ${escapeHtml(info.name)}` : escapeHtml(e);
     legend.innerHTML += `<div class="legend-item"><div class="legend-swatch" style="background:${hex}"></div>${label}</div>`;
   }
 }

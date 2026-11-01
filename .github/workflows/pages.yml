@@ -14,17 +14,93 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install validation dependency
+        run: pip install jsonschema==4.23.0
+      - name: Validate data invariants
+        run: python validate_crystal_vr.py
+      - name: Validate JSON Schema
+        run: |
+          python -c "
+          import json, sys
+          from jsonschema import Draft202012Validator
+          schema = json.load(open('data/crystal_vr.schema.json'))
+          data = json.load(open('data/crystal_vr.json'))
+          errs = list(Draft202012Validator(schema).iter_errors(data))
+          if errs:
+              for e in errs[:20]:
+                  print('SCHEMA FAIL:', list(e.absolute_path), e.message)
+              sys.exit(1)
+          print('SCHEMA OK')
+          "
+      - name: Prototype generator smoke test
+        run: node test_prototype_generators.js
+      - name: Prototype catalog parity
+        run: python test_prototype_parity.py
+      - name: Catalog performance budget
+        run: python check_performance_budget.py
+      - name: Deploy artifact allowlist
+        run: python test_deploy_artifact.py
+      - name: Accessibility contract
+        run: python test_accessibility_contract.py
+      - name: Generate catalog audit
+        run: python generate_catalog_audit.py --output /tmp/catalog-audit.json
+      - name: Install Chromium
+        run: sudo apt-get update && sudo apt-get install -y chromium
+      - name: Viewer browser smoke test
+        run: python test_viewer_smoke.py
+
   deploy:
+    needs: validate
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
       - uses: actions/configure-pages@v5
+      - name: Stage public artifact
+        run: |
+          rm -rf release
+          mkdir -p release/data
+          cp index.html lattice.html viewer-core.js prototype-runtime.js CNAME release/
+          cp data/crystal_vr.json data/crystal_vr.schema.json release/data/
+          python _build_crystal_vr_js.py
+          cp data/crystal_vr.js release/data/
+          python build_release_manifest.py --output release/release-manifest.json
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: 'release'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify public artifact
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          curl --fail --silent --show-error --retry 5 "https://ceramictransitions.com/?v=${EXPECTED_SHA}" > /tmp/index.html
+          curl --fail --silent --show-error --retry 5 "https://ceramictransitions.com/lattice.html?v=${EXPECTED_SHA}" > /tmp/lattice.html
+          curl --fail --silent --show-error --retry 5 "https://ceramictransitions.com/data/crystal_vr.json?v=${EXPECTED_SHA}" > /tmp/crystal_vr.json
+          curl --fail --silent --show-error --retry 5 "https://ceramictransitions.com/release-manifest.json?v=${EXPECTED_SHA}" > /tmp/release-manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          index = Path('/tmp/index.html').read_text(encoding='utf-8')
+          lattice = Path('/tmp/lattice.html').read_text(encoding='utf-8')
+          data = json.loads(Path('/tmp/crystal_vr.json').read_text(encoding='utf-8'))
+          manifest = json.loads(Path('/tmp/release-manifest.json').read_text(encoding='utf-8'))
+          assert 'High-Temperature Ceramics' in index
+          assert 'High-Temperature Ceramic' in lattice
+          assert data['structureCount'] == 113
+          assert manifest['catalog']['entries'] == data['structureCount']
+          print('public artifact OK')
+          PY

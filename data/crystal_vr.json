@@ -3589,7 +3589,17 @@
         "refractory-brick",
         "crucible"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabwr",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabwr"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Pn-3m (from Materials Project mp-aaaaaanx, DFT-relaxed)",
@@ -8855,7 +8865,17 @@
         "pigment",
         "p-type-semiconductor"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaanx",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaanx"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P4_2/mnm (from Materials Project mp-aaaaadyf, DFT-relaxed)",
@@ -14983,7 +15003,17 @@
         "white-pigment",
         "photocatalyst"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadyf",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadyf"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "R-3c (from Materials Project mp-aaaaabrz, DFT-relaxed)",
@@ -21911,7 +21941,17 @@
         "spark-plug",
         "armor"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabrz",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabrz"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "R-3c (from Materials Project mp-aaaabdgk, DFT-relaxed)",
@@ -28907,7 +28947,17 @@
           "temp_qualifier": "above"
         }
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaabdgk",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaabdgk"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P4_2/mnm (from Materials Project mp-aaaaabgy, DFT-relaxed)",
@@ -35142,7 +35192,17 @@
         "gas-sensor",
         "tin-ore"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabgy",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabgy"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Fd-3m (from Materials Project mp-aaaabcoo, DFT-relaxed)",
@@ -41874,7 +41934,17 @@
         "magnetic-ceramic",
         "iron-ore"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaabcoo",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaabcoo"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P3_121 (from Materials Project mp-aaaaakjg, DFT-relaxed)",
@@ -46889,7 +46959,17 @@
           "note": "~0.86 vol% expansion on heating at the α→β inversion (573°C)."
         }
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaakjg",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaakjg"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Pn-3m (from Materials Project mp-aaacgdcp, DFT-relaxed)",
@@ -52177,7 +52257,17 @@
           "source": "SiO2 polymorph data - Deer, Howie & Zussman, Rock-Forming Minerals v4 (1963); R.B. Sosman, The Phases of Silica (1965)"
         }
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaacgdcp",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaacgdcp"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Orthorhombic P2₁2₁2₁ (tridymite OP, low form)",
@@ -53171,7 +53261,17 @@
         "high-temperature-ceramic",
         "polymorph-of:SiO2"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabewzm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabewzm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Pnma (from Materials Project mp-aaaaaehj, DFT-relaxed)",
@@ -58679,7 +58779,17 @@
         "high-temperature-ceramic",
         "refractory-brick"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaehj",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaehj"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Trigonal R-3 (willemite)",
@@ -63649,7 +63759,17 @@
       "application_tags": [
         "green-phosphor"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaafpt",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaafpt"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Tetragonal I4₁/amd (zircon)",
@@ -68856,7 +68976,17 @@
         "refractory",
         "decomp-to:ZrO2+SiO2"
       ],
-      "bound_type": "decomposes"
+      "bound_type": "decomposes",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaahdk",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaahdk"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "C2/c (from Materials Project mp-aaaaakag, DFT-relaxed)",
@@ -75653,7 +75783,17 @@
         "high-temperature-ceramic",
         "glass-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaakag",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaakag"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Monoclinic P2₁/c (clinoenstatite)",
@@ -78097,7 +78237,17 @@
         "high-temperature-ceramic",
         "refractory-component"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaacgbbo",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaacgbbo"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "C2/c (from Materials Project mp-aaaaajjw, DFT-relaxed)",
@@ -84503,7 +84653,17 @@
         "Li-source",
         "low-CTE-glass-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaajjw",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaajjw"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-1 (from Materials Project mp-aaaaagoj, DFT-relaxed)",
@@ -90589,7 +90749,17 @@
         "filler",
         "low-loss-microwave"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaagoj",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaagoj"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-1 (from Materials Project mp-aaabpcau, DFT-relaxed)",
@@ -96545,7 +96715,17 @@
         "feldspar",
         "flux"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabpcau",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabpcau"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-1 (from Materials Project mp-aaabnsbm, DFT-relaxed)",
@@ -102521,7 +102701,17 @@
         "feldspar",
         "flux"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabnsbm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabnsbm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Triclinic P-1 (anorthite feldspar)",
@@ -104070,7 +104260,17 @@
         "flux",
         "porcelain-component"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaajrg",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaajrg"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P6_3 (from Materials Project mp-aaacqehc, DFT-relaxed)",
@@ -109665,7 +109865,17 @@
         "feldspathoid",
         "glass-component"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaacqehc",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaacqehc"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Tetragonal I4₁/a (leucite)",
@@ -114633,7 +114843,17 @@
         "feldspathoid",
         "dental-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabfoej",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabfoej"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-42_1m (from Materials Project mp-aaaaajak, DFT-relaxed)",
@@ -121336,7 +121556,17 @@
         "slag",
         "bioceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaajak",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaajak"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-42_1m (from Materials Project mp-aaabfvyp, DFT-relaxed)",
@@ -127593,7 +127823,17 @@
         "high-temperature-ceramic",
         "cement-clinker-phase"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabfvyp",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabfvyp"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Monoclinic Cc (kaolinite layer)",
@@ -131792,7 +132032,17 @@
           "temp_c": 450
         }
       ],
-      "bound_type": "transforms"
+      "bound_type": "transforms",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabpaxc",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabpaxc"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Triclinic P-1 (talc layer)",
@@ -134450,7 +134700,17 @@
         "precursor-to:Enstatite+SiO2",
         "soft-lubricant"
       ],
-      "bound_type": "transforms"
+      "bound_type": "transforms",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabnqij",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabnqij"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Pnnm (from Materials Project mp-aaaaahav, DFT-relaxed)",
@@ -140483,7 +140743,17 @@
           "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
         }
       ],
-      "bound_type": "transforms"
+      "bound_type": "transforms",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaahav",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaahav"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-1 (from Materials Project mp-aaaaahmv, DFT-relaxed)",
@@ -146659,7 +146929,17 @@
           "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
         }
       ],
-      "bound_type": "transforms"
+      "bound_type": "transforms",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaahmv",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaahmv"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Pnma (from Materials Project mp-aaaaahhu, DFT-relaxed)",
@@ -152332,7 +152612,17 @@
           "note": "temp adopted from melting_point_c (overloaded; == service_temp_c)"
         }
       ],
-      "bound_type": "transforms"
+      "bound_type": "transforms",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaahhu",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaahhu"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Fd-3m (from Materials Project mp-aaaaafga, DFT-relaxed)",
@@ -159066,7 +159356,17 @@
         "transparent-armor",
         "refractory"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaafga",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaafga"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Mullite",
@@ -163862,7 +164162,11 @@
         "kiln-furniture",
         "refractory"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "literature-reference",
+      "sources": [],
+      "uncertainty_notes": "Reference structure record; consult the cited crystallographic source before using it for quantitative analysis.",
+      "source_quality": "literature-reference"
     },
     {
       "system": "Monoclinic P2₁/c (baddeleyite m-ZrO₂, DFT)",
@@ -169699,7 +170003,17 @@
           "source": "R.H.J. Hannink, P.M. Kelly & B.C. Muddle, Transformation Toughening in Zirconia-Containing Ceramics, J. Am. Ceram. Soc. 83 (2000) 461"
         }
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaefy",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaefy"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Tetragonal P4₂/nmc (t-ZrO₂, DFT)",
@@ -177035,7 +177349,17 @@
         "TBC-research",
         "PSZ-component"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadva",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadva"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (c-ZrO₂ fluorite, DFT)",
@@ -180349,7 +180673,17 @@
         "jewelry",
         "FSZ"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaacif",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaacif"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "P-3m1 (from Materials Project mp-aaaabstj, DFT-relaxed)",
@@ -186079,7 +186413,17 @@
         "precursor-to:MgO",
         "decomp@350C"
       ],
-      "bound_type": "decomposes"
+      "bound_type": "decomposes",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaabstj",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaabstj"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "R-3c (from Materials Project mp-aaaaafwb, DFT-relaxed)",
@@ -192059,7 +192403,17 @@
           "temp_c": 825
         }
       ],
-      "bound_type": "decomposes"
+      "bound_type": "decomposes",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaafwb",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaafwb"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "R-3 (from Materials Project mp-aaaaajol, DFT-relaxed)",
@@ -198030,7 +198384,17 @@
         "precursor-to:MgO+CaO",
         "refractory-precursor"
       ],
-      "bound_type": "decomposes"
+      "bound_type": "decomposes",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaajol",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaajol"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cccm (from Materials Project mp-aaaaajdm, DFT-relaxed)",
@@ -203337,7 +203701,17 @@
         "catalytic-converter-substrate",
         "kiln-shelf"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaajdm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaajdm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Stabilized Zirconia",
@@ -203366,7 +203740,11 @@
         "high-temperature-ceramic",
         "TBC-topcoat-legacy"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
@@ -203694,7 +204072,17 @@
           "transformType": "reconstructive",
           "source": "N.W. Jepps & T.F. Page (1983)"
         }
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-8062",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-8062"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6₃/m (β-Si₃N₄)",
@@ -204189,7 +204577,17 @@
           "note": "β-Si₃N₄ decomposes before melting (~1900°C at 1 atm N₂).",
           "source": "F.L. Riley (2000)"
         }
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-988",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-988"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -204741,7 +205139,17 @@
         "rocket-nozzle"
       ],
       "oxidation_temp_c": 1100,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-1472",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-1472"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6/mmm (AlB₂-type)",
@@ -205293,7 +205701,17 @@
         "atmospheric-reentry"
       ],
       "oxidation_temp_c": 1500,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-1994",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-1994"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -205576,7 +205994,17 @@
         "nuclear-fuel-coating"
       ],
       "oxidation_temp_c": 600,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-2795",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-2795"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -205859,7 +206287,17 @@
         "hypersonic-leading-edge"
       ],
       "oxidation_temp_c": 500,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-21075",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-21075"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (rock-salt)",
@@ -206142,7 +206580,17 @@
         "cutting-tool"
       ],
       "oxidation_temp_c": 700,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-1086",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-1086"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Yttria-Stabilized Zirconia (3 mol% Y₂O₃)",
@@ -206172,7 +206620,11 @@
         "TBC-topcoat",
         "structural-tetragonal-PSZ"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "name": "Yttria-Stabilized Zirconia (8 mol% Y₂O₃)",
@@ -206202,7 +206654,11 @@
         "TBC-topcoat-standard",
         "turbine-blade"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "name": "Ceria-Stabilized Zirconia",
@@ -206231,7 +206687,11 @@
         "high-temperature-ceramic",
         "TBC-topcoat-research"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "system": "Monoclinic P2₁/c (baddeleyite-type m-HfO₂)",
@@ -206722,7 +207182,17 @@
           "transformType": "displacive",
           "source": "J. Wang, H.P. Li & R. Stevens (1992)"
         }
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-352",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-352"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fd-3m (pyrochlore A₂B₂O₇)",
@@ -207138,7 +207608,17 @@
         "TBC-topcoat-pyrochlore",
         "lower-thermal-conductivity"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-4974",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-4974"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Ytterbium Silicate",
@@ -207691,7 +208171,17 @@
         "CMC-protection",
         "low-CTE-match-to-SiC"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-analogue",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-16969",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-16969"
+        }
+      ],
+      "source_quality": "materials-project-analogue"
     },
     {
       "name": "Ytterbium Disilicate",
@@ -209053,7 +209543,17 @@
         "CMC-protection",
         "low-CTE-match-to-SiC"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-4300",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-4300"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "SiC-SiC Ceramic Matrix Composite",
@@ -209085,7 +209585,11 @@
         "combustor-liner",
         "engine-hot-section"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "system": "Hexagonal P6₃mc (wurtzite)",
@@ -209626,7 +210130,17 @@
         "thermal-management"
       ],
       "oxidation_temp_c": 700,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-661",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-661"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6₃/mmc (graphitic h-BN)",
@@ -209899,7 +210413,17 @@
         "breakdown-insulator"
       ],
       "oxidation_temp_c": 850,
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-984",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-984"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Sialon",
@@ -209952,7 +210476,11 @@
           "note": "β′-sialon (z≈0–4.2) forms by solid-state reaction of Si₃N₄ with Al₂O₃+AlN at ~1500–1750°C; aluminium/oxygen substitute into the β-Si₃N₄ lattice keeping the structure isostructural.",
           "source": "K.H. Jack (1976); Ekström & Nygren, SiAlON ceramics, J. Am. Ceram. Soc. 75 (1992) 259"
         }
-      ]
+      ],
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
@@ -210243,7 +210771,17 @@
         "near-net-shape",
         "kiln-furniture"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "source_status": "mp-analogue",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-8062",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-8062"
+        }
+      ],
+      "source_quality": "materials-project-analogue"
     },
     {
       "system": "Cubic F-43m (3C / β-SiC, zinc-blende)",
@@ -210535,7 +211073,17 @@
         "armor",
         "kiln-furniture"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "source_status": "mp-analogue",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-8062",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-8062"
+        }
+      ],
+      "source_quality": "materials-project-analogue"
     },
     {
       "system": "Hexagonal P6₃/m (β-Si₃N₄)",
@@ -210992,7 +211540,17 @@
         "bearing-ball",
         "turbocharger-rotor"
       ],
-      "oxidation_temp_c": 1300
+      "oxidation_temp_c": 1300,
+      "source_status": "mp-analogue",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-988",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-988"
+        }
+      ],
+      "source_quality": "materials-project-analogue"
     },
     {
       "name": "Ti₃SiC₂",
@@ -211848,7 +212406,17 @@
         "oxidation-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-5659",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-5659"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Ti₃AlC₂",
@@ -212561,7 +213129,17 @@
         "damage-tolerant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-3747",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-3747"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Boron Carbide",
@@ -212772,7 +213350,17 @@
         "low-density-uhtc-companion",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-696746",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-696746"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Titanium Diboride",
@@ -213322,7 +213910,17 @@
         "wear-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-1145",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-1145"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Titanium Carbide",
@@ -213602,7 +214200,17 @@
         "cermet-base",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-631",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-631"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Niobium Carbide",
@@ -213881,7 +214489,17 @@
         "grain-refiner",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-910",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-910"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Chromium Carbide",
@@ -214213,7 +214831,17 @@
         "oxidation-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-20937",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-20937"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Tungsten Carbide",
@@ -214509,7 +215137,17 @@
         "wear-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-1894",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-1894"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Titanium Nitride",
@@ -214789,7 +215427,17 @@
         "diffusion-barrier",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-492",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-492"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Yttrium Disilicate",
@@ -216149,7 +216797,17 @@
         "cte-match-sic",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-5652",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-5652"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Yttrium Silicate",
@@ -216699,7 +217357,17 @@
         "steam-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-554420",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-554420"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Lutetium Disilicate",
@@ -217431,7 +218099,17 @@
         "cte-match-sic",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-18385",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-18385"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Gadolinium Zirconate",
@@ -217789,7 +218467,17 @@
         "cmas-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-757233",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-757233"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Molybdenum Disilicide",
@@ -218503,7 +219191,17 @@
         "oxidation-resistant",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-8938",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-8938"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Graphite",
@@ -218762,7 +219460,17 @@
         "anisotropic-conductor",
         "high-temperature-ceramic"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-48",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-48"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6₃/mmc (MAX phase, 211-type)",
@@ -219347,7 +220055,17 @@
         "max-phase",
         "damage-tolerant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaosy",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaosy"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic F-43m (zinc-blende / sphalerite-type)",
@@ -219637,7 +220355,17 @@
         "abrasive",
         "cutting-tool",
         "high-temperature-ceramic"
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaclb",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaclb"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (rock-salt NaCl-type)",
@@ -219916,7 +220644,17 @@
         "tool-coating",
         "conductive-ceramic",
         "high-temperature-ceramic"
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaacaa",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaacaa"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Monoclinic C2/c (oxyorthosilicate X₂SiO₅-type)",
@@ -220465,7 +221203,17 @@
         "ebc",
         "steam-resistant",
         "high-temperature-ceramic"
-      ]
+      ],
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaazcr",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaazcr"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "High-Entropy Carbide (Hf,Zr,Ti,Ta,Nb)C",
@@ -220496,7 +221244,10 @@
         "bondLengths": {},
         "coordDist": {}
       },
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "source_quality": "canonical-prototype"
     },
     {
       "name": "TBC System (7YSZ on Superalloy)",
@@ -220556,7 +221307,10 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "illustrative-system",
+      "sources": [],
+      "source_quality": "illustrative-architecture"
     },
     {
       "name": "EBC System (Yb₂Si₂O₇ on SiC-CMC)",
@@ -220618,7 +221372,10 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "illustrative-system",
+      "sources": [],
+      "source_quality": "illustrative-architecture"
     },
     {
       "name": "CMC Architecture (SiC/BN/SiC)",
@@ -220673,7 +221430,10 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "illustrative-system",
+      "sources": [],
+      "source_quality": "illustrative-architecture"
     },
     {
       "system": "Cubic Fm-3m (lime, rock-salt)",
@@ -225437,7 +226197,17 @@
         "lime",
         "decomposition-product-of:Calcite"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadwf",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadwf"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6₃mc (beryllia, wurtzite)",
@@ -228518,7 +229288,17 @@
         "nuclear-applications",
         "electronics-thermal-management"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadtu",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadtu"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Hexagonal P6/mmm (TaB₂, AlB₂-type)",
@@ -234414,7 +235194,17 @@
         "rocket-nozzle",
         "leading-edge"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabqq",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabqq"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "system": "Cubic Fm-3m (HfN, rock-salt)",
@@ -239179,7 +239969,17 @@
         "wear-resistant",
         "nuclear-cladding-candidate"
       ],
-      "bound_type": "melts"
+      "bound_type": "melts",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaeeu",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaeeu"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Yttrium Oxide",
@@ -244686,7 +245486,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaadya",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaadya (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 2×2×2 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaadya (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 2×2×2 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadya",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadya"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Yttrium Aluminum Garnet",
@@ -246037,7 +246847,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaaeni",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaeni (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 1×1×1 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaeni (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 1×1×1 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaeni",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaeni"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Hafnon",
@@ -251247,7 +252067,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaagvh",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaagvh (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×3 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaagvh (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×3 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaagvh",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaagvh"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Celsian",
@@ -254490,7 +255320,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaabapn",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaabapn (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 2×2×1 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaabapn (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 2×2×1 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaabapn",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaabapn"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Vanadium Carbide",
@@ -256837,7 +257677,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaabxi",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabxi (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 4×4×4 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabxi (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 4×4×4 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabxi",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabxi"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Molybdenum Carbide",
@@ -262120,7 +262970,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaachs",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaachs (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×3 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaachs (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×3 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaachs",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaachs"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "6H-SiC (α)",
@@ -263814,7 +264674,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaalhn",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaalhn (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×1 of the primitive cell, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaalhn (DFT-relaxed). 2026-10-26 deferred-additions pass; supercell 3×3×1 of the primitive cell, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaalhn",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaalhn"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Ti₂AlC (MAX)",
@@ -266539,7 +267409,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaatfq",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaatfq (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×2, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaatfq (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×2, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaatfq",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaatfq"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Ceria",
@@ -269856,7 +270736,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaabdws",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaabdws (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 4×4×4, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaabdws (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 4×4×4, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaabdws",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaabdws"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Hibonite",
@@ -274449,7 +275339,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaacrvvd",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaacrvvd (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 2×2×1, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaacrvvd (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 2×2×1, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaacrvvd",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaacrvvd"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Lanthanum Hexaboride",
@@ -279796,7 +280696,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaadzc",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaadzc (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×3, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaadzc (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×3, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaadzc",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaadzc"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Vanadium Nitride",
@@ -282144,7 +283054,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaabjp",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabjp (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 4×4×4, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabjp (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 4×4×4, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabjp",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabjp"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Barium Zirconate",
@@ -285092,7 +286012,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaafrm",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaafrm (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×3, centred at origin."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaafrm (DFT-relaxed). 2026-10-26 deep-audit pass; supercell 3×3×3, centred at origin.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaafrm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaafrm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Strontium Zirconate",
@@ -295329,7 +296259,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaafjm",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaafjm (DFT-relaxed). 2026-10-26 extras pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaafjm (DFT-relaxed). 2026-10-26 extras pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaafjm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaafjm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Calcium Zirconate",
@@ -305024,7 +305964,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaagtv",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaagtv (DFT-relaxed). 2026-10-26 extras pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaagtv (DFT-relaxed). 2026-10-26 extras pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaagtv",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaagtv"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "High-Entropy Nitride (Hf,Zr,Ti,Ta,Nb)N",
@@ -305056,7 +306006,11 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "name": "High-Entropy Boride (Hf,Zr,Ti,Ta,Nb)B₂",
@@ -305088,7 +306042,11 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "procedural-prototype",
+      "sources": [],
+      "uncertainty_notes": "Canonical prototype geometry for visual exploration; not simulation-derived for this material record.",
+      "source_quality": "canonical-prototype"
     },
     {
       "name": "Ti₂AlN (MAX nitride)",
@@ -310098,7 +311056,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaahjm",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaahjm (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaahjm (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaahjm",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaahjm"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Strontium Hafnate",
@@ -320558,7 +321526,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaaezy",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaezy (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaezy (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaezy",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaezy"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Calcium Hafnate",
@@ -330977,7 +331955,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaabqyqv",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaabqyqv (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaabqyqv (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaabqyqv",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaabqyqv"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Lanthanum Hafnate",
@@ -337970,7 +338958,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaasob",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaasob (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaasob (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaasob",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaasob"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Gadolinium Hafnate",
@@ -344963,7 +345961,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaacpssr",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaacpssr (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaacpssr (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaacpssr",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaacpssr"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Niobium Nitride",
@@ -349728,7 +350736,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaaciu",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaciu (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaaciu (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaaciu",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaaciu"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "Tantalum Nitride",
@@ -354911,7 +355929,17 @@
       },
       "isStub": false,
       "mp_id": "mp-aaaaabxf",
-      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabxf (DFT-relaxed). 2026-10-26 round-4 pass."
+      "uncertainty_notes": "Atomic coordinates from Materials Project mp-aaaaabxf (DFT-relaxed). 2026-10-26 round-4 pass.",
+      "source_status": "mp-exact",
+      "sources": [
+        {
+          "kind": "materials-project",
+          "id": "mp-aaaaabxf",
+          "title": "Materials Project structure record",
+          "url": "https://materialsproject.org/materials/mp-aaaaabxf"
+        }
+      ],
+      "source_quality": "materials-project"
     },
     {
       "name": "C/C Composite (Carbon-Carbon)",
@@ -354971,7 +355999,11 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "illustrative-system",
+      "sources": [],
+      "uncertainty_notes": "Illustrative layered architecture; layer thicknesses and geometry vary by process and application.",
+      "source_quality": "illustrative-architecture"
     },
     {
       "name": "Oxide-Oxide CMC (Nextel 610 / α-Al₂O₃ + BAS)",
@@ -355026,7 +356058,11 @@
       "stats": {
         "bondLengths": {},
         "coordDist": {}
-      }
+      },
+      "source_status": "illustrative-system",
+      "sources": [],
+      "uncertainty_notes": "Illustrative layered architecture; layer thicknesses and geometry vary by process and application.",
+      "source_quality": "illustrative-architecture"
     }
   ],
   "elements": {

@@ -1,6 +1,19 @@
 # Ceramics Aerospace Materials Integration — Complete Project Plan
-**Status:** Tier D + Structure Audit COMPLETE (Oct 26, 2026) | Updated: October 26, 2026  
+**Status:** Tier D + Structure Audit COMPLETE (Oct 26, 2026) | Updated: October 26, 2026
 **Scope:** howell-help (28 aerospace materials) + ceramictransitions (3D viewer integration)
+
+> **Current planning note:** `MASTER_TASKS.md` is the current actionable backlog.
+> This file is an append-only historical journal and contains older counts,
+> deployment decisions, and roadmap snapshots that may no longer describe the
+> current repository.
+
+> **Current verified snapshot (2026-11-01):** the catalog contains 113 entries
+> with 99 baked structures, 9 procedural candidates, and 5 illustrative system
+> records. GitHub Pages is authoritative; the current release checks include
+> JSON Schema, geometry/stoichiometry validation, shared-runtime parity,
+> browser/mobile smoke tests, deploy allowlisting, accessibility contracts, and
+> performance budgets. Use `BUILD.md` for operations and `MASTER_TASKS.md` for
+> current execution status.
 
 ---
 
