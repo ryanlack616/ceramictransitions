@@ -89,15 +89,6 @@
         pointerId: event.pointerId,
         dx: event.clientX - rect.left,
         dy: event.clientY - rect.top,
-        beforeStyles: {
-          left: panel.style.left,
-          top: panel.style.top,
-          right: panel.style.right,
-          bottom: panel.style.bottom,
-          transform: panel.style.transform,
-          moved: panel.classList.contains('panel-moved'),
-        },
-        beforeLayout: layout[panel.id] ? { ...layout[panel.id] } : undefined,
       };
       panel.setPointerCapture(event.pointerId);
       panel.style.right = 'auto';
@@ -123,28 +114,19 @@
       grip.classList.remove('dragging');
       writeLayout(layout);
     };
-    const cancelDrag = event => {
+    const finishDrag = event => {
       if (!drag) return;
       if (event) event.preventDefault();
       try { panel.releasePointerCapture(drag.pointerId); } catch (_) { /* already released */ }
-      const before = drag.beforeStyles;
-      panel.style.left = before.left;
-      panel.style.top = before.top;
-      panel.style.right = before.right;
-      panel.style.bottom = before.bottom;
-      panel.style.transform = before.transform;
-      panel.classList.toggle('panel-moved', before.moved);
-      if (drag.beforeLayout) layout[panel.id] = drag.beforeLayout;
-      else delete layout[panel.id];
       drag = null;
       grip.classList.remove('dragging');
       writeLayout(layout);
     };
     grip.addEventListener('pointerup', endDrag);
     grip.addEventListener('pointercancel', endDrag);
-    dragHandle.addEventListener('contextmenu', cancelDrag);
+    dragHandle.addEventListener('contextmenu', finishDrag);
     window.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && drag) cancelDrag(event);
+      if (event.key === 'Escape' && drag) finishDrag(event);
     });
     grip.addEventListener('dblclick', event => {
       if (event.target.closest('button')) return;
