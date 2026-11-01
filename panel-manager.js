@@ -83,8 +83,22 @@
     let drag = null;
     const dragHandle = grip.querySelector('.panel-drag-icon');
     dragHandle.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
       const rect = panel.getBoundingClientRect();
-      drag = { pointerId: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
+      drag = {
+        pointerId: event.pointerId,
+        dx: event.clientX - rect.left,
+        dy: event.clientY - rect.top,
+        beforeStyles: {
+          left: panel.style.left,
+          top: panel.style.top,
+          right: panel.style.right,
+          bottom: panel.style.bottom,
+          transform: panel.style.transform,
+          moved: panel.classList.contains('panel-moved'),
+        },
+        beforeLayout: layout[panel.id] ? { ...layout[panel.id] } : undefined,
+      };
       panel.setPointerCapture(event.pointerId);
       panel.style.right = 'auto';
       panel.style.bottom = 'auto';
@@ -109,8 +123,29 @@
       grip.classList.remove('dragging');
       writeLayout(layout);
     };
+    const cancelDrag = event => {
+      if (!drag) return;
+      if (event) event.preventDefault();
+      try { panel.releasePointerCapture(drag.pointerId); } catch (_) { /* already released */ }
+      const before = drag.beforeStyles;
+      panel.style.left = before.left;
+      panel.style.top = before.top;
+      panel.style.right = before.right;
+      panel.style.bottom = before.bottom;
+      panel.style.transform = before.transform;
+      panel.classList.toggle('panel-moved', before.moved);
+      if (drag.beforeLayout) layout[panel.id] = drag.beforeLayout;
+      else delete layout[panel.id];
+      drag = null;
+      grip.classList.remove('dragging');
+      writeLayout(layout);
+    };
     grip.addEventListener('pointerup', endDrag);
     grip.addEventListener('pointercancel', endDrag);
+    dragHandle.addEventListener('contextmenu', cancelDrag);
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && drag) cancelDrag(event);
+    });
     grip.addEventListener('dblclick', event => {
       if (event.target.closest('button')) return;
       resetPanel(panel, layout);
