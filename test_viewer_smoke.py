@@ -76,6 +76,8 @@ def main() -> int:
                 raise AssertionError("index.html did not render the first structure")
             if 'data-idx="112"' not in first:
                 raise AssertionError("index.html did not build the complete structure list")
+            if 'id="lattice-gallery-link" href="lattice.html?id=periclase%7Cmgo"' not in first:
+                raise AssertionError("index-to-lattice link did not preserve the selected material")
 
             shared = dump_dom(f"{base}/index.html#id=hafnium%20carbide%7Chfc")
             if 'id="info-name">Hafnium Carbide</div>' not in shared:

@@ -142,7 +142,7 @@ canvas{display:block;position:fixed;top:0;left:0;z-index:0;}
     <span class="sub" id="structure-count-sub">Loading structures…</span>
   </div>
   <div style="display:flex;gap:14px;align-items:center;">
-    <a href="index.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">← Crystal Viewer</a>
+    <a id="crystal-viewer-link" href="index.html" style="font-size:11px;font-family:monospace;color:#7ecfdf;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">← Crystal Viewer</a>
   </div>
 </div>
 
@@ -485,6 +485,9 @@ function setupUI() {
 
 function selectStructure(idx) {
   currentIdx = idx;
+  const selected = _currentStructure(idx);
+  const viewerLink = document.getElementById('crystal-viewer-link');
+  if (viewerLink && selected) viewerLink.href = `index.html#id=${encodeURIComponent(structureKey(selected))}`;
   const btns = document.querySelectorAll('.strip-btn');
   btns.forEach((b, i) => {
     const on = (i === idx);

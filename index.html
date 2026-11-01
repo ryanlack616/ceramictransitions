@@ -282,7 +282,7 @@ label.opt input{accent-color:var(--accent);}
       <button id="tier-pro" type="button" aria-pressed="false" title="Pro view — all spatial + chemistry tools">Pro</button>
     </div>
     <div class="tier-hint" id="tier-hint">Simple view. Switch to Pro for spatial &amp; chemistry tools.</div>
-    <a href="lattice.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:4px 0 2px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Lattice Gallery</a>
+    <a id="lattice-gallery-link" href="lattice.html" style="display:block;font-size:10px;font-family:var(--mono);color:var(--accent);text-decoration:none;margin:4px 0 2px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">→ Lattice Gallery</a>
     <h3>Filter</h3>
     <input type="search" id="filter-name" placeholder="Search name, formula, or use…" autocomplete="off" spellcheck="false" aria-label="Search structures" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;">
     <select id="filter-class" style="width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:10px;margin-bottom:4px;">
@@ -1809,6 +1809,8 @@ function buildCrystal(idx) {
   const s = data.structures[idx];
   currentIdx = idx;
   recordRecentMaterial(s);
+  const latticeLink = document.getElementById('lattice-gallery-link');
+  if (latticeLink) latticeLink.href = `lattice.html?id=${encodeURIComponent(structureKey(s))}`;
   renderer.domElement.setAttribute('aria-label', `3D viewer: ${s.name}, ${s.system || 'structure'}, ${s.atoms.length} atoms`);
   const announcer = document.getElementById('structure-announcer');
   if (announcer) announcer.textContent = `${s.name}, ${s.formula}. ${s.atoms.length} atoms.`;
