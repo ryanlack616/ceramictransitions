@@ -1,0 +1,31 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-11-01T05:13:40.638666Z",
+  "source_revision": "38681b4",
+  "deployment_target": "github-pages",
+  "build": {
+    "validation_required": true,
+    "generated_bundle": "data/crystal_vr.js",
+    "artifact_staging": "release/"
+  },
+  "catalog": {
+    "version": 3,
+    "entries": 113,
+    "baked_renderable": 99,
+    "procedural_candidates": 9,
+    "system_entries": 5,
+    "metadata_only_after_promotion": 5,
+    "materials_project_records": 98,
+    "transition_entries": 13,
+    "transition_rows": 29
+  },
+  "public_files": [
+    "index.html",
+    "lattice.html",
+    "CNAME",
+    "data/crystal_vr.json",
+    "data/crystal_vr.js",
+    "data/crystal_vr.schema.json",
+    "release-manifest.json"
+  ]
+}
